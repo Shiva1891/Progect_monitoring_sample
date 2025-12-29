@@ -35,9 +35,11 @@ app.get("/", (req, res) => {
 /* ===============================
    ✅ GET APIs
 ================================ */
-app.get("/projects", (req, res) => {
-    db.query("SELECT * FROM projects", (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
+app.get("/projects", async (req, res) => {
+    try {
+        if (!db) return res.status(503).json({ error: "DB not ready" });
+
+        const [rows] = await db.query("SELECT * FROM projects");
 
         const formatted = rows.map(r => ({
             ...r,
@@ -46,7 +48,9 @@ app.get("/projects", (req, res) => {
         }));
 
         res.json(formatted);
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.get("/designers", (req, res) => {
@@ -56,12 +60,18 @@ app.get("/designers", (req, res) => {
     });
 });
 
-app.get("/customers", (req, res) => {
-    db.query("SELECT * FROM customers", (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
+app.post("/customers", async (req, res) => {
+    try {
+        const [result] = await db.query(
+            "INSERT INTO customers (all_customers) VALUES (?)",
+            [req.body.all_customers]
+        );
+        res.json({ id: result.insertId });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
+
 
 app.get("/live_projects", (req, res) => {
     db.query("SELECT * FROM live_projects", (err, rows) => {
@@ -354,6 +364,7 @@ app.get("/_admin/db-fix", async (req, res) => {
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
 
 
 
