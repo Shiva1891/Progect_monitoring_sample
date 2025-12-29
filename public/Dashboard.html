@@ -181,7 +181,7 @@
             vmcDropdown.innerHTML = "";
             vmcDropdown.classList.remove("hidden");
 
-            fetch(`http://${HOST}:${PORT}/employee`)
+            fetch(`/employee`)
                 .then(res => res.json())
                 .then(data => {
 
@@ -3112,6 +3112,7 @@
     </script>
 </body>
 </html>
+
 
 
 
