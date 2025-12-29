@@ -1,23 +1,6 @@
 const express = require("express");
-const mysql = require("mysql2");
 const app = express();
 app.use(express.json());
-
-const db = mysql.createPool({
-  host: process.env.MYSQLHOST,
-  user: process.env.MYSQLUSER,
-  password: process.env.MYSQLPASSWORD,
-  database: process.env.MYSQLDATABASE,
-  port: process.env.MYSQLPORT
-});
-
-db.query("SELECT 1", (err) => {
-  if (err) {
-    console.error("❌ DB error:", err);
-  } else {
-    console.log("✅ MySQL connected");
-  }
-});
 
 app.get("/", (req, res) => {
   res.send("API running");
@@ -26,5 +9,6 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server started");
 });
+
 
 
