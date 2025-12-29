@@ -446,7 +446,7 @@
             console.log("Sending project:", newProject);
 
             // POST to backend API
-            fetch(`http://${HOST}:${PORT}/projects`, {
+            fetch(`/projects`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newProject)
@@ -505,7 +505,7 @@
 
         let selectitem = null;
         function loadAPI() {
-            fetch(`http://${HOST}:${PORT}/projects`)
+            fetch(`/projects`)
                 .then(res => res.json())
                 .then(data => {
 
@@ -648,10 +648,10 @@
         //status of designers projects
         async function showdesigners() {
             try {
-                const projRes = await fetch(`http://${HOST}:${PORT}/projects`);
+                const projRes = await fetch(`/projects`);
                 const projects = await projRes.json();
 
-                const liveRes = await fetch(`http://${HOST}:${PORT}/live_projects`);
+                const liveRes = await fetch(`/live_projects`);
                 const liveProjects = await liveRes.json();
 
                 const container = document.getElementById("designersprojects");
@@ -785,8 +785,8 @@
         async function loadLiveProjects() {
             try {
                 const [resLive, resProjects] = await Promise.all([
-                    fetch(`http://${HOST}:${PORT}/live_projects`),
-                    fetch(`http://${HOST}:${PORT}/projects`)
+                    fetch(`/live_projects`),
+                    fetch(`/projects`)
                 ]);
                 if (!resLive.ok || !resProjects.ok) throw new Error("API fetch failed");
                 const liveDataRaw = await resLive.json();
@@ -935,8 +935,8 @@
         async function loadProcessPage(processName, containerId) {
             try {
                 const [resLive, resProjects] = await Promise.all([
-                    fetch(`http://${HOST}:${PORT}/live_projects`),
-                    fetch(`http://${HOST}:${PORT}/projects`)
+                    fetch(`/live_projects`),
+                    fetch(`/projects`)
                 ]);
 
                 if (!resLive.ok || !resProjects.ok)
@@ -1174,8 +1174,8 @@
             try {
 
                 const [resLive, resProjects] = await Promise.all([
-                    fetch(`http://${HOST}:${PORT}/live_projects`),
-                    fetch(`http://${HOST}:${PORT}/projects`)
+                    fetch(`/live_projects`),
+                    fetch(`/projects`)
                 ]);
 
                 if (!resLive.ok || !resProjects.ok)
@@ -2200,7 +2200,7 @@
             project.expected_date = autoAddWithSequence(project.expected_date, "expected_date", toDate);
 
             // PUT updated project
-            fetch(`http://${HOST}:${PORT}/projects/${id}`, {
+            fetch(`/projects/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -2233,7 +2233,7 @@
             const jobno = reworkjobnoInput.value;
 
             // 1️⃣ Fetch live_projects rows for this jobno
-            const res = await fetch(`http://${HOST}:${PORT}/live_projects?jobno=${jobno}`);
+            const res = await fetch(`/live_projects?jobno=${jobno}`);
             const liveRows = await res.json();
 
             if (!Array.isArray(liveRows) || liveRows.length === 0) {
@@ -2273,7 +2273,7 @@
                 });
 
                 // 3️⃣ PUT back updated JSON row
-                await fetch(`http://${HOST}:${PORT}/live_projects/${row.id}`, {
+                await fetch(`/live_projects/${row.id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(updatedData)
@@ -2317,7 +2317,7 @@
         // Load customers from API
         async function loadcustomers() {
             try {
-                const res = await fetch(`http://${HOST}:${PORT}/customers`);
+                const res = await fetch(`/customers`);
                 if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
                 customers = await res.json();
             } catch (err) {
@@ -2421,7 +2421,7 @@
             if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
 
             try {
-                const response = await fetch(`http://${HOST}:${PORT}/customers/${id}`, {
+                const response = await fetch(`/customers/${id}`, {
                     method: "DELETE"
                 });
 
@@ -2474,7 +2474,7 @@
             newname = newname.toUpperCase();
 
             try {
-                const response = await fetch(`http://${HOST}:${PORT}/customers`, {
+                const response = await fetch(`/customers`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ all_customers: newname })
@@ -2602,13 +2602,13 @@
 
         async function employeeheadersfunction() {
 
-            employeeheaders = await fetch(`http://${HOST}:${PORT}/employee/headers`)
+            employeeheaders = await fetch(`/employee/headers`)
                 .then(r => r.json());
         }
 
         async function employeedatafunction() {
 
-            employeedata = await fetch(`http://${HOST}:${PORT}/employee`).then(r => r.json());
+            employeedata = await fetch(`/employee`).then(r => r.json());
         }
 
         async function renderEmployees(col, listBox) {
@@ -2767,7 +2767,7 @@
                 payload[col][0].user_type = userType.value.toUpperCase();
             }
 
-            fetch(`http://${HOST}:${PORT}/employee/${employeeId}`, {
+            fetch(`/employee/${employeeId}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -2781,7 +2781,7 @@
         async function deleteEmployee(col, employeeId) {
             if (!confirm("Delete this employee?")) return;
 
-            await fetch(`http://${HOST}:${PORT}/employee/${employeeId}`, {
+            await fetch(`/employee/${employeeId}`, {
                 method: "DELETE"
             });
 
@@ -3084,7 +3084,7 @@
         async function loadProcesses(name) {
             const procname = name.trim().toUpperCase();
 
-            const res = await fetch(`http://${HOST}:${PORT}/processes`);
+            const res = await fetch(`/processes`);
             const processes = await res.json();
 
             const productions = [];
@@ -3121,6 +3121,7 @@
     </script>
 </body>
 </html>
+
 
 
 
