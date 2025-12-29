@@ -350,7 +350,16 @@ app.delete("/employee/:id", (req, res) => {
     });
 });
 
+app.get("/_admin/db-fix", async (req, res) => {
+    await db.query(`
+        ALTER TABLE projects
+        MODIFY jobno VARCHAR(255) NULL
+    `);
+    res.send("DB updated");
+});
+
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
 
