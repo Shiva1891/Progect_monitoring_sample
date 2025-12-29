@@ -9,28 +9,37 @@ const mysql = require("mysql2/promise");
 
 let db;
 
-(async () => {
+async function startServer() {
   try {
     console.log("Attempting to connect to database...");
+
+    if (!process.env.DATABASE_URL) {
+      throw new Error("DATABASE_URL is missing");
+    }
 
     db = await mysql.createPool({
       uri: process.env.DATABASE_URL,
       waitForConnections: true,
       connectionLimit: 10,
-      queueLimit: 0
+      connectTimeout: 10000
     });
 
     await db.query("SELECT 1");
     console.log("✅ Database connected successfully");
-  } catch (err) {
-    console.error("❌ Database connection failed:", err.message);
-  }
-})();
 
-// Serve index.html on root
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "Dashboard.html"));
-});
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () =>
+      console.log(`🚀 Server running on port ${PORT}`)
+    );
+
+  } catch (err) {
+    console.error("❌ FATAL DB ERROR:", err.message);
+    process.exit(1); // IMPORTANT
+  }
+}
+
+startServer();
+
 
 /* ===============================
    ✅ GET APIs
@@ -364,6 +373,7 @@ app.get("/_admin/db-fix", async (req, res) => {
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
 
 
 
