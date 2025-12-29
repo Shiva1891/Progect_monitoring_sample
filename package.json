@@ -1,17 +1,3 @@
-{
-  "name": "agtek",
-  "version": "1.0.0",
-  "description": "",
-  "main": "projects_server.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "eslint": "^9.39.1",
-    "tailwindcss": "^4.1.17"
-  },
-  "type": "commonjs"
+"scripts": {
+  "start": "node index.js"
 }
