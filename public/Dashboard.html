@@ -1285,8 +1285,8 @@
         async function loadassemblyProjects() {
             try {
                 const [resLive, resProjects] = await Promise.all([
-                    fetch(`http://${HOST}:${PORT}/live_projects`),
-                    fetch(`http://${HOST}:${PORT}/projects`)
+                    fetch(`/live_projects`),
+                    fetch(`/projects`)
                 ]);
 
                 if (!resLive.ok || !resProjects.ok)
@@ -1414,8 +1414,8 @@
         async function loaddeliveryProjects() {
             try {
                 const [resLive, resProjects] = await Promise.all([
-                    fetch(`http://${HOST}:${PORT}/live_projects`),
-                    fetch(`http://${HOST}:${PORT}/projects`)
+                    fetch(`/live_projects`),
+                    fetch(`/projects`)
                 ]);
 
                 if (!resLive.ok || !resProjects.ok)
@@ -1511,7 +1511,7 @@
         }
 
         async function buildProcessSections() {
-            const res = await fetch("http://192.168.0.200:4000/processes");
+            const res = await fetch("/processes");
             const processes = await res.json();
 
             const wrapper = document.getElementById("processWrapper");
@@ -1678,11 +1678,11 @@
             loaddeliveryProcessButtons();
             loadassemblyProcessButtons();
             let customers = [];
-            let currentprocess = null;
-            let processBtn = null;
-            let processId = null;
-            let currentSection = null;
-            let currentBtn = null; 
+            let currentprocess = [];
+            let processBtn = [];
+            let processId = [];
+            let currentSection = [];
+            let currentBtn = []; 
         };
     </script>
 
@@ -3112,6 +3112,7 @@
     </script>
 </body>
 </html>
+
 
 
 
