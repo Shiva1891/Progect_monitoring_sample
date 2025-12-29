@@ -1,10 +1,6 @@
 const express = require("express");
-const cors = require("cors");
-const mysql = require("mysql2");
-const fs = require("fs");
 
 const app = express();
-app.use(cors());
 app.use(express.json());
 /* ===============================
    ✅ MySQL CONNECTION POOL
@@ -349,6 +345,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Server started on port", PORT);
 });
+
 
 
 
