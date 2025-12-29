@@ -104,7 +104,7 @@
                 // Load only when opening
                 if (dropdown.classList.contains("hidden")) return;
 
-                fetch(`http://${HOST}:${PORT}/employee`)
+                fetch(`/employee`)
                     .then(res => res.json())
                     .then(data => {
 
@@ -320,7 +320,7 @@
         // ✅ pre set project status at LINE
         function setpriority() {
             if (!selectitem) return alert("No ID selected!");
-            fetch(`http://${HOST}:${PORT}/projects/${selectitem}`, {
+            fetch(`/projects/${selectitem}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ jobno: selectjob, overallstatus: "PRIORITY" })
@@ -425,7 +425,7 @@
                 project_name: projectname,
                 customer: customername,
                 contact_person: contactperson,
-                quantity: autoAddWithSequence(null, "quantity", parchaseqty),
+                quantity: autoAddWithSequence(null, "quantity", Number(parchaseqty) || 0 ),
                 expected_date: autoAddWithSequence(null, "expected_date", todate),
                 overallstatus: "ALLOCATE"
             };
@@ -3112,6 +3112,7 @@
     </script>
 </body>
 </html>
+
 
 
 
