@@ -1,9 +1,3 @@
-{
-  "name": "project_monitoring_sample",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
+"scripts": {
     "start": "node index.js"
   }
-}
-
