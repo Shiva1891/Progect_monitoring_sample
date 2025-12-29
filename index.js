@@ -5,34 +5,27 @@ const app = express();
 app.use(express.json());
 
 // Serve static files from 'public'
-app.use(express.static("public"));
+const mysql = require("mysql2/promise");
 
 let db;
-if (process.env.MYSQLHOST && process.env.MYSQLUSER && process.env.MYSQLDATABASE) {
+
+(async () => {
   try {
-    const mysql = require("mysql2");
-    db = mysql.createPool({
-      host: process.env.MYSQLHOST,
-      user: process.env.MYSQLUSER,
-      password: process.env.MYSQLPASSWORD,
-      database: process.env.MYSQLDATABASE,
-      port: process.env.MYSQLPORT || 3306
+    console.log("Attempting to connect to database...");
+
+    db = await mysql.createPool({
+      uri: process.env.DATABASE_URL,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
     });
 
-    db.getConnection((err, connection) => {
-      if (err) {
-        console.error("❌ DB connection failed. Check Railway env vars.", err);
-      } else {
-        console.log("✅ MySQL connected");
-        connection.release();
-      }
-    });
+    await db.query("SELECT 1");
+    console.log("✅ Database connected successfully");
   } catch (err) {
-    console.warn("⚠️ mysql2 module not installed. DB routes disabled.");
+    console.error("❌ Database connection failed:", err.message);
   }
-} else {
-  console.warn("⚠️ DB environment variables not set. DB routes disabled.");
-}
+})();
 
 // Serve index.html on root
 app.get("/", (req, res) => {
@@ -361,6 +354,7 @@ app.get("/_admin/db-fix", async (req, res) => {
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
 
 
 
