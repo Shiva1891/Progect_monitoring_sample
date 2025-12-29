@@ -19,10 +19,7 @@ async function connectDB() {
     console.log("Attempting to connect to database...");
 
     db = await mysql.createPool({
-      uri: process.env.DATABASE_URL, // Railway MySQL URL
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
+      uri: process.env.MYSQL_URL || process.env.DATABASE_URL, // Railway MySQL URL
     });
 
     await db.query("SELECT 1");
@@ -148,3 +145,4 @@ async function startServer() {
 }
 
 startServer();
+
