@@ -1,6 +1,6 @@
-"dependencies": {
-  "express": "^4.19.2"
-}
 "scripts": {
     "start": "node index.js"
   }
+"dependencies": {
+  "express": "^4.19.2"
+}
