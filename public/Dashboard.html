@@ -45,9 +45,8 @@
     </script>
     
     <script>
-        const PORT = "3306";
-
-        const HOST = "mysql.railway.internal";
+        const PORT = process.env.MYSQLPORT || 3306;
+        const HOST = process.env.MYSQLHOST;
 
         const allNames = [];
 
@@ -3122,4 +3121,5 @@
     </script>
 </body>
 </html>
+
 
