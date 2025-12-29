@@ -45,9 +45,6 @@
     </script>
     
     <script>
-        const PORT = 3306;
-        const HOST = mysql.railway.internal;
-
         const allNames = [];
 
         function extractNamesFromObject(obj) {
@@ -248,13 +245,6 @@
                 });
         }
 
-
-         
-
-        let currentSection = null;
-        let currentBtn = null;   // 👈 add this
-        
-
         function updatestatus(processName, btn) {
             const manufacturing = document.getElementById("manufacturing");
             const sectionId = processName.toLowerCase();
@@ -297,10 +287,6 @@
             currentSection = section;
             currentBtn = btn;   // 👈 store active button
         }
-
-        let currentprocess = null;
-        let processBtn = null;
-        let processId = null;
 
         function operatorpage(processName, pbtn) {
             
@@ -1692,6 +1678,11 @@
             loaddeliveryProcessButtons();
             loadassemblyProcessButtons();
             let customers = [];
+            let currentprocess = null;
+            let processBtn = null;
+            let processId = null;
+            let currentSection = null;
+            let currentBtn = null; 
         };
     </script>
 
@@ -2072,7 +2063,7 @@
         /* Fetch projects once */
         async function loadProjects() {
             try {
-                const res = await fetch(`http://${HOST}:${PORT}/projects`);;
+                const res = await fetch(`/projects`);;
                 projects = await res.json();
             } catch (err) {
                 console.error("Failed to load projects", err);
@@ -3121,6 +3112,7 @@
     </script>
 </body>
 </html>
+
 
 
 
