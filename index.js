@@ -1,9 +1,6 @@
 const express = require("express");
-const cors = require("cors");
-const mysql = require("mysql2");
 
 const app = express();
-app.use(cors());
 app.use(express.json());
 
 const db = mysql.createPool({
@@ -29,3 +26,4 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server started");
 });
+
