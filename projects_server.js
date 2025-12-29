@@ -10,25 +10,19 @@ app.use(express.json());
 /* ===============================
    ✅ MySQL CONNECTION POOL
 ================================ */
+const mysql = require("mysql2");
+
 const db = mysql.createPool({
-    host: "localhost",
-    user: "root",
-    password: "Se27071997@1891",
-    database: "project_db",
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,
+  port: process.env.MYSQLPORT,
+  waitForConnections: true,
+  connectionLimit: 10,
 });
 
-// Test DB connection
-db.getConnection((err, conn) => {
-    if (err) {
-        console.error("❌ MySQL Connection Failed:", err);
-        return;
-    }
-    console.log("✅ MySQL Pool Connected");
-    conn.release();
-});
+module.exports = db;
 
 /* ===============================
    ✅ GET APIs
@@ -355,3 +349,4 @@ const PORT = 4000;
 app.listen(PORT, "0.0.0.0", () => {
     console.log(`✅ API running on http://0.0.0.0:${PORT}`);
 });
+
