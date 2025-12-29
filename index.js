@@ -79,6 +79,26 @@ app.get("/employee", async (req, res) => {
 /* ===============================
    ✅ POST APIs
 ================================ */
+app.post("/projects", (req, res) => {
+    const t = req.body;
+
+    const sql = `
+        INSERT INTO projects
+        (jobno, project_type, enquery_date, project_name, customer, contact_person, quantity,
+         expected_date, designer_name, design_start_date, design_end_date, overallstatus)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    db.query(sql, [
+        t.jobno, JSON.stringify(t.project_type), JSON.stringify(t.enquery_date), t.project_name, t.customer,
+        t.contact_person, JSON.stringify(t.quantity), JSON.stringify(t.expected_date),
+        JSON.stringify(t.designer_name), JSON.stringify(t.design_start_date), JSON.stringify(t.design_end_date), t.overallstatus
+    ], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ id: result.insertId, ...t });
+    });
+});
+
 app.post("/customers", async (req, res) => {
   try {
     const { all_customers } = req.body;
@@ -145,4 +165,5 @@ async function startServer() {
 }
 
 startServer();
+
 
