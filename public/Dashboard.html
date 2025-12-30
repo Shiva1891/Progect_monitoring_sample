@@ -420,7 +420,7 @@
             // Prepare JSON with sequence arrays
             const newProject = {
                 jobno: newjobno,
-                project_type: autoAddWithSequence(null, "enquery_date", new Date().toISOString().slice(0, 10)),
+                project_type: autoAddWithSequence(null, "project_type", new Date().toISOString().slice(0, 10)),
                 //enquery_date: autoAddWithSequence(null, "enquery_date", new Date().toISOString().slice(0, 10)),
                 project_name: projectname,
                 customer: customername,
@@ -3112,6 +3112,7 @@
     </script>
 </body>
 </html>
+
 
 
 
