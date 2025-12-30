@@ -136,6 +136,13 @@ app.delete("/designers/:id", async (req, res) => {
 async function startServer() {
   await connectDB();
 
+
+   const [results] = await db.query(
+      "ALTER TABLE projects MODIFY design_end_date JSON NULL;"
+    );
+
+    console.log("Column updated!", results);
+   
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
@@ -143,3 +150,4 @@ async function startServer() {
 }
 
 startServer();
+
