@@ -260,7 +260,7 @@ app.delete("/live_projects/:id", simpleDelete("live_projects"));
 async function start() {
   await connectDB();
 
-   //await db.query("create table processes(id int key auto_increment, process_name varchar(255), process_type varchar(255));");
+   await db.query("ALTER TABLE employee ADD COLUMN id INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;");
    //await db.query("ALTER TABLE projects MODIFY drafting JSON NULL");
    //await db.query("ALTER TABLE projects MODIFY enquery_date JSON NULL");
    //await db.query("ALTER TABLE projects MODIFY quantity JSON NULL");
@@ -277,3 +277,4 @@ async function start() {
 }
 
 start();
+
