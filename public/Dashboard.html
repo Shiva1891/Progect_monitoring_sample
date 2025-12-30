@@ -49,7 +49,7 @@
 
         function extractNamesFromObject(obj) {
             return Object.keys(obj)
-                .filter(k => k.startsWith("name_") && obj[k])
+                .filter(k => k.startsWith("name") && obj[k])
                 .map(k => obj[k]);
         }
 
@@ -3115,6 +3115,7 @@
     </script>
 </body>
 </html>
+
 
 
 
