@@ -280,8 +280,8 @@ app.delete("/live_projects/:id", simpleDelete("live_projects"));
 async function start() {
   await connectDB();
 
-   await db.query("ALTER TABLE employee RENAME COLUMN draftimg TO dipartment;");
-   //await db.query("ALTER TABLE employee DROP COLUMN finish;");
+   await db.query("ALTER TABLE employee RENAME COLUMN drafting TO dipartment;");
+   await db.query("ALTER TABLE employee MODIFY drafting varchar(255);");
    //await db.query("ALTER TABLE employee DROP COLUMN assembly;");
    //await db.query("ALTER TABLE employee DROP COLUMN delivery;");
    //await db.query("ALTER TABLE projects MODIFY expected_date JSON NULL");
@@ -297,6 +297,7 @@ async function start() {
 }
 
 start();
+
 
 
 
