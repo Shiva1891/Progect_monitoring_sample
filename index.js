@@ -280,7 +280,7 @@ app.delete("/live_projects/:id", simpleDelete("live_projects"));
 async function start() {
   await connectDB();
 
-   await db.query("truncate employee");
+   //await db.query("truncate employee");
    //await db.query("ALTER TABLE employee MODIFY department varchar(255);");
    //await db.query("ALTER TABLE employee DROP COLUMN assembly;");
    //await db.query("ALTER TABLE employee DROP COLUMN delivery;");
@@ -297,6 +297,7 @@ async function start() {
 }
 
 start();
+
 
 
 
