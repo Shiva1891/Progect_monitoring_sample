@@ -1,22 +1,16 @@
-import dotenv from "dotenv";
-dotenv.config();
-
-import express from "express";
-import mysql from "mysql2";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+require("dotenv").config();
+const express = require("express");
+//const path = require("path");
+const mysql = require("mysql2/promise");
 
 const app = express();
 app.use(express.json());
 
 // Serve static files
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static("public"));
 
-// MySQL setup
 let db;
+
 /* ===============================
    🔌 DATABASE CONNECTION
 ================================ */
@@ -36,82 +30,88 @@ async function connectDB() {
   }
 }
 
-// Serve Dashboard.html
+/* ===============================
+   🏠 ROUTES
+================================ */
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "Dashboard.html"));
 });
 
-// GET projects
-app.get("/projects", (req, res) => {
-  if (!db) return res.status(503).json({ error: "DB not available" });
-
-  db.query("SELECT * FROM projects", (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
+/* ===============================
+   ✅ GET APIs
+================================ */
+app.get("/projects", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM projects");
     res.json(rows);
-  });
-});
-
-// POST projects (CREATE)
-app.post("/projects", (req, res) => {
-  if (!db) return res.status(503).json({ error: "DB not available" });
-
-  const {
-    jobno,
-    project_type,
-    project_name,
-    customer,
-    contact_person,
-    overallstatus
-  } = req.body;
-
-  if (!jobno || !project_name || !customer) {
-    return res.status(400).json({ error: "Missing required fields" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-
-  const sql = `
-    INSERT INTO projects
-    (jobno, project_type, project_name, customer, contact_person, overallstatus)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `;
-
-  db.query(
-    sql,
-    [jobno, project_type, project_name, customer, contact_person, overallstatus],
-    (err, result) => {
-      if (err) return res.status(500).json({ error: err.message });
-
-      res.status(201).json({
-        message: "Project created",
-        id: result.insertId
-      });
-    }
-  );
 });
 
-// GET customers
-app.get("/customers", (req, res) => {
-  if (!db) return res.status(503).json({ error: "DB not available" });
-
-  db.query("SELECT * FROM customers", (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
+app.get("/customers", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM customers");
     res.json(rows);
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.post("/customers", (req, res) => {
+/* ===============================
+   ✅ POST APIs
+================================ */
+app.post("/customers", async (req, res) => {
+  try {
     const { all_customers } = req.body;
-
-    db.query(
-        "INSERT INTO customers (all_customers) VALUES (?)",
-        [all_customers],
-        (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: result.insertId, all_customers });
-        }
+    const [result] = await db.query(
+      "INSERT INTO customers (all_customers) VALUES (?)",
+      [all_customers]
     );
+    res.json({ id: result.insertId, all_customers });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+/* ===============================
+   ✅ PUT APIs
+================================ */
+app.put("/designers/:id", async (req, res) => {
+  try {
+    await db.query(
+      "UPDATE designers SET designers_name=? WHERE id=?",
+      [req.body.designers_name, req.params.id]
+    );
+    res.json({ message: "Designer updated" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* ===============================
+   ✅ DELETE APIs
+================================ */
+app.delete("/designers/:id", async (req, res) => {
+  try {
+    await db.query("DELETE FROM designers WHERE id=?", [req.params.id]);
+    res.json({ message: "Designer deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* ===============================
+   🚀 START SERVER (ONLY ONCE)
+================================ */
+async function startServer() {
+  await connectDB();
+
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+}
+
+startServer();
 
