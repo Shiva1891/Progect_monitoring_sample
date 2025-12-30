@@ -2576,15 +2576,21 @@
             employeeheaders.forEach(col => {
                 const btn = document.createElement("button");
                 btn.className = "p-1 bg-green-200 rounded flex gap-2 justify-between w-full";
-
-                const h1 = document.createElement("header");
-                h1.claseName = "text-sm text-black font-semibold";
-                h1.textContent =
-                    normalizef(col) == "designers_name" ? "Designers" : col.replace(/_name/g, " ");
-                const h2 = document.createElement("header");
-                h2.innerHTML = `<span class="material-icons">arrow_left</span>`
+                /* Title */
+                const title = document.createElement("span");
+                title.className = "text-sm text-black font-semibold";
+                title.textContent =
+                    normalizef(col) === "designers_name"
+                    ? "Designers"
+                    : col.replace(/_name/g, " ");
+                /* Icon */
+                const icon = document.createElement("span");
+                icon.className = "material-icons";
+                icon.textContent = "arrow_left";
+                /* Click */
                 btn.onclick = () => renderEmployees(col, listBox);
-                btn.appendChild(h1,h2);
+                /* Append correctly */
+                btn.append(title, icon);
                 btnRow.appendChild(btn);
             });
 
@@ -3127,6 +3133,7 @@
     </script>
 </body>
 </html>
+
 
 
 
