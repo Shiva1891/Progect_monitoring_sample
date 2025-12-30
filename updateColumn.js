@@ -11,7 +11,7 @@ async function updateColumn() {
     if (process.env.DATABASE_URL) {
       const url = new URL(process.env.DATABASE_URL);
       dbConfig = {
-        host: mysql://root:vFfTvkUGwmDceysRfNCehzNMYzjNNpFZ@ballast.proxy.rlwy.net:28500/railway,
+        host: root:vFfTvkUGwmDceysRfNCehzNMYzjNNpFZ@ballast.proxy.rlwy.net:28500/railway,
         user: url.username,
         password: url.password,
         database: url.pathname.slice(1),
