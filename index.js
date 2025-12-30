@@ -17,22 +17,23 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // MySQL setup
 let db;
-if (process.env.MYSQLHOST && process.env.MYSQLUSER && process.env.MYSQLDATABASE) {
-  db = mysql.createPool({
-    host: process.env.MYSQLHOST,
-    user: process.env.MYSQLUSER,
-    password: process.env.MYSQLPASSWORD,
-    database: process.env.MYSQLDATABASE,
-    port: process.env.MYSQLPORT || 3306
-  });
+/* ===============================
+   🔌 DATABASE CONNECTION
+================================ */
+async function connectDB() {
+  try {
+    console.log("Attempting to connect to database...");
 
-  db.getConnection((err, connection) => {
-    if (err) console.error("❌ DB connection failed.", err);
-    else {
-      console.log("✅ MySQL connected");
-      connection.release();
-    }
-  });
+    db = await mysql.createPool({
+      uri: process.env.MYSQL_URL || process.env.DATABASE_URL, // Railway MySQL URL
+    });
+
+    await db.query("SELECT 1");
+    console.log("✅ Database connected successfully");
+  } catch (err) {
+    console.error("❌ Database connection failed:", err.message);
+    process.exit(1);
+  }
 }
 
 // Serve Dashboard.html
@@ -113,3 +114,4 @@ app.post("/customers", (req, res) => {
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
