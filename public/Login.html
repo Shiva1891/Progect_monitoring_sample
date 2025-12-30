@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div id="allocate" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+
+        <div class="bg-green-500 p-8 rounded-2xl shadow-xl w-96">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-3xl font-bold">User</h2>
+                <div class="py-2">
+                    <button onclick="cancel()" class="rounded text-white bg-red-500 hover:bg-red-400 px-2 pb-1">X</button>
+                </div>
+            </div>
+
+            <!-- SELECT LOGIN TYPE -->
+            <div class="mb-4">
+                <div id="loginType" class="w-full mt-2 p-2 rounded-lg bg-white text-xl font-bold">Allocate</div>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="mb-6">
+                <input id="password" type="password" autofocus class="w-full p-3 rounded-lg" placeholder="Password">
+            </div>
+
+            <button onclick="login()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700">
+                Login
+            </button>
+
+        </div>
+    </div>
+
+    <script>
+        function loadAll() {
+            const name = localStorage.getItem("selectedDesigner")
+            document.getElementById("loginType").textContent = name
+        }
+    </script>
+
+    <script>
+        /* ----------------------------------
+              USER PASSWORDS ONLY
+        ----------------------------------- */
+        const users = {
+            allocate: { password: "2025", role: "allocate" },
+
+            // Common password for all designers
+            designerPassword: "2025",
+
+            draftingPasswoard: "2025"
+        };
+
+        /* ----------------------------------
+              PRESS ENTER → LOGIN
+        ----------------------------------- */
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                login();
+            }
+        });
+
+        /* ----------------------------------
+                     LOGIN
+        ----------------------------------- */
+        function login() {
+            const type = document.getElementById("loginType").textContent;
+            const pass = document.getElementById("password").value;
+            //Alocate Login
+            if (type === "Allocate") {
+                if (pass !== users.allocate.password) {
+                    alert("Invalid allocate password");
+                    return;
+                }
+                window.open("Allocate.html", "_blank");
+                history.go(-1);
+                return;
+            }
+            //Drafting Login
+            if (type === "Drafting") {
+                if (pass !== users.allocate.password) {
+                    alert("Invalid allocate password");
+                    return;
+                }
+                window.open("Drafting.html", "_blank");
+                history.go(-1);
+                return;
+            }
+                //Designer Login
+            else {
+                const designerName = localStorage.getItem("selectedDesigner");
+                if (!designerName) {
+                    alert("Designer not selected on Dashboard. Please select designer first.");
+                    window.location.href = "Dashboard.html";
+                    return;
+                }
+                if (pass !== users.designerPassword) {
+                    alert("Invalid designer password");
+                    return;
+                }
+                // Redirect to designer page with name
+                window.open(`designer.html?name=${encodeURIComponent(designerName)}`, "_blank");
+                history.go(-1);
+            }
+        }
+
+        /* ----------------------------------
+                     CANCEL BUTTON
+        ----------------------------------- */
+
+        function notifyDashboardRefresh() {
+            localStorage.setItem("REFRESH_DASHBOARD", Date.now());
+        }
+
+        function cancel() {
+            //const type = document.getElementById("loginType").textContent;
+            //if (type === "Allocate" || type === "Drafting" || type === "") {
+            //    history.go(-1);
+            //    try { window.close(); } catch (_) { history.go(-1); }
+            //} else {
+            //    window.close();
+            //}
+            history.go(-1);
+            notifyDashboardRefresh();
+        }
+
+        window.loadAll()
+
+    </script>
+
+</body>
+</html>
