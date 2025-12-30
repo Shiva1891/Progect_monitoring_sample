@@ -6,20 +6,21 @@ async function updateColumn() {
   try {
     console.log("Attempting to connect to database...");
 
-    // Parse DATABASE_URL if present
     let dbConfig;
+
     if (process.env.DATABASE_URL) {
       const url = new URL(process.env.DATABASE_URL);
+
       dbConfig = {
-        host: root:vFfTvkUGwmDceysRfNCehzNMYzjNNpFZ@ballast.proxy.rlwy.net:28500/railway,
-        user: url.username,
-        password: url.password,
-        database: url.pathname.slice(1),
+        host: url.hostname,           // just the host
+        user: url.username,           // username from URL
+        password: url.password,       // password from URL
+        database: url.pathname.slice(1), // remove leading slash
         port: url.port || 3306
       };
     } else {
       dbConfig = {
-        host: process.env.root:vFfTvkUGwmDceysRfNCehzNMYzjNNpFZ@ballast.proxy.rlwy.net:28500/railway,
+        host: process.env.DB_HOST,
         user: process.env.DB_USER,
         password: process.env.DB_PASS,
         database: process.env.DB_NAME,
