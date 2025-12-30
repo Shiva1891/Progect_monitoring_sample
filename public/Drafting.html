@@ -109,8 +109,8 @@
         // -----------------------
         // Basic config
         // -----------------------
-        const PORT = "4000";
-        const HOST = "192.168.0.200";
+        //const PORT = "4000";
+        //const HOST = "192.168.0.200";
 
         function formatDateISOtoDDMMYYYY(dateStr) {
             if (!dateStr) return "";
@@ -149,7 +149,7 @@
 
         async function loadDraftingJobs() {
             try {
-                const res = await fetch(`http://${HOST}:${PORT}/projects`);
+                const res = await fetch(`/projects`);
                 const jobs = await res.json();
 
                 const draftingDiv = document.getElementById("draftingJobs");
@@ -195,7 +195,7 @@
             document.getElementById("rpanel").classList.add("hidden");
             try {
 
-                const res = await fetch(`http://${HOST}:${PORT}/projects?id=${id}`);
+                const res = await fetch(`/projects?id=${id}`);
                 const data = await res.json();
                 const p = data.find(item => item.id == id);
                 if (!p) return alert("Project not found");
@@ -263,7 +263,7 @@
             document.getElementById("rpanel").classList.add("hidden");
             try {
 
-                const res = await fetch(`http://${HOST}:${PORT}/projects?id=${id}`);
+                const res = await fetch(`/projects?id=${id}`);
                 const data = await res.json();
                 const p = data.find(item => item.id == id);
                 if (!p) return alert("Project not found");
@@ -381,7 +381,7 @@
         
         async function loadProcessesFromDB() {
             try {
-                const res = await fetch(`http://${HOST}:${PORT}/processes`);
+                const res = await fetch(`/processes`);
                 const rows = await res.json();
 
                 window._availableProProcesses = [];
@@ -672,7 +672,7 @@
 
             try {
                 // 🔥 SAVE TO SQL
-                const res = await fetch(`http://${HOST}:${PORT}/processes`, {
+                const res = await fetch(`/processes`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -789,7 +789,7 @@
             }
 
             try {
-                const res = await fetch(`http://${HOST}:${PORT}/processes`, {
+                const res = await fetch(`/processes`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1051,7 +1051,7 @@
                 ];
 
                 try {
-                    const res = await fetch(`http://${HOST}:${PORT}/live_projects/${id}`, {
+                    const res = await fetch(`/live_projects/${id}`, {
                         method: "PUT",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(payload)
@@ -1096,7 +1096,7 @@
 
             // fill remaining dno_x as null (optional) - we only send those we have
             try {
-                const res = await fetch(`http://${HOST}:${PORT}/live_projects/${id}`, {
+                const res = await fetch(`/live_projects/${id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
@@ -1117,7 +1117,7 @@
             const id = localStorage.getItem("projectID");
             if (!id) return alert("Project missing");
             try {
-                const res = await fetch(`http://${HOST}:${PORT}/projects/${id}`, {
+                const res = await fetch(`/projects/${id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ overallstatus: "LIVE" })
@@ -1153,7 +1153,7 @@
                     dn_type: "NEW"
                 }];
 
-                const res = await fetch(`http://${HOST}:${PORT}/live_projects/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                const res = await fetch(`/live_projects/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
                 if (!res.ok) throw new Error(await res.text());
                 await res.json();
                 await loadDrawings();
@@ -1167,3 +1167,4 @@
     </script>
 </body>
 </html>
+
