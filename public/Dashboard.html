@@ -2993,6 +2993,11 @@
                     user_password: fieldpasswoard
                 };
 
+                let choosetype = null;
+                if(!adminCheckbox.checked){
+                    choosetype = "USER";
+                } else choosetype = "ADMIN";
+                
                 if (!["designers_name", "drafting", "assembly", "delivery"].includes(n)) {
                     newEmployee.user_type = choosetype;
                 }
@@ -3115,6 +3120,7 @@
     </script>
 </body>
 </html>
+
 
 
 
