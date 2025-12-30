@@ -48,8 +48,27 @@ async function connectDB() {
    🏠 ROOT
 ================================ */
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "Dashboard.html"));
+  res.redirect("/dashboard");
+});
+
+app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "Login.html"));
+});
+
+app.get("/dashboard", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "Dashboard.html"));
+});
+
+app.get("/allocate", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "Allocate.html"));
+});
+
+app.get("/drafting", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "Drafting.html"));
+});
+
+app.get("/designer", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "Designer.html"));
 });
 
 /* ===============================
@@ -278,6 +297,7 @@ async function start() {
 }
 
 start();
+
 
 
 
