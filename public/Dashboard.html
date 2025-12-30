@@ -2671,11 +2671,12 @@
             document.getElementById("emp_username").value = data.user_name ?? "";
             document.getElementById("emp_account").value = data.account_type ?? "USER";
             document.getElementById("emp_password").value = data.user_password ?? "";
-
-            if (data.user_type) {
-                document.getElementById("emp_usertype").value = data.user_type;
+            document.getElementById("emp_usertype").value = data.user_type ?? "";
+            if (!data.user_type) {
+                document.getElementById("emp_usertype").classList.add("hidden");
+                document.getElementById("emp_process").classList.add("hidden");
+                document.getElementById("emp_div").classList.add("hidden");
             }
-
             document.getElementById("saveBtn").onclick =
                 () => updateEmployee(col, employeeId, data.seq);
         }
@@ -2728,15 +2729,20 @@
         }
 
         function fillEditData(col, data, employeeId) {
-            const index = Object.keys(data).find(k => k.startsWith("name_")).split("_")[1];
-            document.getElementById("emp_usertype").value = data[`user_type_${index}`];
-            document.getElementById("emp_name").value = data[`name_${index}`];
-            document.getElementById("emp_username").value = data[`user_name_${index}`];
-            document.getElementById("emp_account").value = data[`account_type_${index}`];
-            document.getElementById("emp_password").value = data[`user_password_${index}`];
+            const employee = data.find(emp => emp.seq === employeeId);
+            if (!employee) {
+                console.error("Employee not found");
+                return;
+            }
+
+            document.getElementById("emp_usertype").value = employee.account_type;
+            document.getElementById("emp_name").value = employee.name;
+            document.getElementById("emp_username").value = employee.user_name;
+            document.getElementById("emp_account").value = employee.account_type;
+            document.getElementById("emp_password").value = employee.user_password;
 
             document.getElementById("saveBtn").onclick =
-                () => updateEmployee(col, employeeId, index);
+                () => updateEmployee(col, employeeId);
         }
 
         function updateEmployee(col, employeeId, seq) {
@@ -3109,6 +3115,7 @@
     </script>
 </body>
 </html>
+
 
 
 
