@@ -312,7 +312,7 @@
             document.getElementById("clrbtn").classList.add("hidden");
             document.getElementById("addbtn").classList.add("hidden");
 
-            const res = await fetch(`http://${HOST}:${PORT}/live_projects?jobno=${jobno}`);
+            const res = await fetch(`/live_projects?jobno=${jobno}`);
             const rows = await res.json();
             if (!rows.length) return console.log("No drawings found");
 
@@ -1138,7 +1138,7 @@
             try {
                 const jobno = localStorage.getItem("jobname");
                 if (!jobno) return alert("Project ID missing");
-                const res1 = await fetch(`http://${HOST}:${PORT}/live_projects?jobno=${jobno}`);
+                const res1 = await fetch(`/live_projects?jobno=${jobno}`);
                 const rows = await res1.json();
                 const j = rows.find(item => item.jobno == jobno);
                 if (!j) return alert("Live project not found");
@@ -1167,4 +1167,5 @@
     </script>
 </body>
 </html>
+
 
