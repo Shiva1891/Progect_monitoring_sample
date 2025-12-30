@@ -223,7 +223,7 @@
 
             try {
                 // fetch both in parallel
-                const [projectsRes, designersRes, employeeRes] = await Promise.all([
+                const [projectsRes, employeeRes] = await Promise.all([
                     fetch(API.projects),
                     fetch(API.employee)
                 ]);
@@ -630,5 +630,6 @@
     </script>
 </body>
 </html>
+
 
 
