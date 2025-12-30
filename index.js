@@ -3,22 +3,29 @@ dotenv.config();
 
 import express from "express";
 import mysql from "mysql2/promise";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json());
-
-// Serve static files
-app.use(express.static("public"));
-
-let db;
+app.use(express.static(path.join(__dirname, "public")));
 
 /* ===============================
-   🔌 DATABASE CONNECTION
+   🔧 HELPERS
 ================================ */
+const toJson = v =>
+  v === undefined || v === null ? null : JSON.stringify(v);
+
+/* ===============================
+   🔌 DATABASE
+================================ */
+let db;
+
 async function connectDB() {
   try {
-    console.log("Attempting to connect to database...");
-
     db = await mysql.createPool({
       host: process.env.MYSQLHOST,
       user: process.env.MYSQLUSER,
@@ -26,331 +33,232 @@ async function connectDB() {
       database: process.env.MYSQLDATABASE,
       port: process.env.MYSQLPORT || 3306,
       waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
+      connectionLimit: 10
     });
 
     await db.query("SELECT 1");
-    console.log("✅ Database connected successfully");
+    console.log("✅ MySQL connected");
   } catch (err) {
-    console.error("❌ Database connection failed:", err.message);
+    console.error("❌ DB connection failed:", err.message);
     process.exit(1);
   }
 }
 
 /* ===============================
-   ✅ GET APIs
+   🏠 ROOT
 ================================ */
-app.get("/projects", async (req, res) => {
-  try {
-    const [rows] = await db.query("SELECT * FROM projects");
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "Dashboard.html"));
 });
 
-app.get("/customers", async (req, res) => {
-  try {
-    const [rows] = await db.query("SELECT * FROM customers");
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.get("/live_projects", async (req, res) => {
-  try {
-    const [rows] = await db.query("SELECT * FROM live_projects");
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.get("/processes", async (req, res) => {
-  try {
-    const [rows] = await db.query("SELECT * FROM processes");
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.get("/employee", async (req, res) => {
-  try {
-    const [rows] = await db.query("SELECT * FROM employee");
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.get("/employee/headers", (req, res) => {
-    const sql = `
-        SELECT COLUMN_NAME
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'employee'
-        AND TABLE_SCHEMA = DATABASE()
-        ORDER BY ORDINAL_POSITION
-    `;
-
-    db.query(sql, (err, rows) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ error: err.message });
-        }
-
-        res.json(rows.map(r => r.COLUMN_NAME));
-    });
-});
 /* ===============================
-   ✅ POST APIs
+   📥 GET APIs
 ================================ */
-app.post("/customers", (req, res) => {
-    const { all_customers } = req.body;
+const simpleGet = table => async (req, res) => {
+  try {
+    const [rows] = await db.query(`SELECT * FROM ${table}`);
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-    db.query(
-        "INSERT INTO customers (all_customers) VALUES (?)",
-        [all_customers],
-        (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: result.insertId, all_customers });
-        }
-    );
+app.get("/projects", simpleGet("projects"));
+app.get("/customers", simpleGet("customers"));
+app.get("/designers", simpleGet("designers"));
+app.get("/processes", simpleGet("processes"));
+app.get("/employee", simpleGet("employee"));
+app.get("/live_projects", simpleGet("live_projects"));
+
+app.get("/employee/headers", async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT COLUMN_NAME
+      FROM INFORMATION_SCHEMA.COLUMNS
+      WHERE TABLE_NAME = 'employee'
+        AND TABLE_SCHEMA = DATABASE()
+      ORDER BY ORDINAL_POSITION
+    `);
+    res.json(rows.map(r => r.COLUMN_NAME));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.post("/designers", (req, res) => {
-    const { designers_name } = req.body;
-
-    db.query(
-        "INSERT INTO designers (designers_name) VALUES (?)",
-        [designers_name],
-        (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: result.insertId, designers_name });
-        }
+/* ===============================
+   📤 POST APIs
+================================ */
+app.post("/customers", async (req, res) => {
+  try {
+    const [r] = await db.query(
+      "INSERT INTO customers (all_customers) VALUES (?)",
+      [req.body.all_customers]
     );
+    res.json({ id: r.insertId });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.post("/projects", (req, res) => {
+app.post("/designers", async (req, res) => {
+  try {
+    const [r] = await db.query(
+      "INSERT INTO designers (designers_name) VALUES (?)",
+      [req.body.designers_name]
+    );
+    res.json({ id: r.insertId });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/projects", async (req, res) => {
+  try {
     const t = req.body;
 
-    const sql = `
-        INSERT INTO projects
-        (jobno, project_type, enquery_date, project_name, customer, contact_person, quantity,
-         expected_date, designer_name, design_start_date, design_end_date, overallstatus)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+    const [r] = await db.query(`
+      INSERT INTO projects
+      (jobno, project_type, enquery_date, project_name, customer, contact_person,
+       quantity, expected_date, designer_name, design_start_date, design_end_date, overallstatus)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      t.jobno,
+      toJson(t.project_type),
+      toJson(t.enquery_date),
+      t.project_name,
+      t.customer,
+      t.contact_person,
+      toJson(t.quantity),
+      toJson(t.expected_date),
+      toJson(t.designer_name),
+      toJson(t.design_start_date),
+      toJson(t.design_end_date),
+      t.overallstatus
+    ]);
 
-    db.query(sql, [
-        t.jobno, JSON.stringify(t.project_type), JSON.stringify(t.enquery_date), t.project_name, t.customer,
-        t.contact_person, JSON.stringify(t.quantity), JSON.stringify(t.expected_date),
-        JSON.stringify(t.designer_name), JSON.stringify(t.design_start_date), JSON.stringify(t.design_end_date), t.overallstatus
-    ], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ id: result.insertId, ...t });
-    });
+    res.json({ id: r.insertId });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.post("/processes", (req, res) => {
+app.post("/employee", async (req, res) => {
+  try {
+    const t = req.body;
+
+    const [r] = await db.query(`
+      INSERT INTO employee
+      (designers_name, drafting, production, finish, assembly, delivery)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `, [
+      toJson(t.designers_name),
+      toJson(t.drafting),
+      toJson(t.production),
+      toJson(t.finish),
+      toJson(t.assembly),
+      toJson(t.delivery)
+    ]);
+
+    res.json({ id: r.insertId });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/processes", async (req, res) => {
+  try {
     const { process_name, process_type } = req.body;
 
-    db.query(
-        "INSERT INTO processes (process_name, process_type) VALUES (?, ?)",
-        [process_name, process_type],
-        (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: result.insertId, process_name, process_type });
-        }
+    const [r] = await db.query(
+      "INSERT INTO processes (process_name, process_type) VALUES (?, ?)",
+      [process_name, process_type]
     );
+
+    res.json({ id: r.insertId });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.post("/live_projects", (req, res) => {
+app.post("/live_projects", async (req, res) => {
+  try {
     const { jobno } = req.body;
 
-    db.query(
-        "INSERT INTO live_projects (jobno) VALUES (?)",
-        [jobno],
-        (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: result.insertId, jobno });
-        }
+    const [r] = await db.query(
+      "INSERT INTO live_projects (jobno) VALUES (?)",
+      [jobno]
     );
-});
 
-app.post("/employee", (req, res) => {
-    const t = req.body;
-
-    const sql = `
-        INSERT INTO employee
-        (designers_name, drafting, production, finish, assembly, delivery)
-        VALUES (?, ?, ?, ?, ?, ?)
-    `;
-
-    db.query(sql, [
-        JSON.stringify(t.designers_name), JSON.stringify(t.drafting), JSON.stringify(t.production), JSON.stringify(t.finish), JSON.stringify(t.assembly), JSON.stringify(t.delivery)
-    ], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ id: result.insertId, ...t });
-    });
+    res.json({ id: r.insertId, jobno });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 /* ===============================
-   ✅ PUT APIs
+   ✏️ PUT APIs (UNIVERSAL)
 ================================ */
-app.put("/projects/:id", (req, res) => {
-    const id = req.params.id;
-    const body = req.body;
+const dynamicUpdate = table => async (req, res) => {
+  try {
+    const fields = [];
+    const values = [];
 
-    let fields = [];
-    let values = [];
-
-    for (let key in body) {
-        fields.push(`${key} = ?`);
-        values.push(
-            typeof body[key] === "object"
-                ? JSON.stringify(body[key])
-                : body[key]
-        );
+    for (const key in req.body) {
+      fields.push(`${key}=?`);
+      values.push(
+        typeof req.body[key] === "object"
+          ? toJson(req.body[key])
+          : req.body[key]
+      );
     }
 
     if (!fields.length)
-        return res.status(400).json({ error: "No fields provided" });
+      return res.status(400).json({ error: "No fields" });
 
-    const sql = `UPDATE projects SET ${fields.join(", ")} WHERE id = ?`;
-    values.push(id);
+    values.push(req.params.id);
 
-    db.query(sql, values, err => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Project updated", id });
-    });
-});
-
-app.put("/processes/:id", (req, res) => {
-    const { process_name, process_type } = req.body;
-
-    db.query(
-        "UPDATE processes SET process_name=?, process_type=? WHERE id=?",
-        [process_name, process_type, req.params.id],
-        err => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Process updated" });
-        }
+    await db.query(
+      `UPDATE ${table} SET ${fields.join(", ")} WHERE id=?`,
+      values
     );
-});
 
-app.put("/designers/:id", (req, res) => {
-    db.query(
-        "UPDATE designers SET designers_name=? WHERE id=?",
-        [req.body.designers_name, req.params.id],
-        err => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Designer updated" });
-        }
-    );
-});
+    res.json({ message: "Updated" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-app.put("/live_projects/:id", (req, res) => {
-    const id = req.params.id;
-    const body = req.body;
-
-    let fields = [];
-    let values = [];
-
-    for (let key in body) {
-        fields.push(`${key} = ?`);
-        values.push(
-            typeof body[key] === "object"
-                ? JSON.stringify(body[key])
-                : body[key]
-        );
-    }
-
-    if (!fields.length)
-        return res.status(400).json({ error: "No fields provided" });
-
-    const sql = `UPDATE live_projects SET ${fields.join(", ")} WHERE id = ?`;
-    values.push(id);
-
-    db.query(sql, values, err => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Project updated", id });
-    });
-});
-
-app.put("/employee/:id", (req, res) => {
-    const id = req.params.id;
-    const body = req.body;
-
-    let fields = [];
-    let values = [];
-
-    for (let key in body) {
-        fields.push(`${key} = ?`);
-        values.push(
-            typeof body[key] === "object"
-                ? JSON.stringify(body[key])
-                : body[key]
-        );
-    }
-
-    if (!fields.length)
-        return res.status(400).json({ error: "No fields provided" });
-
-    const sql = `UPDATE employee SET ${fields.join(", ")} WHERE id = ?`;
-    values.push(id);
-
-    db.query(sql, values, err => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Change successfully", id });
-    });
-});
+app.put("/projects/:id", dynamicUpdate("projects"));
+app.put("/customers/:id", dynamicUpdate("customers"));
+app.put("/employee/:id", dynamicUpdate("employee"));
+app.put("/designers/:id", dynamicUpdate("designers"));
+app.put("/processes/:id", dynamicUpdate("processes"));
+app.put("/live_projects/:id", dynamicUpdate("live_projects"));
 
 /* ===============================
-   ✅ DELETE APIs
+   🗑️ DELETE APIs
 ================================ */
-app.delete("/projects/:id", (req, res) => {
-    db.query("DELETE FROM projects WHERE id=?", [req.params.id], err => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Project deleted" });
-    });
-});
+const simpleDelete = table => async (req, res) => {
+  try {
+    await db.query(`DELETE FROM ${table} WHERE id=?`, [req.params.id]);
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-app.delete("/designers/:id", (req, res) => {
-    db.query("DELETE FROM designers WHERE id=?", [req.params.id], err => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Designer deleted" });
-    });
-});
-
-app.delete("/live_projects/:jobno/dno/:dno", (req, res) => {
-    const file = `C:/live_projects/${req.params.jobno}/dno/${req.params.dno}.json`;
-
-    fs.unlink(file, err => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "File deleted" });
-    });
-});
-app.delete("/customers/:id", (req, res) => {
-    db.query("DELETE FROM customers WHERE id=?", [req.params.id], err => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Project deleted" });
-    });
-});
-app.delete("/employee/:id", (req, res) => {
-    db.query("DELETE FROM employee WHERE id=?", [req.params.id], err => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "deleted" });
-    });
-});
+app.delete("/projects/:id", simpleDelete("projects"));
+app.delete("/customers/:id", simpleDelete("customers"));
+app.delete("/designers/:id", simpleDelete("designers"));
+app.delete("/employee/:id", simpleDelete("employee"));
+app.delete("/processes/:id", simpleDelete("processes"));
+app.delete("/live_projects/:id", simpleDelete("live_projects"));
 
 /* ===============================
-   🚀 START SERVER
+   🚀 START
 ================================ */
-async function startServer() {
+async function start() {
   await connectDB();
-
 
    //await db.query("create table processes(id int key auto_increment, process_name varchar(255), process_type varchar(255));");
    //await db.query("ALTER TABLE projects MODIFY drafting JSON NULL");
@@ -361,23 +269,11 @@ async function startServer() {
       
 
   console.log("Column updated!");
+   
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-  });
+  app.listen(PORT, () =>
+    console.log(`🚀 Server running on port ${PORT}`)
+  );
 }
 
-startServer();
-
-
-
-
-
-
-
-
-
-
-
-
-
+start();
