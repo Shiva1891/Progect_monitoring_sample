@@ -191,7 +191,7 @@
                         if (!Array.isArray(emp.production)) return;
 
                         emp.production.forEach(p => {
-                            if (p.user_type === processId && p.name) {
+                            if (p.user_type === selectedprocessname && p.name) {
                                 names.push(p.name);
                             }
                         });
@@ -3120,6 +3120,7 @@
     </script>
 </body>
 </html>
+
 
 
 
