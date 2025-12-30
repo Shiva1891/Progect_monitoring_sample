@@ -2528,19 +2528,35 @@
         function createHeader() {
             const div = document.createElement("div");
             div.className =
-                "w-full bg-white h-10 rounded-lg px-3 font-semibold flex items-center";
+                "w-full bg-white h-10 rounded-lg px-3 font-semibold flex gap-2 items-center";
 
             div.innerHTML = `
-            <button onclick="closetype()" class="px-3 bg-green-500 hover:bg-green-600 text-white rounded">+</button>
-            <div class="flex gap-2 w-full items-center">
-                <div class="flex-1 flex justify-between items-center w-full">
-                    <h1 id="tabcontent">Departments</h1>
-                    <button id="backspacebtn" class="hidden px-2 h-6 bg-gray-200 rounded">
-                        <span class="material-icons">arrow_left</span>
-                    </button>
-                </div>
-                <button onclick="closetype()" class="px-3 bg-red-500 text-white rounded">x</button>
-            </div>`;
+            <div class="relative group flex items-center gap-2">
+    <!-- + Button (hidden by default) -->
+    <button
+        onclick="closetype()"
+        class="p-1 bg-green-500 hover:bg-green-600 text-white rounded
+               absolute -right-6 opacity-0 group-hover:opacity-100 transition">
+        +
+    </button>
+
+    <!-- Content -->
+    <div class="flex gap-2 w-full items-center">
+        <div class="flex-1 flex justify-between items-center w-full">
+            <h1 id="tabcontent" class="cursor-pointer">
+                Departments
+            </h1>
+
+            <button id="backspacebtn" class="hidden px-2 h-6 bg-gray-200 rounded">
+                <span class="material-icons">arrow_left</span>
+            </button>
+        </div>
+
+        <button onclick="closetype()" class="px-3 bg-red-500 text-white rounded">
+            x
+        </button>
+    </div>
+</div>`;
             return div;
         }
         function createBody(employeeheaders) {
@@ -3114,3 +3130,4 @@
     </script>
 </body>
 </html>
+
