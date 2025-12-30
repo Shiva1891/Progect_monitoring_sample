@@ -2575,11 +2575,16 @@
 
             employeeheaders.forEach(col => {
                 const btn = document.createElement("button");
-                btn.className = "p-1 bg-green-200 rounded text-sm w-full";
-                btn.textContent =
-                    normalizef(col) == "designers_name" ? "Designers" : col.replace(/_name/g, " ");
+                btn.className = "p-1 bg-green-200 rounded flex gap-2 justify-between w-full";
 
+                const h1 = document.createElement("header");
+                h1.claseName = "text-sm text-black font-semibold";
+                h1.textContent =
+                    normalizef(col) == "designers_name" ? "Designers" : col.replace(/_name/g, " ");
+                const h2 = document.createElement("header");
+                h2.innerHTML = `<span class="material-icons">arrow_left</span>`
                 btn.onclick = () => renderEmployees(col, listBox);
+                btn.appendChild(h1,h2);
                 btnRow.appendChild(btn);
             });
 
@@ -2636,11 +2641,6 @@
             employeedata.forEach(d => {
                 const arr = d[col];
                 if (!Array.isArray(arr)) return;
-
-                document.getElementById("relativediv").classList.remove("pl-6");
-            
-                document.getElementById("createdepartment").classList.add("hidden");
-
                 arr.forEach(obj => {
                     const nameKey = Object.keys(obj).find(k => k.startsWith("name"));
                     if (!nameKey) return;
@@ -2689,8 +2689,6 @@
                 document.getElementById("emp_process").classList.add("hidden");
                 document.getElementById("emp_div").classList.add("hidden");
             }
-            document.getElementById("relativediv").classList.remove("pl-6");
-            document.getElementById("createdepartment").classList.add("hidden");
             document.getElementById("saveBtn").onclick =
                 () => updateEmployee(col, employeeId, data.seq);
         }
@@ -2803,9 +2801,9 @@
             const wrap = document.createElement("div");
             wrap.className = "space-y-2";
             wrap.innerHTML = `
-    <h1 id="fieldheader" class="mt-2 font-bold text-2xl mb-1">Field Setup</h1>
-    <input id="fieldid" placeholder="Name..." class="w-full border rounded-2xl px-3 py-2" />
-`;
+            <h1 id="fieldheader" class="mt-2 font-bold text-2xl mb-1">Field Setup</h1>
+            <input id="fieldid" placeholder="Name..." class="w-full border rounded-2xl px-3 py-2" />
+            `;
 
             const actionBox = document.createElement("div");
             actionBox.id = "actionBtn"
@@ -2816,6 +2814,8 @@
                 actionBox.innerHTML = "";
                 if (!e.target.value) return document.getElementById("rightPanel").classList.add("hidden");
 
+                document.getElementById("relativediv").classList.remove("pl-6");
+                document.getElementById("createdepartment").classList.add("hidden");
                 const names = employeeheaders
                     .filter(h => normalizef(h) !== "id")
                     .join("/");
@@ -3127,6 +3127,7 @@
     </script>
 </body>
 </html>
+
 
 
 
