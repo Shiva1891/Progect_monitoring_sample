@@ -2985,21 +2985,21 @@
 
                 const seq = getNextSeqFromEmployees(employeedata, n);
 
-                const newEmployee = {
-                    seq,
-                    name: fieldName,
-                    user_name: fielduser,
-                    account_type: accounttype,
-                    user_password: fieldpasswoard
-                };
-
                 let choosetype = null;
                 if(!adminCheckbox.checked){
                     choosetype = "USER";
                 } else choosetype = "ADMIN";
                 
+                const newEmployee = {
+                    seq,
+                    name: fieldName,
+                    user_name: fielduser,
+                    account_type: choosetype,
+                    user_password: fieldpasswoard
+                };
+                
                 if (!["designers_name", "drafting", "assembly", "delivery"].includes(n)) {
-                    newEmployee.user_type = choosetype;
+                    newEmployee.user_type = accounttype;
                 }
 
                 const payload = { [n]: [newEmployee] };
@@ -3120,6 +3120,7 @@
     </script>
 </body>
 </html>
+
 
 
 
