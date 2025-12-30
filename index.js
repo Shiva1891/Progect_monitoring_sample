@@ -137,7 +137,7 @@ async function startServer() {
   await connectDB();
 
 
-   await db.query("create table employee(designers_name json null, drafting json null, production json null, finish json null, assembly json null, delivery json null);");
+   await db.query("create table live_projects(jobno varchar(255), common_status json null, dno_1 json null, dno_2 json null, dno_3 json null, dno_4 json null, dno_5 json null, dno_6 json null, dno_7 json null, dno_8 json null, dno_9 json null, dno_10 json null, dno_11 json null, dno_12 json null, dno_13 json null, dno_14 json null, dno_15 json null, dno_16 json null, dno_17 json null, dno_18 json null, dno_19 json null, dno_20 json null, dno_21 json null, dno_22 json null, dno_23 json null, dno_24 json null, dno_25 json null, dno_26 json null, dno_27 json null, dno_28 json null, dno_29 json null, dno_30 json null, dno_31 json null, dno_32 json null, dno_33 json null, dno_34 json null, dno_35 json null, dno_36 json null, dno_37 json null, dno_38 json null, dno_39 json null, dno_40 json null, dno_41 json null, dno_42 json null, dno_43 json null, dno_44 json null, dno_45 json null, dno_46 json null, dno_47 json null, dno_48 json null, dno_49 json null, dno_50 json null, dno_51 json null);");
    //await db.query("ALTER TABLE projects MODIFY drafting JSON NULL");
    //await db.query("ALTER TABLE projects MODIFY enquery_date JSON NULL");
    //await db.query("ALTER TABLE projects MODIFY quantity JSON NULL");
@@ -153,6 +153,7 @@ async function startServer() {
 }
 
 startServer();
+
 
 
 
