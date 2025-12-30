@@ -244,8 +244,11 @@
                         `<div class="p-4 text-red-600">API Error: ${err}</div>`;
                 });
         }
-
+        let processId = [];
+        let currentSection = [];
+        let currentBtn = [];
         function updatestatus(processName, btn) {
+             
             const manufacturing = document.getElementById("manufacturing");
             const sectionId = processName.toLowerCase();
             const section = document.getElementById(sectionId);
@@ -287,10 +290,10 @@
             currentSection = section;
             currentBtn = btn;   // 👈 store active button
         }
-
+        let processBtn = null;
+        let currentprocess = null;
         function operatorpage(processName, pbtn) {
-            let processBtn = null;
-            let currentprocess = null;
+            
             const manufacturing = document.getElementById("manufacturing");
             processId = (processName).toLowerCase();
             const process = document.getElementById(processId);
@@ -1679,10 +1682,6 @@
             loaddeliveryProcessButtons();
             loadassemblyProcessButtons();
             let customers = [];
-            
-            let processId = [];
-            let currentSection = [];
-            let currentBtn = []; 
         };
     </script>
 
@@ -3112,6 +3111,7 @@
     </script>
 </body>
 </html>
+
 
 
 
