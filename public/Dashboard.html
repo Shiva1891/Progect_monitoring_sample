@@ -2532,12 +2532,15 @@
 
             div.innerHTML = `
         <div class="flex gap-2 w-full items-center">
+            <div class="flex gap-2">
+                <button onclick="closetype()" class="px-3 bg-green-500 hover:bg-green-600 text-white rounded">+</button>
             <div class="flex-1 flex justify-between items-center">
-                <h1 id="tabcontent">Setting</h1>
+                <h1 id="tabcontent">Departments</h1>
                 <button id="backspacebtn" class="hidden px-2 h-6 bg-gray-200 rounded">
                     <span class="material-icons">arrow_left</span>
                 </button>
             </div>
+            <div>
             <button onclick="closetype()" class="px-3 bg-red-500 text-white rounded">x</button>
         </div>`;
             return div;
@@ -3120,6 +3123,7 @@
     </script>
 </body>
 </html>
+
 
 
 
