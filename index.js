@@ -41,53 +41,49 @@ async function connectDB() {
 /* ===============================
    ✅ GET APIs
 ================================ */
-app.get("/projects", (req, res) => {
-    db.query("SELECT * FROM projects", (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-
-        const formatted = rows.map(r => ({
-            ...r,
-            start_date: r.start_date?.toISOString()?.split("T")[0],
-            end_date: r.end_date?.toISOString()?.split("T")[0]
-        }));
-
-        res.json(formatted);
-    });
+app.get("/projects", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM projects");
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.get("/designers", (req, res) => {
-    db.query("SELECT * FROM designers", (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
+app.get("/customers", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM customers");
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.get("/customers", (req, res) => {
-    db.query("SELECT * FROM customers", (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
+app.get("/live_projects", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM live_projects");
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.get("/live_projects", (req, res) => {
-    db.query("SELECT * FROM live_projects", (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
+app.get("/processes", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM processes");
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.get("/processes", (req, res) => {
-    db.query("SELECT * FROM processes", (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-app.get("/employee", (req, res) => {
-    db.query("SELECT * FROM employee", (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
+app.get("/employee", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM employee");
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.get("/employee/headers", (req, res) => {
@@ -372,6 +368,7 @@ async function startServer() {
 }
 
 startServer();
+
 
 
 
