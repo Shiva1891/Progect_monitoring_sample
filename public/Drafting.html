@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Drafting – AGTEK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .thin-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px
+        }
+
+        .thin-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 6px
+        }
+
+        .thin-scrollbar::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .proc-editor {
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            padding: 0.5rem;
+            border-radius: .5rem
+        }
+
+        .overlay {
+            background: rgba(0,0,0,.4);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- HEADER -->
+    <header class="fixed top-0 left-0 right-0 bg-white shadow z-50">
+        <div class="max-w-10xl mx-auto flex items-center justify-between px-5 py-3">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl font-extrabold text-green-600">AGTEK</span>
+                <span class="text-sm text-sky-600 font-semibold">Drafting Projects</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="refreshBtn()" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg font-semibold">Refresh</button>
+                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-[80px] px-4 max-w-10xl mx-auto flex gap-2">
+        <!-- LEFT PANEL: jobs -->
+        <div id="rpanel" class="min-w-[270px] bg-white p-4 shadow-xl rounded-2xl h-[90vh] overflow-auto">
+            <h2 class="text-lg font-bold text-center bg-gray-200 py-2 rounded-xl mb-4">DRAFTING JOBS</h2>
+            <div id="draftingJobs"></div>
+
+            <h2 class="text-lg font-bold text-center bg-gray-200 py-2 rounded-xl mt-6 mb-4">LIVE JOBS</h2>
+            <div id="liveJobs"></div>
+        </div>
+
+        <!-- RIGHT: main panel -->
+        <div class="w-4/5 bg-white p-3 shadow-xl rounded-2xl w-full min-h-[90vh]">
+            <h2 class="text-xl font-bold mb-2 text-gray-800">Activate Project</h2>
+
+            <div id="projectInfo" class="bg-sky-100 rounded-xl p-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <div class="flex gap-2 mt-2 items-center"><p>Job No:</p><p id="pjob" class="text-lg font-semibold">—</p></div>
+                    <div class="flex gap-2 mt-4 items-center"><p>Project:</p><p id="pname" class="text-lg font-semibold text-blue-700">—</p></div>
+                </div>
+                <div>
+                    <div class="flex gap-2 mt-2 items-center"><p>Customer:</p><p id="pcustomer" class="font-semibold">—</p></div>
+                    <div class="flex gap-2 mt-6 items-center"><p>Contact Person:</p><p id="pcontact" class="font-semibold">—</p></div>
+                </div>
+                <div>
+                    <div class="flex gap-2 mt-2 items-center"><p>Expected Date:</p><p id="pexpected" class="font-semibold text-red-600">—</p></div>
+                    <div class="flex gap-1 mt-4 items-center">
+                        <p>Qty:</p><p id="pqty" class="font-semibold text-red-600 gap-3 text-3xl">—</p><p class="font-bold text-gray-500 w-1/4">set</p>
+                        <input id="diagramCount" type="number" placeholder="No of Diagrams" class="hidden p-2 border rounded-lg">
+                        <button onclick="setDiagramBtn()" id="setbtn" class="hidden bg-red-400 hover:bg-red-500 text-white px-2 py-1 rounded-lg font-bold">Set</button>
+                        <button onclick="clearAllDrawings()" id="clrbtn" class="hidden bg-red-400 hover:bg-red-500 text-white px-2 py-1 rounded-lg font-bold">Clear</button>
+                        <button onclick="addonedno()" id="addbtn" class="hidden bg-green-400 hover:bg-green-500 text-white px-2 py-1 rounded-lg font-bold">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="thin-scrollbar overflow-auto max-h-[70vh] rounded-xl border">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-200 sticky top-0 z-20 text-sm font-bold">
+                        <tr class="bg-gray-100 text-left text-sm font-semibold">
+                            <th class="p-3 text-center w-8">Sl.No</th>
+                            <th class="p-3 text-center min-w-[80px]">D.No</th>
+                            <th class="p-3 min-w-[170px]">Description</th>
+                            <th class="p-3 w-32">Material</th>
+                            <th class="p-3 w-12 text-center">Qty/Job</th>
+                            <th class="p-3 w-12 text-center">T.Qty</th>
+                            <th class="p-3 min-w-[400px]">Production Process</th>
+                            <th class="p-3 min-w-[400px]">Finish Process</th>
+                            <th class="p-3 w-24 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="text-sm bg-white"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // -----------------------
+        // Basic config
+        // -----------------------
+        const PORT = "4000";
+        const HOST = "192.168.0.200";
+
+        function formatDateISOtoDDMMYYYY(dateStr) {
+            if (!dateStr) return "";
+            const d = new Date(dateStr);
+            if (isNaN(d)) return dateStr;
+            return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+        }
+        function logout() {
+            localStorage.removeItem("selectedDesigner");
+            localStorage.removeItem("projectID");
+            localStorage.removeItem("jobname");
+            notifyDashboardRefresh();
+            window.close();
+        }
+        function refreshBtn() {
+            localStorage.removeItem("projectID");
+            localStorage.removeItem("jobname");
+            loadDraftingJobs();
+            document.getElementById("rpanel").classList.remove("hidden");
+            document.getElementById("setbtn").classList.add("hidden");
+            document.getElementById("diagramCount").classList.add("hidden");
+            document.getElementById("clrbtn").classList.add("hidden");
+            document.getElementById("addbtn").classList.add("hidden");
+            
+        }
+
+        function notifyDashboardRefresh() {
+            localStorage.setItem("REFRESH_DASHBOARD", Date.now());
+        }
+
+        // -----------------------
+        // Load jobs (right panel)
+        // -----------------------
+
+        
+
+        async function loadDraftingJobs() {
+            try {
+                const res = await fetch(`http://${HOST}:${PORT}/projects`);
+                const jobs = await res.json();
+
+                const draftingDiv = document.getElementById("draftingJobs");
+                const liveDiv = document.getElementById("liveJobs");
+                draftingDiv.innerHTML = ""; liveDiv.innerHTML = "";
+
+                jobs.forEach(job => {
+
+                    const block = `
+                          <div id="jobc-${job.id}" class="jobcr flex items-center justify-between px-3 py-2 mb-2 rounded-xl hover:border bg-gray-100 h-12">
+                            <div class="font-bold">${job.jobno}</div>
+                            <button onclick="takeJob(${job.id})" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Take</button>
+                          </div>`;
+                    if ((job.overallstatus || "").toUpperCase() === "DRAFTING") draftingDiv.innerHTML += block;
+                    else if ((job.overallstatus || "").toUpperCase() === "LIVE") liveDiv.innerHTML += `
+                        <div id="jobc-${job.id}" class="jobcr flex items-center justify-between px-3 py-2 mb-2 rounded-xl hover:border bg-gray-100 h-12">
+                        <div class="font-bold">${job.jobno}</div>
+                        <button onclick="editJob(${job.id})" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Edit</button>
+                        </div>`;
+                });
+
+                const jobID = localStorage.getItem("projectID");
+                if (jobID) takeJob(jobID);
+                else {
+                    document.getElementById("tableBody").innerHTML = "";
+                    ["pname", "pjob", "pqty", "pcustomer", "pcontact", "pexpected"].forEach(id => document.getElementById(id).textContent = "-");
+                }
+            } catch (err) { alert("Error Loading Jobs: " + err.message); }
+        }
+
+        // -----------------------
+        // Take job (left panel)
+        // -----------------------
+        async function takeJob(id) {
+            if (!id) {
+                localStorage.getItem("projectID");
+                
+            } else {
+                localStorage.setItem("projectID", id);
+                
+            }
+            
+            document.getElementById("rpanel").classList.add("hidden");
+            try {
+
+                const res = await fetch(`http://${HOST}:${PORT}/projects?id=${id}`);
+                const data = await res.json();
+                const p = data.find(item => item.id == id);
+                if (!p) return alert("Project not found");
+
+                const lastQty = Array.isArray(p.quantity) && p.quantity.length > 0
+                    ? Object.values(p.quantity[p.quantity.length - 1])[0]
+                    : "-";
+
+                const lastexpectDate = Array.isArray(p.expected_date) && p.expected_date.length > 0
+                    ? Object.values(p.expected_date[p.expected_date.length - 1])[0]
+                    : "-";
+
+                document.getElementById("pname").textContent = p.project_name || "-";
+                document.getElementById("pjob").textContent = p.jobno || "-";
+                document.getElementById("pqty").textContent = lastQty || "-";
+                document.getElementById("pcustomer").textContent = p.customer || "-";
+                document.getElementById("pcontact").textContent = p.contact_person || "-";
+                document.getElementById("pexpected").textContent =
+                    lastexpectDate !== "-" ? formatDateISOtoDDMMYYYY(lastexpectDate) : "-";
+
+
+                window._projectType = readProjectType(p);
+
+                localStorage.setItem("jobname", p.jobno);
+                await loadDrawings(p.jobno);
+
+                document.querySelectorAll(".jobid").forEach(el => el.classList.remove("hidden"));
+                document.querySelectorAll(".jobcr").forEach(el => el.classList.remove("bg-green-200"));
+
+                const activeBlock = document.getElementById("job-" + p.id);
+                if (activeBlock) activeBlock.classList.add("hidden");
+
+                const cngclr = document.getElementById("jobc-" + p.id);
+                if (cngclr) cngclr.classList.add("bg-green-200");
+
+            } catch (e) {
+                alert("Unable to load project: " + e.message);
+            }
+
+        }
+
+
+
+
+        function readProjectType(project) {
+            if (Array.isArray(project.project_type) && project.project_type.length > 0) {
+                const last = project.project_type[project.project_type.length - 1];
+                return Object.values(last)[0]?.toUpperCase() || "NEW";
+            }
+            return "NEW";
+        }
+
+        // -----------------------
+        // Edit job (left panel)
+        // -----------------------
+        async function editJob(id) {
+            if (!id) {
+                localStorage.getItem("projectID");
+
+            } else {
+                localStorage.setItem("projectID", id);
+
+            }
+
+            document.getElementById("rpanel").classList.add("hidden");
+            try {
+
+                const res = await fetch(`http://${HOST}:${PORT}/projects?id=${id}`);
+                const data = await res.json();
+                const p = data.find(item => item.id == id);
+                if (!p) return alert("Project not found");
+
+                const lastQty = Array.isArray(p.quantity) && p.quantity.length > 0
+                    ? Object.values(p.quantity[p.quantity.length - 1])[0]
+                    : "-";
+
+                const lastexpectDate = Array.isArray(p.expected_date) && p.expected_date.length > 0
+                    ? Object.values(p.expected_date[p.expected_date.length - 1])[0]
+                    : "-";
+
+                document.getElementById("pname").textContent = p.project_name || "-";
+                document.getElementById("pjob").textContent = p.jobno || "-";
+                document.getElementById("pqty").textContent = lastQty || "-";
+                document.getElementById("pcustomer").textContent = p.customer || "-";
+                document.getElementById("pcontact").textContent = p.contact_person || "-";
+                document.getElementById("pexpected").textContent =
+                    lastexpectDate !== "-" ? formatDateISOtoDDMMYYYY(lastexpectDate) : "-";
+
+                localStorage.setItem("jobname", p.jobno);
+                await loadDrawings(p.jobno);
+
+                document.querySelectorAll(".jobid").forEach(el => el.classList.remove("hidden"));
+                document.querySelectorAll(".jobcr").forEach(el => el.classList.remove("bg-green-200"));
+
+                const activeBlock = document.getElementById("job-" + p.id);
+                if (activeBlock) activeBlock.classList.add("hidden");
+
+                const cngclr = document.getElementById("jobc-" + p.id);
+                if (cngclr) cngclr.classList.add("bg-green-200");
+
+            } catch (e) {
+                alert("Unable to load project: " + e.message);
+            }
+
+        }
+
+        // -----------------------
+        // Load drawings for selected job
+        // -----------------------
+        async function loadDrawings(jobno) {
+            document.getElementById("setbtn").classList.remove("hidden");
+            document.getElementById("diagramCount").classList.remove("hidden");
+            document.getElementById("diagramCount").value = "";
+            document.getElementById("clrbtn").classList.add("hidden");
+            document.getElementById("addbtn").classList.add("hidden");
+
+            const res = await fetch(`http://${HOST}:${PORT}/live_projects?jobno=${jobno}`);
+            const rows = await res.json();
+            if (!rows.length) return console.log("No drawings found");
+
+            const project = rows.find(r => r.jobno === jobno);
+            if (!project) return console.log("No live project for jobno");
+
+            // collect rows from dno_1..dno_50
+            let slList = [];
+            for (let i = 1; i <= 50; i++) {
+                const key = `dno_${i}`;
+                if (project[key] && Array.isArray(project[key]) && project[key][0]?.Sl_No) {
+                    slList.push(project[key][0]);
+                    document.getElementById("setbtn").classList.add("hidden");
+                    document.getElementById("diagramCount").classList.add("hidden");
+                    //document.getElementById("clrbtn").classList.remove("hidden");
+                    //document.getElementById("addbtn").classList.remove("hidden");
+                }
+            }
+
+
+
+
+            // Save live project id for later PUT
+            localStorage.setItem("liveProjectId", project.id);
+
+            function buildAvailableProcesses(slList) {
+
+                const availablePro = new Set();
+                const availableFin = new Set();
+
+                slList.forEach(row => {
+                    if (!row.InternalProcess) return;
+
+                    let ips = [];
+
+                    if (Array.isArray(row.InternalProcess)) {
+                        ips = row.InternalProcess.map(p => String(p.name).trim().toUpperCase());
+                    } else if (typeof row.InternalProcess === "string") {
+                        ips = row.InternalProcess.split("/")
+                            .map(p => p.trim().toUpperCase());
+                    }
+
+                    ips.forEach(name => {
+                        if (PRODUCTION_PROCESSES.includes(name)) {
+                            availablePro.add(name);
+                        }
+                        if (FINISH_PROCESSES.includes(name)) {
+                            availableFin.add(name);
+                        }
+                    });
+                });
+
+                // Always allow base processes
+                PRODUCTION_PROCESSES.forEach(p => availablePro.add(p));
+                FINISH_PROCESSES.forEach(p => availableFin.add(p));
+
+                window._availableProProcesses = Array.from(availablePro).sort();
+                window._availableFinProcesses = Array.from(availableFin).sort();
+            }
+
+            await loadProcessesFromDB();
+
+            displayTable(slList);
+        }
+
+        
+        async function loadProcessesFromDB() {
+            try {
+                const res = await fetch(`http://${HOST}:${PORT}/processes`);
+                const rows = await res.json();
+
+                window._availableProProcesses = [];
+                window._availableFinProcesses = [];
+
+                rows.forEach(p => {
+                    const name = String(p.process_name).trim().toUpperCase();
+
+                    if (p.process_type === "PRODUCTION") {
+                        window._availableProProcesses.push(name);
+                    }
+                    else if (p.process_type === "FINISH") {
+                        window._availableFinProcesses.push(name);
+                    }
+                });
+
+            } catch (err) {
+                console.error("Process load failed:", err);
+                alert("Unable to load processes");
+            }
+        }
+
+
+        function normalizeIP(ip, allowedList) {
+            let arr = [];
+
+            if (typeof ip === "string") {
+                arr = ip.split("/")
+                    .map(n => ({
+                        name: n.trim().toUpperCase(),
+                        status: "Pending"
+                    }));
+            }
+            else if (Array.isArray(ip)) {
+                arr = ip.map(p => ({
+                    name: String(p.name || p).trim().toUpperCase(),
+                    status: p.status || "Pending"
+                }));
+            }
+
+            // filter only allowed (from SQL)
+            return arr.filter(p => allowedList.includes(p.name));
+        }
+
+        function lockAttr(row) {
+            return isRowLocked(row) ? "readonly disabled" : "";
+        }
+
+        function lockClass(row) {
+            return isRowLocked(row)
+                ? "bg-gray-100 opacity-70 cursor-not-allowed"
+                : "";
+        }
+
+        // -----------------------
+        // Renders the main table rows and inline editors
+        // -----------------------
+        function displayTable(slList) {
+            window._slList = slList.map(r => ({ ...r }));
+
+            const tb = document.getElementById("tableBody");
+            tb.innerHTML = "";
+
+            slList.forEach((row, i) => {
+                const rIndex = i + 1;
+                const locked = isRowLocked(row);
+
+                const ipArrayp = normalizeIP(
+                    row.InternalProcess,
+                    window._availableProProcesses || []
+                );
+
+                const ipArrayf = normalizeIP(
+                    row.InternalProcess,
+                    window._availableFinProcesses || []
+                );
+
+                const ipJsonp = escapeHtml(JSON.stringify(ipArrayp));
+                const ipJsonf = escapeHtml(JSON.stringify(ipArrayf));
+
+                tb.innerHTML += `
+<tr class="border-b align-top hover:bg-gray-100 ${locked ? 'opacity-70' : ''}" id="row_${rIndex}">
+    <td class="p-3">${rIndex}</td>
+
+    <td class="p-3 text-center">
+        <input id="sec_${rIndex}"
+               class="uppercase border rounded py-1 max-w-[80px] text-center text-black"
+               placeholder="Sl.No..."
+               value="${escapeHtml(row.Sl_No || '')}"
+               ${locked ? "readonly" : ""}>
+    </td>
+
+    <td class="p-3">
+        <input id="desc_${rIndex}"
+               class="border p-1 rounded min-w-[250px]"
+               placeholder="Description. . ."
+               value="${escapeHtml(row.Description || '')}"
+               ${locked ? "readonly" : ""}>
+    </td>
+
+    <td class="p-3">
+        <input id="mat_${rIndex}"
+               class="border p-1 rounded w-35"
+               placeholder="Material. . ."
+               value="${escapeHtml(row.Material || '')}"
+               ${locked ? "readonly" : ""}>
+    </td>
+
+    <td class="p-3">
+        <input id="qty_${rIndex}"
+               type="number"
+               class="border p-1 rounded w-14"
+               placeholder="/set"
+               value="${escapeHtml(row.QtyJob || '')}"
+               ${locked ? "readonly" : ""}>
+    </td>
+
+    <td class="p-3">
+        <input id="tqty_${rIndex}"
+               type="number"
+               class="border p-1 rounded w-[60px]"
+               placeholder="T.Qty"
+               value="${escapeHtml(row.TotalQty || '')}"
+               readonly>
+    </td>
+
+    <!-- PRODUCTION -->
+    <td class="p-3">
+        <input id="ip_display_p_${rIndex}"
+               type="text"
+               readonly
+               class="border p-1 rounded w-full bg-gray-50 ${locked ? '' : 'cursor-pointer'}"
+               placeholder="Production. . ."
+               value="${escapeHtml(
+                    ipArrayp
+                        .filter(p => p.name !== 'PROGRAM')
+                        .map(p => p.name)
+                        .join('/')
+                )}"
+               ${locked ? '' : `onclick="toggleProDropdown(${rIndex})"`}>
+        <input type="hidden" id="ip_json_p_${rIndex}" value="${ipJsonp}">
+        <div id="prodropdown_${rIndex}" class="mt-2 hidden proc-editor bg-green-100"></div>
+    </td>
+
+    <!-- FINISH -->
+    <td class="p-3">
+        <input id="ip_display_f_${rIndex}"
+               type="text"
+               readonly
+               class="border p-1 rounded w-full bg-gray-50 ${locked ? '' : 'cursor-pointer'}"
+               placeholder="Finish. . ."
+               value="${escapeHtml(ipArrayf.map(p => p.name).join('/'))}"
+               ${locked ? '' : `onclick="toggleFinDropdown(${rIndex})"`}>
+        <input type="hidden" id="ip_json_f_${rIndex}" value="${ipJsonf}">
+        <div id="findropdown_${rIndex}" class="hidden proc-editor bg-green-100 "></div>
+    </td>
+
+    <!-- ACTIONS -->
+    <td class="text-center">
+        <div class="mt-3">
+        <button class="bg-white-500 hover:bg-green-600 text-sm text-black rounded h-6"
+                onclick="actionDropdownbtn(${rIndex})">
+                <span class="material-icons">arrow_drop_down</span>
+                </button>
+        <div id="actiondropdown_${rIndex}" class="hidden proc-editor bg-green-100"></div>
+        </div>
+</td>
+</tr>`;
+            });
+
+            tb.innerHTML += `
+<tr>
+    <td colspan="8" class="p-3 text-center">
+        
+            <button onclick="savebtn(${slList.length})"
+                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold mr-2">
+                SAVE ALL
+            </button>
+            <button onclick="setlive()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold">
+                SET TO LIVE
+            </button>
+    </td>
+</tr>`;
+        }
+
+
+
+        function escapeHtml(str) { return String(str || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', '&quot;'); }
+
+        // ---------------------------------------------------------
+        // Dropdown to show for production processes (checkbox list)
+        // ---------------------------------------------------------
+        function actionDropdownbtn(rowIndex) {
+            const div = document.getElementById(`actiondropdown_${rowIndex}`);
+            if (!div) return;
+            if (!div.classList.contains('hidden')) { div.classList.add('hidden'); return; }
+
+            // build list from window._availableProProcesses
+            let html = `<div>`;
+
+            html += `
+        <div class="space-y-2">
+            <button class="px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded w-full"
+                onclick="addrevRow(${rowIndex}, 'after')">Revision</button>
+            <button class="px-2 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded w-full"
+                onclick="duplicateRow(${rowIndex}, 'before')">Duplicate</button>
+            <button class="px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded w-full"
+                onclick="removeRow(${rowIndex})">Remove</button>
+        </div>`;
+            html += `</div>`;
+            div.innerHTML = html;
+            div.classList.remove('hidden');
+        }
+
+
+        function toggleProDropdown(rowIndex) {
+            const div = document.getElementById(`prodropdown_${rowIndex}`);
+            if (!div) return;
+            if (!div.classList.contains('hidden')) { div.classList.add('hidden'); return; }
+
+            // build list from window._availableProProcesses
+            const availablepro = (window._availableProProcesses);
+            const hidden = document.getElementById(`ip_json_p_${rowIndex}`).value || '[]';
+            let current = [];
+            try { current = JSON.parse(hidden); } catch (e) { current = []; }
+
+            let html = `<div class="space-y-2">`;
+
+            html += `
+                <div class="pb-2 border-b flex gap-2 items-center">
+                    <input
+                        id="newpro_name_${rowIndex}"
+                        placeholder="Add production process"
+                        class="border p-1 rounded w-full text-sm"
+                        oninput="toggleAddProBtn(${rowIndex})">
+                    <button
+                        id="addpro_btn_${rowIndex}"
+                        onclick="addProductionProcess(${rowIndex})"
+                        class="bg-gray-700 text-white px-2 py-1 rounded text-sm hidden">
+                        Add
+                    </button>
+                </div>`;
+
+            availablepro.forEach(proc => {
+                const checked = current.some(p => p.name.toUpperCase() === proc);
+                html += `
+                    <div class="flex items-center gap-3">
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox"
+                                class="proc_chk"
+                                data-row="${rowIndex}"
+                                data-name="${proc}"
+                                ${checked ? "checked" : ""}>
+                            <span class="text-sm">${proc}</span>
+                        </label>
+                    </div>`;
+            });
+            
+            html += `</div>`;
+            html += `<div class="pt-2"><button onclick="saveProductionProcesses(${rowIndex})" class="bg-green-600 text-white py-1 rounded text-m w-full">Choose</button></div>`;
+            div.innerHTML = html;
+            div.classList.remove('hidden');
+        }
+
+        function toggleAddProBtn(rowIndex) {
+            const input = document.getElementById(`newpro_name_${rowIndex}`);
+            const btn = document.getElementById(`addpro_btn_${rowIndex}`);
+            if (!input || !btn) return;
+
+            btn.classList.toggle("hidden", input.value.trim() === "");
+
+        }
+
+        async function addProductionProcess(rowIndex) {
+            const input = document.getElementById(`newpro_name_${rowIndex}`);
+            if (!input) return;
+
+            const val = input.value.trim().toUpperCase();
+            if (!val) return;
+
+            // prevent duplicate in UI
+            window._availableProProcesses = window._availableProProcesses || [];
+            if (window._availableProProcesses.includes(val)) {
+                alert("Process already exists");
+                return;
+            }
+
+            try {
+                // 🔥 SAVE TO SQL
+                const res = await fetch(`http://${HOST}:${PORT}/processes`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        process_name: val,
+                        process_type: "PRODUCTION"
+                    })
+                });
+
+                if (!res.ok) throw new Error(await res.text());
+
+                // ✅ update frontend list AFTER SQL success
+                window._availableProProcesses.push(val);
+
+                input.value = "";
+                toggleAddProBtn(rowIndex);
+
+                // refresh dropdown
+                toggleProDropdown(rowIndex);
+                toggleProDropdown(rowIndex);
+
+            } catch (err) {
+                console.error("Process save failed:", err);
+                alert("Failed to save process");
+            }
+        }
+
+        function saveProductionProcesses(rowIndex) {
+            const div = document.getElementById(`prodropdown_${rowIndex}`);
+            const checks = div.querySelectorAll(".proc_chk");
+
+            const selected = [...checks]
+                .filter(c => c.checked)
+                .map(c => ({ name: c.dataset.name, status: "Pending" }));
+
+            document.getElementById(`ip_json_p_${rowIndex}`).value = JSON.stringify(selected);
+            document.getElementById(`ip_display_p_${rowIndex}`).value =
+                selected.map(s => s.name).join("/");
+
+            div.classList.add("hidden");
+        }
+
+        // ---------------------------------------------------------
+        // Dropdown to show for finish processes (checkbox list)
+        // ---------------------------------------------------------
+        function toggleFinDropdown(rowIndex) {
+            const div = document.getElementById(`findropdown_${rowIndex}`);
+            if (!div) return;
+            if (!div.classList.contains('hidden')) { div.classList.add('hidden'); return; }
+
+            // build list from window._availableFinProcesses
+            const availablefin = (window._availableFinProcesses);
+            const hidden = document.getElementById(`ip_json_f_${rowIndex}`).value || '[]'
+            let current = [];
+            try { current = JSON.parse(hidden); } catch (e) { current = []; }
+
+            let html = `<div class="space-y-2">`;
+
+            html += `
+<div class="pb-2 border-b flex gap-2 items-center">
+    <input
+        id="newfin_name_${rowIndex}"
+        placeholder="Add custom process"
+        class="border p-1 rounded w-full text-sm"
+        oninput="toggleAddFinBtn(${rowIndex})"
+    >
+    <button
+        id="addfin_btn_${rowIndex}"
+        onclick="addFinishProcess(${rowIndex})"
+        class="bg-gray-700 text-white px-2 py-1 rounded text-sm hidden">
+        Add
+    </button>
+</div>`;
+
+            availablefin.forEach(proc => {
+                const checked = current.some(p => p.name.toUpperCase() === proc);
+                html += `
+        <div class="flex items-center gap-3">
+            <label class="flex items-center gap-2">
+                <input type="checkbox"
+                       class="fproc_chk"
+                       data-row="${rowIndex}"
+                       data-name="${proc}"
+                       ${checked ? "checked" : ""}>
+                <span class="text-sm">${proc}</span>
+            </label>
+        </div>`;
+            });
+
+            html += `</div>`;
+            html += `<div class="pt-2"><button onclick="saveFinishProcesses(${rowIndex})" class="bg-green-600 text-white py-1 rounded text-m w-full">Choose</button></div>`;
+            div.innerHTML = html;
+            div.classList.remove('hidden');
+        }
+
+        function toggleAddFinBtn(rowIndex) {
+            const input = document.getElementById(`newfin_name_${rowIndex}`);
+            const btn = document.getElementById(`addfin_btn_${rowIndex}`);
+            if (!input || !btn) return;
+
+            btn.classList.toggle("hidden", input.value.trim() === "");
+        }
+
+        async function addFinishProcess(rowIndex) {
+            const input = document.getElementById(`newfin_name_${rowIndex}`);
+            if (!input) return;
+
+            const val = input.value.trim().toUpperCase();
+            if (!val) return;
+
+            window._availableFinProcesses = window._availableFinProcesses || [];
+            if (window._availableFinProcesses.includes(val)) {
+                alert("Process already exists");
+                return;
+            }
+
+            try {
+                const res = await fetch(`http://${HOST}:${PORT}/processes`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        process_name: val,
+                        process_type: "FINISH"
+                    })
+                });
+
+                if (!res.ok) throw new Error(await res.text());
+
+                window._availableFinProcesses.push(val);
+
+                input.value = "";
+                toggleAddFinBtn(rowIndex);
+
+                toggleFinDropdown(rowIndex);
+                toggleFinDropdown(rowIndex);
+
+            } catch (err) {
+                console.error(err);
+                alert("Failed to save finish process");
+            }
+        }
+
+        function saveFinishProcesses(rowIndex) {
+            const div = document.getElementById(`findropdown_${rowIndex}`);
+            const checks = div.querySelectorAll(".fproc_chk");
+
+            const selected = [...checks]
+                .filter(c => c.checked)
+                .map(c => ({ name: c.dataset.name, status: "Pending" }));
+
+            document.getElementById(`ip_json_f_${rowIndex}`).value = JSON.stringify(selected);
+            document.getElementById(`ip_display_f_${rowIndex}`).value =
+                selected.map(s => s.name).join("/");
+
+            div.classList.add("hidden");
+        }
+
+        let rowlast = [];
+
+        // duplicate row quick action
+        function addrevRow(rIndex, pos = 'after') {
+            const list = window._slList = window._slList || [];
+            const idx = rIndex - 1;
+            if (idx < 0 || idx >= list.length) return;
+
+            const sourceRow = list[idx];
+
+            // ---------- 🔒 SOURCE ROW → OLD ----------
+            setDnType(sourceRow, "OLD");
+            sourceRow.__editable = false;
+
+            // ---------- COPY ROW ----------
+            const copy = JSON.parse(JSON.stringify(sourceRow));
+
+            // ---------- SERIAL ----------
+            const match = (sourceRow.Sl_No || "").match(/^(\d+)([A-Z])?$/);
+            let numPart = match ? match[1] : "0001";
+            let newLetter = "A";
+
+            if (match && match[2]) {
+                newLetter = String.fromCharCode(match[2].charCodeAt(0) + 1);
+            }
+
+            copy.Sl_No = numPart + newLetter;
+
+            // ---------- 🔓 DUPLICATED ROW → NEW ----------
+            setDnType(copy, "NEW");
+            copy.__editable = true;
+
+            const insertAt = (pos === 'after') ? idx + 1 : idx;
+            list.splice(insertAt, 0, copy);
+
+            displayTable(list);
+            saveAllDrawings();
+        }
+
+        let savebuttonnotification = [];
+
+        function duplicateRow(rIndex, pos = 'before') {
+            savebuttonnotification = "DUPLICATE";
+            const list = window._slList = window._slList || [];
+            const idx = rIndex - 1;
+            if (idx < 0 || idx >= list.length) return;
+            const sourceRow = list[idx];
+            const copy = JSON.parse(JSON.stringify(sourceRow));
+            copy.Sl_No = sourceRow.Sl_No;
+            const insertAt = (pos === 'before') ? idx + 1 : idx;
+            list.splice(insertAt, 0, copy);
+            displayTable(list);
+            saveAllDrawings();
+        }
+
+        function getDnType(row) {
+            if (!row) return "NEW";
+
+            // if stored as string
+            if (typeof row.dn_type === "string") {
+                return row.dn_type.toUpperCase();
+            }
+
+            // if stored as array (future safe)
+            if (Array.isArray(row.dn_type) && row.dn_type.length > 0) {
+                const last = row.dn_type[row.dn_type.length - 1];
+                return String(Object.values(last)[0]).toUpperCase();
+            }
+
+            return "NEW";
+        }
+
+        function setDnType(row, value) {
+            row.dn_type = value.toUpperCase();
+        }
+
+        function isRowLocked(row) {
+
+            // 🔒 FULL LOCK for REWORK projects
+            //if (window._projectType === "REWORK") {
+            //    return true;
+            //}
+
+            // 🔒 OLD drawings are locked
+            if (getDnType(row) === "OLD") {
+                return true;
+            }
+
+            // 🔓 otherwise editable
+            return false;
+        }
+        
+
+        function removeRow(rIndex) {
+            savebuttonnotification = "REMOVE";
+            const list = window._slList = window._slList || [];
+            const idx = rIndex - 1;
+            if (idx < 0 || idx >= list.length) return;
+            if (!confirm('Remove this drawing?')) return;
+            list.splice(idx, 1);
+            displayTable(list);
+            clearAllDrawings();
+            saveAllDrawings();
+        }
+
+        async function savebtn() {
+            savebuttonnotification = "SAVE";
+            saveAllDrawings();
+        }
+
+        // -----------------------
+        // SAVE all drawings (PUT)
+        // -----------------------
+        async function saveAllDrawings() {
+            const id = localStorage.getItem("liveProjectId") || localStorage.getItem("projectID");
+            if (!id) return alert("Project missing");
+
+            // ensure we are using current window._slList as source of truth
+            const list = window._slList || [];
+            const payload = {};
+            if (list.length > 0) {
+                for (let i = 0; i < list.length; i++) {
+                    const rIndex = i + 1;
+                    
+                    const sec = (
+                        document.getElementById(`sec_${rIndex}`)?.value ||
+                        list[i]?.Sl_No ||
+                        ""
+                    ).toString().toUpperCase();
+                    const row = list[i];
+                    if (!row) {
+                        payload[`dno_${rIndex}`] = null;
+                        continue;
+                    }
+                    const desc = document.getElementById(`desc_${rIndex}`).value || list[i].Description || '';
+                    const mat = document.getElementById(`mat_${rIndex}`).value || list[i].Material || '';
+                    const qtyJob = Number(document.getElementById(`qty_${rIndex}`).value || 0);
+                    const totalQty = (qtyJob * (Number(document.getElementById('pqty').textContent) || 0));
+
+                    let ipRawp = document.getElementById(`ip_json_p_${rIndex}`).value || '[]';
+                    let ipRawf = document.getElementById(`ip_json_f_${rIndex}`).value || '[]';
+                    let ipArrayp = [];
+                    let ipArrayf = [];
+
+                    try {
+                        ipArrayp = JSON.parse(ipRawp);
+                        ipArrayf = JSON.parse(ipRawf);
+
+                        // Normalize
+                        ipArrayp = ipArrayp.map(it => ({
+                            name: String(it.name || it).trim(),
+                            status: String(it.status || "Pending"),
+                            sdate: String(it.sdate || "-"),
+                            edate: String(it.edate || "-"),
+                            operator: String(it.operator || "-")
+                        }));
+
+                        ipArrayf = ipArrayf.map(it => ({
+                            name: String(it.name || it).trim(),
+                            status: String(it.status || "Pending"),
+                            sdate: String(it.sdate || "-"),
+                            edate: String(it.edate || "-"),
+                            operator: String(it.operator || "-")
+                        }));
+
+                    } catch (e) {
+                        console.error("Invalid IP JSON at row", rIndex, e);
+                        return alert("Invalid process data at row " + rIndex);
+                    }
+
+                    // ✅ Add PROGRAM ONLY when VMC is selected
+                    const hasVMC = ipArrayp.some(
+                        p => String(p.name).trim().toUpperCase() === "VMC"
+                    );
+
+                    const hasPROGRAM = ipArrayp.some(
+                        p => String(p.name).trim().toUpperCase() === "PROGRAM"
+                    );
+
+                    // If VMC exists but PROGRAM does not → add PROGRAM
+                    if (hasVMC && !hasPROGRAM) {
+                        ipArrayp.unshift({
+                            name: "PROGRAM",
+                            status: "Pending",
+                            sdate: "-",
+                            edate: "-",
+                            operator: "-"
+                        });
+                    }
+
+                    payload[`dno_${rIndex}`] = [{
+                        Sl_No: sec,
+                        dn_type: row.dn_type,
+                        Description: desc,
+                        Material: mat,
+                        QtyJob: qtyJob,
+                        TotalQty: totalQty,
+                        InternalProcess: [...ipArrayp, ...ipArrayf]
+                    }];
+                }
+
+                /* --------------------------------
+                ✅ SAVE COMMON STATUS (NEW)
+                ----------------------------------*/
+                payload.common_status = [
+                    {
+                        name: "ASSEMBLY",
+                        status: document.getElementById("assembly_status")?.value || "Pending",
+                        sdate: "-",
+                        edate: "-",
+                        operator: "-"
+                    },
+                    {
+                        name: "DELIVERY",
+                        status: document.getElementById("delivery_status")?.value || "Pending",
+                        sdate: "-",
+                        edate: "-",
+                        operator: "-"
+                    }
+                ];
+
+                try {
+                    const res = await fetch(`http://${HOST}:${PORT}/live_projects/${id}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!res.ok) throw new Error(await res.text());
+                    await res.json();
+                    if (savebuttonnotification === "SAVE") {
+                        alert('Saved Successfully!');
+                    }
+                    loadDraftingJobs();
+                    addbtntype = [];
+                } catch (err) {
+                    console.error(err);
+                    alert('Save failed: ' + err.message);
+                }
+
+            } else {
+                document.getElementById("setbtn").classList.remove("hidden");
+                document.getElementById("diagramCount").classList.remove("hidden");
+                document.getElementById("clrbtn").classList.add("hidden");
+                document.getElementById("addbtn").classList.add("hidden");
+            }
+            notifyDashboardRefresh();
+
+        }
+
+        // -----------------------
+        // CLEAR ALL DIAGRAMS
+        // -----------------------
+        async function clearAllDrawings() {
+            const id = localStorage.getItem("liveProjectId") || localStorage.getItem("projectID");
+            if (!id) return alert("Project missing");
+
+            // ensure we are using current window._slList as source of truth
+            const list = window._slList || [];
+            const payload = {};
+
+            for (let i = list.length + 1 ; i <= 50; i++) {
+                const rIndex = i;
+                payload[`dno_${rIndex}`] = null
+            }
+
+            // fill remaining dno_x as null (optional) - we only send those we have
+            try {
+                const res = await fetch(`http://${HOST}:${PORT}/live_projects/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) throw new Error(await res.text());
+                await res.json();
+                //document.getElementById("setbtn").classList.remove("hidden");
+                //document.getElementById("diagramCount").classList.remove("hidden");
+                //document.getElementById("clrbtn").classList.add("hidden");
+                //document.getElementById("addbtn").classList.add("hidden");
+            } catch (err) { console.error(err); alert('Save failed: ' + err.message); }
+        }
+
+        // -----------------------
+        // Set project to LIVE (update projects table)
+        // -----------------------
+        async function setlive() {
+            const id = localStorage.getItem("projectID");
+            if (!id) return alert("Project missing");
+            try {
+                const res = await fetch(`http://${HOST}:${PORT}/projects/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ overallstatus: "LIVE" })
+                });
+                if (!res.ok) throw new Error(await res.text());
+                await res.json();
+                alert("Change to LIVE Successfully!");
+                loadDraftingJobs();
+                refreshBtn();
+            } catch (err) { console.error(err); alert("Error updating job: " + err.message); }
+            
+        }
+
+        // -----------------------
+        // Set diagram numbers (create dno_N entries)
+        // -----------------------
+        async function setDiagramBtn() {
+            try {
+                const jobno = localStorage.getItem("jobname");
+                if (!jobno) return alert("Project ID missing");
+                const res1 = await fetch(`http://${HOST}:${PORT}/live_projects?jobno=${jobno}`);
+                const rows = await res1.json();
+                const j = rows.find(item => item.jobno == jobno);
+                if (!j) return alert("Live project not found");
+                const id = j.id;
+
+                let total = Number(document.getElementById("diagramCount").value);
+                if (!total || total < 1) return alert("Enter valid number");
+
+                let payload = {};
+                for (let i = 1; i <= total; i++) payload[`dno_${i}`] = [{
+                    Sl_No: String(i).padStart(4, '0'),
+                    dn_type: "NEW"
+                }];
+
+                const res = await fetch(`http://${HOST}:${PORT}/live_projects/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                if (!res.ok) throw new Error(await res.text());
+                await res.json();
+                await loadDrawings();
+                takeJob(id);
+            } catch (err) { console.error("setDiagramBtn Error:", err); alert("Error: " + err.message); }
+        }
+
+        // run initial loader
+        window.onload = () => { localStorage.removeItem("projectID"); localStorage.removeItem("jobname"); loadDraftingJobs(); };//buildAvailableProcesses(slList); displayTable(slList);
+
+    </script>
+</body>
+</html>
