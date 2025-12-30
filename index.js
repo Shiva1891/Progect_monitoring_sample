@@ -42,23 +42,22 @@ app.get("/", (req, res) => {
 
 // get API route
 app.get("/projects", (req, res) => {
-  if (!db) return res.status(503).send("DB not available");
-  db.query("SELECT * FROM projects", (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(results);
-  });
+    db.query("SELECT * FROM projects", (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
 });
 
 // get API route
 app.get("/customers", (req, res) => {
-  if (!db) return res.status(503).send("DB not available");
-  db.query("SELECT * FROM customers", (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(results);
-  });
+    db.query("SELECT * FROM customers", (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
 });
 
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
 
