@@ -11,7 +11,7 @@ async function updateColumn() {
     if (process.env.DATABASE_URL) {
       const url = new URL(process.env.DATABASE_URL);
       dbConfig = {
-        host: url.hostname,
+        host: mysql://root:vFfTvkUGwmDceysRfNCehzNMYzjNNpFZ@ballast.proxy.rlwy.net:28500/railway,
         user: url.username,
         password: url.password,
         database: url.pathname.slice(1),
@@ -19,7 +19,7 @@ async function updateColumn() {
       };
     } else {
       dbConfig = {
-        host: process.env.DB_HOST,
+        host: process.env.mysql://root:vFfTvkUGwmDceysRfNCehzNMYzjNNpFZ@ballast.proxy.rlwy.net:28500/railway,
         user: process.env.DB_USER,
         password: process.env.DB_PASS,
         database: process.env.DB_NAME,
