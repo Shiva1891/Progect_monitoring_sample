@@ -54,7 +54,7 @@
 
         const HOST = "192.168.0.200";
 
-        const API = { projects: `http://${HOST}:${PORT}/projects` };
+        const API = { projects: `/projects` };
 
         function getDesignerFromLocalStorage() {
             const designer = localStorage.getItem("selectedDesigner");
@@ -440,7 +440,7 @@
 
             //add projects to live
             async function addliveprojects(id) {
-                const res = await fetch(`http://${HOST}:${PORT}/projects?id=${id}`);
+                const res = await fetch(`/projects?id=${id}`);
                 const data = await res.json();
                 const project = data.find(p => p.id == id);
                 const jobno = project.jobno;
@@ -451,7 +451,7 @@
                 }
                 try {
                     // 1) CHECK IF JOB ALREADY EXISTS
-                    const checkRes = await fetch(`http://${HOST}:${PORT}/live_projects?jobno=${jobno}`);
+                    const checkRes = await fetch(`/live_projects?jobno=${jobno}`);
                     const exists = await checkRes.json();
 
                     const newjob = exists.find(j => j.jobno == jobno);
@@ -462,7 +462,7 @@
                     }
 
                     // 2) ADD NEW JOB IF NOT EXISTS
-                    const res = await fetch(`http://${HOST}:${PORT}/live_projects`, {
+                    const res = await fetch(`/live_projects`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
@@ -514,3 +514,4 @@
 
 </body>
 </html>
+
