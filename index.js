@@ -281,7 +281,7 @@ async function start() {
   await connectDB();
 
    await db.query("UPDATE employee SET department = NULL;");
-   await db.query("ALTER TABLE employee MODIFY department varchar(255);");
+   //await db.query("ALTER TABLE employee MODIFY department varchar(255);");
    //await db.query("ALTER TABLE employee DROP COLUMN assembly;");
    //await db.query("ALTER TABLE employee DROP COLUMN delivery;");
    //await db.query("ALTER TABLE projects MODIFY expected_date JSON NULL");
@@ -297,6 +297,7 @@ async function start() {
 }
 
 start();
+
 
 
 
