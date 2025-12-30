@@ -37,7 +37,7 @@ async function updateColumn() {
     console.log("✅ Database connected successfully");
 
     const [results] = await db.query(
-      "ALTER TABLE projects MODIFY project_type JSON NULL;"
+      "ALTER TABLE projects MODIFY enquery_date JSON NULL;"
     );
 
     console.log("Column updated!", results);
