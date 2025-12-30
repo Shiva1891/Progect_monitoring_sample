@@ -1,0 +1,636 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AGTEK — Allocate Projects</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* small niceties */
+        .thin-scrollbar::-webkit-scrollbar {
+            height: 8px;
+            width: 8px
+        }
+
+        .thin-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px
+        }
+
+        .thin-scrollbar::-webkit-scrollbar-track {
+            background: transparent
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-900">
+
+    <!-- HEADER -->
+    <header class="fixed top-0 left-0 right-0 bg-white shadow z-40">
+        <div class="max-w-8xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <span class="text-3xl font-extrabold text-green-600">AGTEK</span>
+                <span class="text-sm text-sky-600">Projects — Allocate to Designers</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="refreshBtn" class="bg-sky-600 text-white px-3 py-1 rounded">Refresh</button>
+                <button onclick="logout()" class="bg-red-500 text-white px-3 py-1 rounded">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- LAYOUT -->
+    <main class="pt-20 max-w-8xl mx-auto px-4">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- LEFT: Projects table (takes 2 columns on large screens) -->
+            <section class="lg:col-span-2 bg-white rounded-2xl shadow p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-2xl font-semibold text-slate-800">Allocate to Designers</h2>
+                    <div class="flex items-center gap-2">
+                        <button id="reloadBtn" class="bg-gray-100 px-3 py-1 rounded">Reload</button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left">
+                        <thead class="bg-gray-100 sticky top-0">
+                            <tr>
+                                <th class="p-3 text-sm font-medium">Job No</th>
+                                <th class="p-3 text-sm font-medium">Project</th>
+                                <th class="p-3 text-sm font-medium">Customer</th>
+                                <th class="p-3 text-sm font-medium">Contact</th>
+                                <th class="p-3 text-sm font-medium">Qty</th>
+                                <th class="p-3 text-sm font-medium">Enquiry</th>
+                                <th class="p-3 text-sm font-medium">Expected</th>
+                                <th class="p-3 text-sm font-medium">Assign To</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="bg-white"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- RIGHT: Designers list + Designer Jobs -->
+            <aside class="space-y-6">
+
+                <!-- Designers list -->
+                <div class="bg-white rounded-2xl shadow p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-semibold text-blue-600">Designers</h3>
+                        <button id="btnAddDesignerSmall" class="md:hidden bg-green-500 text-white px-2 py-1 rounded">Add</button>
+                    </div>
+                    <div id="designersname" class="space-y-2 max-h-[280px] overflow-auto thin-scrollbar"></div>
+                </div>
+
+                <!-- Designer Jobs (Option A: list view) -->
+                <div class="bg-white rounded-2xl shadow p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-semibold text-slate-800">Jobs by Designer</h3>
+                        <button id="collapseDesignerJobs" class="text-sm text-slate-500">Refresh</button>
+                    </div>
+                    <div id="designerJobs" class="space-y-4 max-h-[420px] overflow-auto thin-scrollbar">
+                        <!-- populated by JS -->
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+    <!-- Edit Designer Modal -->
+    <div id="editDesignerModal"
+         class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+
+        <div class="bg-white w-96 rounded-xl shadow-lg p-6 space-y-4">
+
+            <h2 class="text-lg font-semibold text-gray-800">
+                Edit Designer Name
+            </h2>
+
+            <input type="hidden" id="editEmpId">
+            <input type="hidden" id="editOldName">
+
+            <div>
+                <label class="text-sm font-medium text-gray-600">
+                    Designer Name
+                </label>
+                <input id="editNewName"
+                       class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-400"
+                       placeholder="Enter designer name" />
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <button onclick="closeEditDesignerModal()"
+                        class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">
+                    Cancel
+                </button>
+
+                <button onclick="confirmUpdateDesigner()"
+                        class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
+                    Update
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- SCRIPTS -->
+    <script>
+        // Clear localStorage on unload (as you requested earlier)
+        //window.addEventListener("beforeunload", function () {
+        //localStorage.removeItem("selectedDesigner");
+        //localStorage.clear();   // delete everything
+        //});
+    </script>
+
+    <script>
+        // ---- auth check + logout (kept from your code) ----
+        const allowedRole = "Allocate";
+        const role = localStorage.getItem("selectedDesigner");
+        if (!role || role !== allowedRole) {
+            window.location.href = "access-denied.html"
+        }
+
+        function logout() {
+            localStorage.removeItem("selectedDesigner");
+            notifyDashboardRefresh();
+            window.close();
+        }
+
+        function notifyDashboardRefresh() {
+            localStorage.setItem("REFRESH_DASHBOARD", Date.now());
+        }
+
+
+        // ---- small helpers and state ----
+        let selectedDesignerId = null; // for edit modal
+
+        // API base (keep your existing addresses)
+        const API = {
+            projects: "/projects",
+            designers: "/designers",
+            employee: "/employee"
+        };
+
+        function extractNamesFromObject(obj) {
+            return Object.keys(obj)
+                .filter(k => k.startsWith("name_") && obj[k])
+                .map(k => obj[k]);
+        }
+
+        function extractNamesFromEmployeeRecord(record) {
+            const names = [];
+
+            ["designers_name"].forEach(col => {
+                if (Array.isArray(record[col])) {
+                    record[col].forEach(item => {
+                        if (item.name) names.push(item.name);
+                    });
+                }
+            });
+            return names;
+        }
+
+        function extractDesignersFromEmployee(record) {
+            const result = [];
+
+            // ONLY employee columns
+            const SOURCES = ["designers_name"]; // add "finish" if needed
+
+            SOURCES.forEach(col => {
+                const arr = record[col];
+                if (!Array.isArray(arr)) return;
+
+                arr.forEach(obj => {
+                    Object.keys(obj).forEach(k => {
+                        if (k.startsWith("name") && obj[k]) {
+                            result.push({
+                                employeeId: record.id,
+                                name: obj[k]
+                            });
+                        }
+                    });
+                });
+            });
+
+            return result;
+        }
+
+        // ---- Load Projects + Designers, render table + right panes ----
+        async function loadAll() {
+
+            try {
+                // fetch both in parallel
+                const [projectsRes, designersRes, employeeRes] = await Promise.all([
+                    fetch(API.projects),
+                    fetch(API.designers),
+                    fetch(API.employee)
+                ]);
+                if (!projectsRes.ok) throw new Error("Failed to load projects");
+                if (!designersRes.ok) throw new Error("Failed to load designers");
+                if (!employeeRes.ok) throw new Error("Failed to load designers");
+
+                const projects = await projectsRes.json();
+                const designers = await designersRes.json();
+                const employee = await employeeRes.json();
+
+                renderProjectsTable(projects, employee);
+                renderDesignersList(employee);
+                renderDesignerJobs(employee, projects);
+            } catch (err) {
+                console.error(err);
+                alert("Error loading data: " + err.message);
+            }
+        }
+
+        // ---- Render project table (left) ----
+        function renderProjectsTable(projects, employee) {
+            const tbody = document.getElementById("tableBody");
+            tbody.innerHTML = "";
+
+            // show only items with overallstatus === "ALLOCATE"
+            const allocatedProjects = projects.filter(item => item.overallstatus === "ALLOCATE");
+
+            allocatedProjects.forEach(item => {
+
+                //projects.forEach(item => {
+                // create designer options
+                let options = `<option value="">-- Select Designer --</option>`;
+                const allNames = [];
+                employee.forEach(record => {
+                    const names = extractNamesFromEmployeeRecord(record);
+                    allNames.push(...names);
+                });
+                const uniqueNames = [...new Set(allNames)];
+
+                uniqueNames.forEach(d => {
+                    // note: item.overallstatus is "ALLOCATE", so none will be selected by default
+                    options += `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`;
+                });
+
+                const tr = document.createElement("tr");
+                tr.className = "border-b hover:bg-gray-50";
+
+                const lastQty = Array.isArray(item.quantity) && item.quantity.length > 0
+                    ? Object.values(item.quantity[item.quantity.length - 1])[0]
+                    : "-";
+
+                const lastDate = Array.isArray(item.enquery_date) && item.enquery_date.length > 0
+                    ? Object.values(item.enquery_date[item.enquery_date.length - 1])[0]
+                    : "-";
+
+                const expectedlastDate = Array.isArray(item.expected_date) && item.expected_date.length > 0
+                    ? Object.values(item.expected_date[item.expected_date.length - 1])[0]
+                    : "-";
+
+                tr.innerHTML = `
+              <td class="p-3"><input class="uppercase job-input border rounded px-2 py-1 w-28" value="${escapeHtml(item.jobno || '')}"></td>
+              <td class="p-3 text-sm">${escapeHtml(item.project_name || '')}</td>
+              <td class="p-3 text-sm">${escapeHtml(item.customer || '')}</td>
+              <td class="p-3 text-sm">${escapeHtml(item.contact_person || '')}</td>
+              <td class="p-3 text-sm">${lastQty}</td>
+              <td class="p-3 text-sm">${lastDate}</td>
+              <td class="p-3 text-sm">${expectedlastDate}</td>
+              <td class="p-3">
+                <select class="designerSelect w-full p-2 border rounded" data-id="${item.id}">
+                  ${options}
+                </select>
+              </td>
+            `;
+
+                tbody.appendChild(tr);
+            });
+
+            // attach change listeners to selects (auto-assign)
+            tbody.querySelectorAll(".designerSelect").forEach(sel => {
+                sel.onchange = () => {
+                    const id = sel.getAttribute("data-id");
+                    const row = sel.closest("tr");
+                    const jobInput = row.querySelector(".job-input");
+                    let jobno = jobInput ? jobInput.value.trim() : "";
+
+                    jobno = jobno.toUpperCase();
+
+                    const designer = sel.value.trim();
+
+                    if (!designer) return;
+
+                    // optimistic UI: disable select while assigning
+                    sel.disabled = true;
+
+                    fetch(`${API.projects}/${id}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            jobno: jobno,
+                            overallstatus: designer
+                        })
+                    })
+                        .then(r => {
+                            if (!r.ok) throw new Error("Assign failed");
+                            return r.json();
+                        })
+                        .then(() => loadAll())
+                        .catch(err => {
+                            console.error("Auto-assign error", err);
+                            alert("Failed to assign: " + err);
+                            sel.disabled = false;
+                        });
+                };
+            });
+
+        }
+
+        // ---- Render Designers list (right column) ----
+        function renderDesignersList(employee) {
+            const div = document.getElementById("designersname");
+            div.innerHTML = "";
+
+            let allDesigners = [];
+
+            employee.forEach(emp => {
+                allDesigners.push(...extractDesignersFromEmployee(emp));
+            });
+
+            // remove duplicates by name
+            const uniqueDesigners = Object.values(
+                allDesigners.reduce((acc, d) => {
+                    acc[d.name] = d;
+                    return acc;
+                }, {})
+            );
+
+            uniqueDesigners.forEach(d => {
+                const row = document.createElement("div");
+                row.className =
+                    "flex justify-between items-center gap-2 p-2 rounded hover:bg-slate-50";
+
+                row.innerHTML = `
+                <div class="flex-1">
+                    <button class="text-left w-full text-sm font-medium"
+                        data-empid="${d.employeeId}"
+                        data-name="${escapeHtml(d.name)}">
+                        ${escapeHtml(d.name)}
+                    </button>
+                </div>
+
+                <div class="flex gap-2">
+                    <button class="editDesignerBtn bg-yellow-100 px-2 py-1 rounded text-sm"
+                        data-empid="${d.employeeId}"
+                        data-name="${escapeHtml(d.name)}">
+                        Edit
+                    </button>
+
+                    <button class="deleteDesignerBtn bg-red-600 text-white px-2 py-1 rounded text-sm"
+                        data-empid="${d.employeeId}"
+                        data-name="${escapeHtml(d.name)}">
+                        Del
+                    </button>
+                </div>
+            `;
+
+                div.appendChild(row);
+            });
+
+            wireEmployeeDesignerActions(div);
+        }
+
+        async function wireEmployeeDesignerActions(container) {
+
+            // wire up edit/delete events
+            container.querySelectorAll(".deleteDesignerBtn").forEach(btn => {
+                btn.onclick = async () => {
+                    const name = btn.dataset.name;
+
+                    if (!confirm(`Delete "${name}"?`)) return;
+
+                    const res = await fetch(API.employee);
+                    const employees = await res.json();
+
+                    for (const emp of employees) {
+                        ["designers_name", "drafting", "production", "finish", "assembly", "delivery"]
+                            .forEach(col => {
+                                if (Array.isArray(emp[col])) {
+                                    emp[col] = emp[col].filter(e => e.name !== name);
+                                }
+                            });
+
+                        await fetch(`${API.employee}/${emp.id}`, {
+                            method: "PUT",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(emp)
+                        });
+                    }
+
+                    loadAll();
+                };
+            });
+
+            container.querySelectorAll(".editDesignerBtn").forEach(btn => {
+                btn.onclick = () => {
+                    document.getElementById("editEmpId").value = btn.dataset.empid;
+                    document.getElementById("editOldName").value = btn.dataset.name;
+                    document.getElementById("editNewName").value = btn.dataset.name;
+
+                    openEditDesignerModal();
+                };
+            });
+
+        }
+
+        function openEditDesignerModal() {
+            const modal = document.getElementById("editDesignerModal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+
+            document.getElementById("editNewName").focus();
+        }
+
+        function closeEditDesignerModal() {
+            const modal = document.getElementById("editDesignerModal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        function confirmUpdateDesigner() {
+            const empId = document.getElementById("editEmpId").value;
+            const oldName = document.getElementById("editOldName").value;
+            const newName = document.getElementById("editNewName").value.trim().toUpperCase();
+
+            if (!newName) {
+                alert("Name cannot be empty");
+                return;
+            }
+
+            if (newName === oldName) {
+                closeEditDesignerModal();
+                return;
+            }
+
+            updateDesignerName(empId, oldName, newName);
+            closeEditDesignerModal();
+        }
+
+        document.getElementById("editDesignerModal")
+            .addEventListener("click", e => {
+                if (e.target.id === "editDesignerModal") {
+                    closeEditDesignerModal();
+                }
+            });
+
+        document.addEventListener("keydown", e => {
+            if (e.key === "Escape") closeEditDesignerModal();
+        });
+
+        async function updateDesignerName(empId, oldName, newName) {
+            try {
+                // 1️⃣ Fetch all employees (because no GET /employee/:id)
+                const res = await fetch(API.employee);
+                const employees = await res.json();
+
+                // 2️⃣ Find employee
+                const emp = employees.find(e => String(e.id) === String(empId));
+                if (!emp || !Array.isArray(emp.designers_name)) {
+                    alert("Employee or production data not found");
+                    return;
+                }
+
+                // 3️⃣ Update name inside production
+                emp.designers_name = emp.designers_name.map(obj => {
+                    const updated = { ...obj };
+
+                    Object.keys(updated).forEach(k => {
+                        if (k.startsWith("name") && updated[k] === oldName) {
+                            updated[k] = newName.trim().toUpperCase();
+                        }
+                    });
+
+                    return updated;
+                });
+
+                // 4️⃣ PUT update
+                await fetch(`${API.employee}/${empId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ designers_name: emp.designers_name })
+                });
+
+                alert("Designer name updated successfully");
+                await loadAll();
+
+            } catch (err) {
+                console.error(err);
+                alert("Update failed");
+            }
+        }
+
+
+        // ---- Render Designer Jobs (right column) ----
+        function renderDesignerJobs(employee, projects) {
+            const container = document.getElementById("designerJobs");
+            container.innerHTML = "";
+
+            let allDesigners = [];
+
+            employee.forEach(emp => {
+                allDesigners.push(...extractDesignersFromEmployee(emp));
+            });
+
+            // remove duplicates by name
+            const uniqueDesigners = Object.values(
+                allDesigners.reduce((acc, d) => {
+                    acc[d.name] = d;
+                    return acc;
+                }, {})
+            );
+
+            uniqueDesigners.forEach(d => {
+                const designerDiv = document.createElement("div");
+                designerDiv.className = "bg-slate-50 p-3 rounded-lg";
+
+                const jobs = projects.filter(p => (p.overallstatus ?? "") === d.name);
+
+                const header = document.createElement("div");
+                header.className = "flex items-center justify-between mb-2";
+                header.innerHTML =
+                    `<div class="font-semibold">${escapeHtml(d.name)}</div>
+                                    <div class="text-sm text-slate-500">(${jobs.length})</div>`;
+
+                const list = document.createElement("ul");
+                list.className = "list-disc text-sm space-y-1 max-h-40 overflow-auto thin-scrollbar";
+
+                if (jobs.length === 0) {
+                    list.innerHTML = `<li class="text-slate-500">No jobs assigned</li>`;
+                } else {
+                    jobs.forEach(j => {
+                        const li = document.createElement("li");
+                        li.className = "flex justify-between items-center mb-2";
+
+                        const text = document.createElement("span");
+                        text.className = "text-gray-800";
+                        text.textContent =
+                            `${j.jobno || '—'} — ${j.project_name || ''}`;
+
+                        const btn = document.createElement("button");
+                        btn.textContent = "-";
+                        btn.className =
+                            "deletejob px-1 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded-xl shadow";
+                        btn.setAttribute("data-id", j.id);
+                        btn.setAttribute("data-jobno", j.jobno);
+
+                        li.appendChild(text);
+                        li.appendChild(btn);
+                        list.appendChild(li);
+                    });
+                }
+                designerDiv.appendChild(header);
+                designerDiv.appendChild(list);
+                container.appendChild(designerDiv);
+
+                // Attach click to buttons INSIDE this designer box (unassign back to ALLOCATE)
+                designerDiv.querySelectorAll(".deletejob").forEach(btn => {
+                    btn.onclick = async () => {
+                        const id = btn.getAttribute("data-id");
+                        const jobN = btn.getAttribute("data-jobno");
+
+                        try {
+                            const res = await fetch(`${API.projects}/${id}`, {
+                                method: "PUT",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    jobno: jobN || "",
+                                    overallstatus: "ALLOCATE"
+                                })
+                            });
+                            if (!res.ok) throw new Error("Failed to unassign job");
+                            await loadAll();
+                        } catch (err) {
+                            console.error("Assign error", err);
+                            alert("Failed to update: " + err.message);
+                        }
+                    };
+                });
+            });
+        }
+
+        // ---- small utilities ----
+        function escapeHtml(s) {
+            if (s === null || s === undefined) return "";
+            return String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+        }
+
+        // ---- quick buttons ----
+        document.getElementById("reloadBtn").onclick = loadAll;
+        document.getElementById("refreshBtn").onclick = loadAll;
+        document.getElementById("collapseDesignerJobs").onclick = loadAll;
+
+        // ---- initial load ----
+        window.addEventListener("DOMContentLoaded", () => {
+            loadAll();
+        });
+    </script>
+</body>
+</html>
+
