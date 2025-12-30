@@ -2567,7 +2567,7 @@
 
             const btnRow = document.createElement("div");
             btnRow.id = "fieldbtns"
-            btnRow.className = "flex gap-2 font-semibold justify-between";
+            btnRow.className = "space-y-2 font-semibold";
 
             const listBox = document.createElement("div");
             listBox.id = "listfieldnames";
@@ -2575,7 +2575,7 @@
 
             employeeheaders.forEach(col => {
                 const btn = document.createElement("button");
-                btn.className = "p-1 bg-green-200 rounded text-sm";
+                btn.className = "p-1 bg-green-200 rounded text-sm w-full";
                 btn.textContent =
                     normalizef(col) == "designers_name" ? "Designers" : col.replace(/_name/g, " ");
 
@@ -2637,6 +2637,10 @@
                 const arr = d[col];
                 if (!Array.isArray(arr)) return;
 
+                document.getElementById("relativediv").classList.remove("pl-6");
+            
+                document.getElementById("createdepartment").classList.add("hidden");
+
                 arr.forEach(obj => {
                     const nameKey = Object.keys(obj).find(k => k.startsWith("name"));
                     if (!nameKey) return;
@@ -2685,6 +2689,8 @@
                 document.getElementById("emp_process").classList.add("hidden");
                 document.getElementById("emp_div").classList.add("hidden");
             }
+            document.getElementById("relativediv").classList.remove("pl-6");
+            document.getElementById("createdepartment").classList.add("hidden");
             document.getElementById("saveBtn").onclick =
                 () => updateEmployee(col, employeeId, data.seq);
         }
@@ -3121,6 +3127,7 @@
     </script>
 </body>
 </html>
+
 
 
 
