@@ -1,6 +1,7 @@
 {
   "name": "project_monitoring_sample",
   "version": "1.0.0",
+  "type": "module",
   "description": "Express + MySQL + HTML app",
   "main": "index.js",
   "scripts": {
