@@ -41,46 +41,100 @@ async function connectDB() {
 /* ===============================
    ✅ GET APIs
 ================================ */
-app.get("/projects", async (req, res) => {
-  try {
-    const [rows] = await db.query("SELECT * FROM projects");
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+app.get("/projects", (req, res) => {
+    db.query("SELECT * FROM projects", (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        const formatted = rows.map(r => ({
+            ...r,
+            start_date: r.start_date?.toISOString()?.split("T")[0],
+            end_date: r.end_date?.toISOString()?.split("T")[0]
+        }));
+
+        res.json(formatted);
+    });
 });
 
-app.get("/customers", async (req, res) => {
-  try {
-    const [rows] = await db.query("SELECT * FROM customers");
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+app.get("/designers", (req, res) => {
+    db.query("SELECT * FROM designers", (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
 });
 
+app.get("/customers", (req, res) => {
+    db.query("SELECT * FROM customers", (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.get("/live_projects", (req, res) => {
+    db.query("SELECT * FROM live_projects", (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.get("/processes", (req, res) => {
+    db.query("SELECT * FROM processes", (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.get("/employee", (req, res) => {
+    db.query("SELECT * FROM employee", (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.get("/employee/headers", (req, res) => {
+    const sql = `
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'employee'
+        AND TABLE_SCHEMA = DATABASE()
+        ORDER BY ORDINAL_POSITION
+    `;
+
+    db.query(sql, (err, rows) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: err.message });
+        }
+
+        res.json(rows.map(r => r.COLUMN_NAME));
+    });
+});
 /* ===============================
    ✅ POST APIs
 ================================ */
-app.post("/customers", async (req, res) => {
-  try {
+app.post("/customers", (req, res) => {
     const { all_customers } = req.body;
-    if (!all_customers) {
-      return res.status(400).json({ error: "Customer name required" });
-    }
 
-    const [result] = await db.query(
-      "INSERT INTO customers (all_customers) VALUES (?)",
-      [all_customers]
+    db.query(
+        "INSERT INTO customers (all_customers) VALUES (?)",
+        [all_customers],
+        (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ id: result.insertId, all_customers });
+        }
     );
+});
 
-    res.status(201).json({
-      id: result.insertId,
-      all_customers
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+app.post("/designers", (req, res) => {
+    const { designers_name } = req.body;
+
+    db.query(
+        "INSERT INTO designers (designers_name) VALUES (?)",
+        [designers_name],
+        (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ id: result.insertId, designers_name });
+        }
+    );
 });
 
 app.post("/projects", (req, res) => {
@@ -103,31 +157,196 @@ app.post("/projects", (req, res) => {
     });
 });
 
+app.post("/processes", (req, res) => {
+    const { process_name, process_type } = req.body;
+
+    db.query(
+        "INSERT INTO processes (process_name, process_type) VALUES (?, ?)",
+        [process_name, process_type],
+        (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ id: result.insertId, process_name, process_type });
+        }
+    );
+});
+
+app.post("/live_projects", (req, res) => {
+    const { jobno } = req.body;
+
+    db.query(
+        "INSERT INTO live_projects (jobno) VALUES (?)",
+        [jobno],
+        (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ id: result.insertId, jobno });
+        }
+    );
+});
+
+app.post("/employee", (req, res) => {
+    const t = req.body;
+
+    const sql = `
+        INSERT INTO employee
+        (designers_name, drafting, production, finish, assembly, delivery)
+        VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+    db.query(sql, [
+        JSON.stringify(t.designers_name), JSON.stringify(t.drafting), JSON.stringify(t.production), JSON.stringify(t.finish), JSON.stringify(t.assembly), JSON.stringify(t.delivery)
+    ], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ id: result.insertId, ...t });
+    });
+});
+
 /* ===============================
    ✅ PUT APIs
 ================================ */
-app.put("/designers/:id", async (req, res) => {
-  try {
-    await db.query(
-      "UPDATE designers SET designers_name=? WHERE id=?",
-      [req.body.designers_name, req.params.id]
+app.put("/projects/:id", (req, res) => {
+    const id = req.params.id;
+    const body = req.body;
+
+    let fields = [];
+    let values = [];
+
+    for (let key in body) {
+        fields.push(`${key} = ?`);
+        values.push(
+            typeof body[key] === "object"
+                ? JSON.stringify(body[key])
+                : body[key]
+        );
+    }
+
+    if (!fields.length)
+        return res.status(400).json({ error: "No fields provided" });
+
+    const sql = `UPDATE projects SET ${fields.join(", ")} WHERE id = ?`;
+    values.push(id);
+
+    db.query(sql, values, err => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Project updated", id });
+    });
+});
+
+app.put("/processes/:id", (req, res) => {
+    const { process_name, process_type } = req.body;
+
+    db.query(
+        "UPDATE processes SET process_name=?, process_type=? WHERE id=?",
+        [process_name, process_type, req.params.id],
+        err => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: "Process updated" });
+        }
     );
-    res.json({ message: "Designer updated" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+});
+
+app.put("/designers/:id", (req, res) => {
+    db.query(
+        "UPDATE designers SET designers_name=? WHERE id=?",
+        [req.body.designers_name, req.params.id],
+        err => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: "Designer updated" });
+        }
+    );
+});
+
+app.put("/live_projects/:id", (req, res) => {
+    const id = req.params.id;
+    const body = req.body;
+
+    let fields = [];
+    let values = [];
+
+    for (let key in body) {
+        fields.push(`${key} = ?`);
+        values.push(
+            typeof body[key] === "object"
+                ? JSON.stringify(body[key])
+                : body[key]
+        );
+    }
+
+    if (!fields.length)
+        return res.status(400).json({ error: "No fields provided" });
+
+    const sql = `UPDATE live_projects SET ${fields.join(", ")} WHERE id = ?`;
+    values.push(id);
+
+    db.query(sql, values, err => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Project updated", id });
+    });
+});
+
+app.put("/employee/:id", (req, res) => {
+    const id = req.params.id;
+    const body = req.body;
+
+    let fields = [];
+    let values = [];
+
+    for (let key in body) {
+        fields.push(`${key} = ?`);
+        values.push(
+            typeof body[key] === "object"
+                ? JSON.stringify(body[key])
+                : body[key]
+        );
+    }
+
+    if (!fields.length)
+        return res.status(400).json({ error: "No fields provided" });
+
+    const sql = `UPDATE employee SET ${fields.join(", ")} WHERE id = ?`;
+    values.push(id);
+
+    db.query(sql, values, err => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Change successfully", id });
+    });
 });
 
 /* ===============================
    ✅ DELETE APIs
 ================================ */
-app.delete("/designers/:id", async (req, res) => {
-  try {
-    await db.query("DELETE FROM designers WHERE id=?", [req.params.id]);
-    res.json({ message: "Designer deleted" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+app.delete("/projects/:id", (req, res) => {
+    db.query("DELETE FROM projects WHERE id=?", [req.params.id], err => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Project deleted" });
+    });
+});
+
+app.delete("/designers/:id", (req, res) => {
+    db.query("DELETE FROM designers WHERE id=?", [req.params.id], err => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Designer deleted" });
+    });
+});
+
+app.delete("/live_projects/:jobno/dno/:dno", (req, res) => {
+    const file = `C:/live_projects/${req.params.jobno}/dno/${req.params.dno}.json`;
+
+    fs.unlink(file, err => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "File deleted" });
+    });
+});
+app.delete("/customers/:id", (req, res) => {
+    db.query("DELETE FROM customers WHERE id=?", [req.params.id], err => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Project deleted" });
+    });
+});
+app.delete("/employee/:id", (req, res) => {
+    db.query("DELETE FROM employee WHERE id=?", [req.params.id], err => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "deleted" });
+    });
 });
 
 /* ===============================
@@ -137,7 +356,7 @@ async function startServer() {
   await connectDB();
 
 
-   await db.query("create table live_projects(jobno varchar(255), common_status json null, dno_1 json null, dno_2 json null, dno_3 json null, dno_4 json null, dno_5 json null, dno_6 json null, dno_7 json null, dno_8 json null, dno_9 json null, dno_10 json null, dno_11 json null, dno_12 json null, dno_13 json null, dno_14 json null, dno_15 json null, dno_16 json null, dno_17 json null, dno_18 json null, dno_19 json null, dno_20 json null, dno_21 json null, dno_22 json null, dno_23 json null, dno_24 json null, dno_25 json null, dno_26 json null, dno_27 json null, dno_28 json null, dno_29 json null, dno_30 json null, dno_31 json null, dno_32 json null, dno_33 json null, dno_34 json null, dno_35 json null, dno_36 json null, dno_37 json null, dno_38 json null, dno_39 json null, dno_40 json null, dno_41 json null, dno_42 json null, dno_43 json null, dno_44 json null, dno_45 json null, dno_46 json null, dno_47 json null, dno_48 json null, dno_49 json null, dno_50 json null, dno_51 json null);");
+   await db.query("create table processes(id int key auto_increment, process_name varchar(255), process_type varchar(255));");
    //await db.query("ALTER TABLE projects MODIFY drafting JSON NULL");
    //await db.query("ALTER TABLE projects MODIFY enquery_date JSON NULL");
    //await db.query("ALTER TABLE projects MODIFY quantity JSON NULL");
@@ -153,6 +372,7 @@ async function startServer() {
 }
 
 startServer();
+
 
 
 
