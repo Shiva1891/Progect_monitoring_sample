@@ -19,7 +19,7 @@ async function updateColumn() {
       };
     } else {
       dbConfig = {
-        host: process.env.mysql://root:vFfTvkUGwmDceysRfNCehzNMYzjNNpFZ@ballast.proxy.rlwy.net:28500/railway,
+        host: process.env.root:vFfTvkUGwmDceysRfNCehzNMYzjNNpFZ@ballast.proxy.rlwy.net:28500/railway,
         user: process.env.DB_USER,
         password: process.env.DB_PASS,
         database: process.env.DB_NAME,
