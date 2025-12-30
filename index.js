@@ -44,4 +44,11 @@ app.get("/", (req, res) => {
 app.get("/users", (req, res) => {
   if (!db) return res.status(503).send("DB not available");
   db.query("SELECT * FROM users", (err, results) => {
-    if
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
