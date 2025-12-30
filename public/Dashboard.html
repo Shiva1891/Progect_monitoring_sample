@@ -485,12 +485,10 @@
         function closeup() {
             document.getElementById("project").classList.add("hidden");
             document.getElementById("status").classList.add("hidden");
-            document.getElementById("newcustomer").classList.add("hidden");
         }
 
         function closecus() {
             document.getElementById("project").classList.remove("hidden");
-            document.getElementById("newcustomer").classList.add("hidden");
         }
 
         let selectitem = null;
@@ -2995,7 +2993,7 @@
 
                 const payload = { [n]: [newEmployee] };
 
-                await fetch(`http://${HOST}:${PORT}/employee`, {
+                await fetch(`/employee`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
@@ -3111,6 +3109,7 @@
     </script>
 </body>
 </html>
+
 
 
 
