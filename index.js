@@ -49,6 +49,7 @@ async function connectDB() {
 ================================ */
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "Dashboard.html"));
+  res.sendFile(path.join(__dirname, "public", "Login.html"));
 });
 
 /* ===============================
@@ -277,6 +278,7 @@ async function start() {
 }
 
 start();
+
 
 
 
