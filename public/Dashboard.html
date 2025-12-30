@@ -2531,18 +2531,16 @@
                 "w-full bg-white h-10 rounded-lg px-3 font-semibold flex items-center";
 
             div.innerHTML = `
-        <div class="flex gap-2 w-full items-center">
-            <div class="flex gap-2">
-                <button onclick="closetype()" class="px-3 bg-green-500 hover:bg-green-600 text-white rounded">+</button>
-            <div class="flex-1 flex justify-between items-center w-full">
-                <h1 id="tabcontent">Departments</h1>
-                <button id="backspacebtn" class="hidden px-2 h-6 bg-gray-200 rounded">
-                    <span class="material-icons">arrow_left</span>
-                </button>
-            </div>
-            <div>
-            <button onclick="closetype()" class="px-3 bg-red-500 text-white rounded">x</button>
-        </div>`;
+            <button onclick="closetype()" class="px-3 bg-green-500 hover:bg-green-600 text-white rounded">+</button>
+            <div class="flex gap-2 w-full items-center">
+                <div class="flex-1 flex justify-between items-center w-full">
+                    <h1 id="tabcontent">Departments</h1>
+                    <button id="backspacebtn" class="hidden px-2 h-6 bg-gray-200 rounded">
+                        <span class="material-icons">arrow_left</span>
+                    </button>
+                </div>
+                <button onclick="closetype()" class="px-3 bg-red-500 text-white rounded">x</button>
+            </div>`;
             return div;
         }
         function createBody(employeeheaders) {
@@ -3076,13 +3074,10 @@
                     chooseInput.value = p;
                     list.remove();
                 };
-
                 list.appendChild(item);
             });
-
             chooseInput.parentElement.appendChild(list);
         }
-
         async function loadProcesses(name) {
             const procname = name.trim().toUpperCase();
 
@@ -3114,41 +3109,8 @@
                         }
                     }
                 });
-
             return [...new Set(productions)]; // ✅ unique values
         }
-
-        
-
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
