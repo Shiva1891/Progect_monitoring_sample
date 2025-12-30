@@ -176,7 +176,7 @@
 
         function extractNamesFromObject(obj) {
             return Object.keys(obj)
-                .filter(k => k.startsWith("name_") && obj[k])
+                .filter(k => k.startsWith("name") && obj[k])
                 .map(k => obj[k]);
         }
 
@@ -225,15 +225,12 @@
                 // fetch both in parallel
                 const [projectsRes, designersRes, employeeRes] = await Promise.all([
                     fetch(API.projects),
-                    fetch(API.designers),
                     fetch(API.employee)
                 ]);
                 if (!projectsRes.ok) throw new Error("Failed to load projects");
-                if (!designersRes.ok) throw new Error("Failed to load designers");
                 if (!employeeRes.ok) throw new Error("Failed to load designers");
 
                 const projects = await projectsRes.json();
-                const designers = await designersRes.json();
                 const employee = await employeeRes.json();
 
                 renderProjectsTable(projects, employee);
@@ -410,7 +407,7 @@
                     const employees = await res.json();
 
                     for (const emp of employees) {
-                        ["designers_name", "drafting", "production", "finish", "assembly", "delivery"]
+                        ["designers_name"]
                             .forEach(col => {
                                 if (Array.isArray(emp[col])) {
                                     emp[col] = emp[col].filter(e => e.name !== name);
@@ -633,4 +630,5 @@
     </script>
 </body>
 </html>
+
 
