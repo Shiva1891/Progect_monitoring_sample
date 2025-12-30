@@ -9,29 +9,24 @@ async function updateColumn() {
     let dbConfig;
 
     if (process.env.DATABASE_URL) {
-      // Parse DATABASE_URL if provided
+      // Parse Railway's DATABASE_URL
       const url = new URL(process.env.DATABASE_URL);
 
-      // Detect if running inside Railway
-      const isRailwayInternal = process.env.RAILWAY_ENVIRONMENT === 'production'; // Railway sets this
-
       dbConfig = {
-        host: isRailwayInternal ? url.hostname : url.hostname, // internal or public host can be same here
+        host: url.hostname,
         user: url.username,
         password: url.password,
         database: url.pathname.slice(1),
         port: url.port || 3306
       };
     } else {
-      // Fallback to separate DB env variables
+      // Fallback to individual env vars
       dbConfig = {
-        host: process.env.RAILWAY_ENVIRONMENT === 'production'
-          ? process.env.DB_HOST_INTERNAL  // internal host for Railway tasks
-          : process.env.DB_HOST,          // public host for local/Docker
-        user: process.env.DB_USER,
-        password: process.env.DB_PASS,
-        database: process.env.DB_NAME,
-        port: process.env.DB_PORT || 3306
+        host: process.env.MYSQLHOST || process.env.MYSQL_PUBLIC_URL,
+        user: process.env.MYSQLUSER || 'root',
+        password: process.env.MYSQLPASSWORD || '',
+        database: process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE,
+        port: process.env.MYSQLPORT || 3306
       };
     }
 
