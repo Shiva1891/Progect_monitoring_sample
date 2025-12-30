@@ -2529,34 +2529,23 @@
             const div = document.createElement("div");
             div.className =
                 "w-full bg-white h-10 rounded-lg px-3 font-semibold flex gap-2 items-center";
-
             div.innerHTML = `
-            <div class="relative group flex items-center gap-2">
-    <!-- + Button (hidden by default) -->
-    <button
-        onclick="closetype()"
-        class="p-1 bg-green-500 hover:bg-green-600 text-white rounded
-               absolute -right-6 opacity-0 group-hover:opacity-100 transition">
-        +
-    </button>
-
-    <!-- Content -->
-    <div class="flex gap-2 w-full items-center">
-        <div class="flex-1 flex justify-between items-center w-full">
-            <h1 id="tabcontent" class="cursor-pointer">
-                Departments
-            </h1>
-
-            <button id="backspacebtn" class="hidden px-2 h-6 bg-gray-200 rounded">
-                <span class="material-icons">arrow_left</span>
-            </button>
-        </div>
-
-        <button onclick="closetype()" class="px-3 bg-red-500 text-white rounded">
-            x
-        </button>
-    </div>
-</div>`;
+            <div class="relative group pl-5 flex items-center gap-2 w-full">
+                <!-- + Button (hidden by default) -->
+                <button id="createdepartment" class="px-1 bg-green-500 hover:bg-green-600 text-white rounded absolute left-0 ">+</button>
+                <!-- Content -->
+                <div class="flex gap-2 w-full items-center">
+                    <div class="flex-1 flex justify-between items-center w-full">
+                        <h1 id="tabcontent" class="cursor-pointer">
+                            Departments
+                        </h1>
+                        <button id="backspacebtn" class="hidden px-2 h-6 bg-gray-200 rounded">
+                            <span class="material-icons">arrow_left</span>
+                        </button>
+                    </div>
+                    <button onclick="closetype()" class="px-3 bg-red-500 text-white rounded">x</button>
+                </div>
+            </div>`;
             return div;
         }
         function createBody(employeeheaders) {
@@ -2630,6 +2619,7 @@
             document.getElementById("listfieldnames").classList.remove("hidden");
             document.getElementById("backspacebtn").classList.remove("hidden");
 
+            document.getElementById("createdepartment").classList.add("hidden");
             document.getElementById("fieldheader").classList.add("hidden");
             document.getElementById("fieldid").classList.add("hidden");
             document.getElementById("fieldbtns").classList.add("hidden");
@@ -3130,4 +3120,5 @@
     </script>
 </body>
 </html>
+
 
