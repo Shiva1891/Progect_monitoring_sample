@@ -36,13 +36,78 @@
     </div>
 
     <script>
+        let name = null;
+        let adminpassword = null;
+        let account = null;
         function loadAll() {
-            const name = localStorage.getItem("selectedDesigner")
-            document.getElementById("loginType").textContent = name
-        }
-    </script>
+            const tempname = localStorage.getItem("selectedDesigner");
 
-    <script>
+    
+            // If Allocate selected
+    
+            if (tempname === "Allocate" || tempname === "Drafting") {
+        
+                name = tempname;
+        
+                document.getElementById("loginType").textContent = tempname;
+        
+                return;
+    
+            }
+
+    
+            fetch("/employee")
+        
+                .then(res => res.json())
+        
+                .then(data => {
+
+            
+                    let matchedUser = null;
+
+            
+                    data.forEach(emp => {
+                
+                        if (!Array.isArray(emp.production)) return;
+
+                
+                        emp.production.forEach(p => {
+                    
+                            if (p.name === tempname) {
+                        
+                                matchedUser = p;
+                    
+                            }
+                
+                        });
+            
+                    });
+
+            
+                    // If user found
+            
+                    if (matchedUser) {
+                
+                        document.getElementById("loginType").textContent = matchedUser.name;
+                
+                        name = matchedUser.name;
+                
+                        adminpassword = matchedUser.user_password;
+                
+                        account = matchedUser.account_type;
+            
+                    } else {
+                
+                        console.warn("No matching user found");
+            
+                    }
+       
+                })
+        
+                .catch(err => console.error("Employee load error:", err));
+
+        }
+
         /* ----------------------------------
               USER PASSWORDS ONLY
         ----------------------------------- */
@@ -50,7 +115,7 @@
             allocate: { password: "2025", role: "allocate" },
 
             // Common password for all designers
-            designerPassword: "2025",
+            designerPassword: adminpassword,
 
             draftingPasswoard: "2025"
         };
@@ -92,7 +157,7 @@
             }
                 //Designer Login
             else {
-                const designerName = localStorage.getItem("selectedDesigner");
+                name = designerName;
                 if (!designerName) {
                     alert("Designer not selected on Dashboard. Please select designer first.");
                     window.location.href = "Dashboard.html";
@@ -134,5 +199,6 @@
 
 </body>
 </html>
+
 
 
