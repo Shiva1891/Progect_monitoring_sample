@@ -68,10 +68,10 @@
             
                     data.forEach(emp => {
                 
-                        if (!Array.isArray(emp.production)) return;
+                        if (!Array.isArray(emp.designers_name)) return;
 
                 
-                        emp.production.forEach(p => {
+                        emp.designers_name.forEach(p => {
                     
                             if (p.name === tempname) {
                         
@@ -156,7 +156,7 @@
             else {
                 if (!name) {
                     alert("Designer not selected on Dashboard. Please select designer first.");
-                    window.location.href = "Dashboard.html";
+                    window.location.href = "dashboard";
                     return;
                 }
                 if (pass !== adminpassword) {
@@ -164,7 +164,7 @@
                     return;
                 }
                 // Redirect to designer page with name
-                window.open(`designer?name=${encodeURIComponent(designerName)}`, "_blank");
+                window.open(`designer?name=${encodeURIComponent(name)}`, "_blank");
                 history.go(-1);
             }
         }
@@ -195,6 +195,7 @@
 
 </body>
 </html>
+
 
 
 
