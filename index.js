@@ -1,7 +1,7 @@
-require("dotenv").config();
+import 'dotenv/config';
+import mysql from 'mysql2/promise';
 const express = require("express");
 const path = require("path");
-const mysql = require("mysql2/promise");
 
 const app = express();
 app.use(express.json());
@@ -166,6 +166,7 @@ async function startServer() {
 }
 
 startServer();
+
 
 
 
