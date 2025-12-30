@@ -2630,7 +2630,7 @@
                 if (!Array.isArray(arr)) return;
 
                 arr.forEach(obj => {
-                    const nameKey = Object.keys(obj).find(k => k.startsWith("name_"));
+                    const nameKey = Object.keys(obj).find(k => k.startsWith("name"));
                     if (!nameKey) return;
 
                     listBox.appendChild(
@@ -3115,6 +3115,7 @@
     </script>
 </body>
 </html>
+
 
 
 
