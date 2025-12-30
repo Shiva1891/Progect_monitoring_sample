@@ -1,20 +1,21 @@
 import 'dotenv/config';   // load environment variables
 import mysql from 'mysql2';
 
-const connection = mysql.createConnection({
-  host: process.env.DB_HOST,      // e.g., "yourproject.mysql.railway.app"
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT || 3306
-});
+async function connectDB() {
+  try {
+    console.log("Attempting to connect to database...");
 
-connection.connect((err) => {
-  if (err) {
-    console.error("MySQL connection error:", err);
+    db = await mysql.createPool({
+      uri: process.env.MYSQL_URL || process.env.DATABASE_URL, // Railway MySQL URL
+    });
+
+    await db.query("SELECT 1");
+    console.log("✅ Database connected successfully");
+  } catch (err) {
+    console.error("❌ Database connection failed:", err.message);
     process.exit(1);
   }
-  console.log("Connected to MySQL!");
+}
   
   // Run your query
   connection.query(
