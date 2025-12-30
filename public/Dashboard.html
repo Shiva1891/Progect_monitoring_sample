@@ -176,7 +176,7 @@
         
 
         function loadprocesses() {
-
+            const selectedprocessname = processId.trim().toUpperCase();
             const vmcDropdown = document.getElementById("vmcDropdown");
             vmcDropdown.innerHTML = "";
             vmcDropdown.classList.remove("hidden");
@@ -202,7 +202,7 @@
                     let listHTML = `
             <div class="bg-white p-6 rounded-lg shadow-lg w-80 relative">
                 <div class="flex justify-between items-center mb-2">
-                    <h1 class="text-xl font-semibold">${processId}</h1>
+                    <h1 class="text-xl font-semibold">${selectedprocessname}</h1>
                     <button onclick="closetype()"
                         class="rounded text-white bg-red-500 hover:bg-red-600 px-2 pb-1">x</button>
                 </div>
@@ -3120,6 +3120,7 @@
     </script>
 </body>
 </html>
+
 
 
 
