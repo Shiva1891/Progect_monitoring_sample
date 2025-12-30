@@ -137,15 +137,14 @@ async function startServer() {
   await connectDB();
 
 
-   const [results] = await db.query(
-      "ALTER TABLE projects MODIFY enquery_date JSON NULL;"
-      "ALTER TABLE projects MODIFY quantity JSON NULL;"
-      "ALTER TABLE projects MODIFY expected_date JSON NULL;"
-      "ALTER TABLE projects MODIFY designer_name JSON NULL;"
-      "ALTER TABLE projects MODIFY design_start_date JSON NULL;"
-    );
+   await db.query("ALTER TABLE projects MODIFY design_start_date JSON NULL");
+   await db.query("ALTER TABLE projects MODIFY enquery_date JSON NULL");
+   await db.query("ALTER TABLE projects MODIFY quantity JSON NULL");
+   await db.query("ALTER TABLE projects MODIFY expected_date JSON NULL");
+   await db.query("ALTER TABLE projects MODIFY designer_name JSON NULL");
+      
 
-    console.log("Column updated!", results);
+    console.log("Column updated!");
    
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
@@ -154,6 +153,7 @@ async function startServer() {
 }
 
 startServer();
+
 
 
 
