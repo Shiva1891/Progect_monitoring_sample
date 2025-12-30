@@ -138,7 +138,11 @@ async function startServer() {
 
 
    const [results] = await db.query(
-      "ALTER TABLE projects MODIFY enquery_date JSON NULL; ALTER TABLE projects MODIFY quantity JSON NULL; ALTER TABLE projects MODIFY expected_date JSON NULL; ALTER TABLE projects MODIFY designer_name JSON NULL; ALTER TABLE projects MODIFY design_start_date JSON NULL;"
+      "ALTER TABLE projects MODIFY enquery_date JSON NULL;"
+      "ALTER TABLE projects MODIFY quantity JSON NULL;"
+      "ALTER TABLE projects MODIFY expected_date JSON NULL;"
+      "ALTER TABLE projects MODIFY designer_name JSON NULL;"
+      "ALTER TABLE projects MODIFY design_start_date JSON NULL;"
     );
 
     console.log("Column updated!", results);
@@ -150,5 +154,6 @@ async function startServer() {
 }
 
 startServer();
+
 
 
