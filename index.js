@@ -137,8 +137,8 @@ async function startServer() {
   await connectDB();
 
 
-   await db.query("ALTER TABLE projects MODIFY contact_person VARCHAR(255) NOT NULL");
-   await db.query("ALTER TABLE projects MODIFY overallstatus VARCHAR(255) NOT NULL");
+   await db.query("ALTER TABLE projects MODIFY design_stages JSON NULL");
+   await db.query("ALTER TABLE projects MODIFY drafting JSON NULL");
    //await db.query("ALTER TABLE projects MODIFY enquery_date JSON NULL");
    //await db.query("ALTER TABLE projects MODIFY quantity JSON NULL");
    //await db.query("ALTER TABLE projects MODIFY expected_date JSON NULL");
@@ -153,6 +153,7 @@ async function startServer() {
 }
 
 startServer();
+
 
 
 
