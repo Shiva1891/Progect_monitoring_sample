@@ -30,6 +30,13 @@ async function connectDB() {
   }
 }
 
+
+ const [results] = await db.query(
+      "ALTER TABLE projects MODIFY project_type JSON NULL;"
+    );
+
+    console.log("Column updated!", results);
+
 /* ===============================
    🏠 ROUTES
 ================================ */
@@ -165,5 +172,6 @@ async function startServer() {
 }
 
 startServer();
+
 
 
