@@ -2925,18 +2925,17 @@
                                     }
                                 }
                             });
-                        return [...new Set(names)]; // ✅ unique values
+                        return [...new Set(names)]; // ✅ unique values           
+                        names.forEach(n => {
+                            const btn = document.createElement("button");
+                            btn.className = "w-full p-1 bg-gray-200 hover:bg-gray-300 rounded";
+                            const name = n;
+                            btn.textContent = name;
+                            btn.onclick = () => feildcreate(name, n);
+                            actionBox.appendChild(btn);
+                        });
                     });
-                    
-                names.forEach(n => {
-                    const btn = document.createElement("button");
-                    btn.className = "w-full p-1 bg-gray-200 hover:bg-gray-300 rounded";
-                    const name = n;
-                    btn.textContent = name;
-                    btn.onclick = () => feildcreate(name, n);
-                    actionBox.appendChild(btn);
                 });
-            });
             };
             return wrap;
         }
@@ -3235,6 +3234,7 @@
     </script>
 </body>
 </html>
+
 
 
 
