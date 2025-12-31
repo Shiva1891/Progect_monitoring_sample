@@ -2569,6 +2569,9 @@
             listBox.id = "listfieldnames";
             listBox.className = "hidden mt-2 bg-white rounded-lg p-3 space-y-2";
 
+            const cleanDept = d =>
+                d?.replace(/"/g, "").trim();
+            
             [...new Set(employeedata.map(e => cleanDept(e.department)))]
                 .filter(Boolean)
                 .forEach(col => { 
@@ -3244,6 +3247,7 @@
     </script>
 </body>
 </html>
+
 
 
 
