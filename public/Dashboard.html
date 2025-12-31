@@ -3112,6 +3112,10 @@
                 const accounttype = chooseInput.value;
                 const fieldpasswoard = passInput.value;
 
+                if(!fielduser) return alert("Enter Username");
+                if(!fieldpasswoard) return alert("Enter Password");
+                if(!accounttype) return alert("Choose Employee Account Type");
+                
                 const seq = getNextSeqFromEmployees(employeedata, n);
 
                 let choosetype = null;
@@ -3127,7 +3131,7 @@
                     user_password: fieldpasswoard
                 };
                 
-                if (!["design", "program", "drafting", "assembly", "delivery"].includes(n)) {
+                if (!["DESIGN", "PROGRAM", "DRAFTING", "ASSEMBLY", "DELIVERY"].includes(n)) {
                     newEmployee.user_type = accounttype;
                 }
 
@@ -3153,7 +3157,7 @@
             /* ---------- Assemble ---------- */
             wrapper.append(title);
 
-            if (!["design", "program", "drafting", "assembly", "delivery"].includes(n)) {
+            if (!["DESIGN", "PROGRAM", "DRAFTING", "ASSEMBLY", "DELIVERY"].includes(n)) {
                 wrapper.append(chooseWrapper);
             }
 
@@ -3212,7 +3216,7 @@
         }
         async function loadProcesses(name) {
 
-            const res = await fetch(`/employee`);
+            const res = await fetch(`/processes`);
             const processes = await res.json();
 
             const productions = [];
@@ -3245,6 +3249,7 @@
     </script>
 </body>
 </html>
+
 
 
 
