@@ -2569,22 +2569,19 @@
             listBox.id = "listfieldnames";
             listBox.className = "hidden mt-2 bg-white rounded-lg p-3 space-y-2";
 
-            employeeheaders.forEach(col => {
+            employeedata.forEach(col => {
                 const btn = document.createElement("button");
                 btn.className = "p-1 bg-green-200 rounded flex gap-2 justify-between w-full";
                 /* Title */
                 const title = document.createElement("span");
                 title.className = "text-sm text-black font-semibold";
-                title.textContent =
-                    normalizef(col) === "designers_name"
-                    ? "Designers"
-                    : col.replace(/_name/g, " ");
+                title.textContent = col.department;
                 /* Icon */
                 const icon = document.createElement("span");
                 icon.className = "material-icons";
                 icon.textContent = "arrow_left";
                 /* Click */
-                btn.onclick = () => renderEmployees(col, listBox);
+                btn.onclick = () => renderEmployees(col.department, listBox);
                 /* Append correctly */
                 btn.append(title, icon);
                 btnRow.appendChild(btn);
@@ -2635,30 +2632,22 @@
 
             listBox.innerHTML = "";
 
-            // Reload data
-            await showDepartment();
+           // Reload data
+            await employeedatafunction();
 
-             const nameKey = [];
             // Render rows
-            cachedProcesses
-                .forEach(emp => { 
-                    if (!emp.department) return;
-                    if (Array.isArray(emp.department)) {
-                        nameKey.push(...emp.department);
-                    } else if (typeof emp.department === "string") {
-                        try {   
-                            const parsed = JSON.parse(emp.department);
-                            Array.isArray(parsed)
-                                ? nameKey.push(...parsed)
-                                : nameKey.push(parsed);
-                        } catch {    
-                            nameKey.push(emp.department);
-                        }       
-                    }   
-                    listBox.appendChild(      
+            employeedata.forEach(d => {
+                const arr = d[col];
+                if (!Array.isArray(arr)) return;
+                arr.forEach(obj => {
+                    const nameKey = Object.keys(obj).find(k => k.startsWith("name"));
+                    if (!nameKey) return;
+
+                    listBox.appendChild(
                         createRow(obj[nameKey], col, obj, d.id)
-                    );      
+                    );
                 });
+            });
         }
         async function showDepartment() {
             if (cachedProcesses.length) return cachedProcesses;
@@ -3247,4 +3236,5 @@
     </script>
 </body>
 </html>
+
 
