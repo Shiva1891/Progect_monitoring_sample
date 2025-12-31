@@ -2815,7 +2815,8 @@ function createFieldSetup(employeeheaders, listBox) {
         if (!deptName) return;
 
         try {
-            const resFetch = await fetch("/employee/1");
+            const mainEmployeeId = 1; // change this to your actual record ID
+            const resFetch = await fetch(`/employee/${mainEmployeeId}`);
             if (!resFetch.ok) throw new Error("Failed to fetch employee");
             const currentData = await resFetch.json();
             const deptArray = currentData.department || [];
@@ -2875,6 +2876,7 @@ function normalizef(str) {
     </script>
 </body>
 </html>
+
 
 
 
