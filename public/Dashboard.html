@@ -2625,10 +2625,9 @@
             // UI visibility
             document.getElementById("listfieldnames").classList.remove("hidden");
             document.getElementById("backspacebtn").classList.remove("hidden");
-            document.getElementById("relativediv").classList.remove("pl-6");
             
-            document.getElementById("createdepartment").classList.add("hidden");
-            document.getElementById("fieldheader").classList.add("hidden");
+            
+            document.getElementById("wrapfield").classList.add("hidden");
             document.getElementById("fieldid").classList.add("hidden");
             document.getElementById("fieldbtns").classList.add("hidden");
             document.getElementById("rightPanel").classList.add("hidden");
@@ -2806,6 +2805,9 @@
             const wrap1 = document.createElement("div");
             wrap1.className = "space-y-2";
             wrap1.innerHTML = `
+                <h1 id="fieldheader" class="mt-2 font-bold text-center text-2xl mb-1">
+                    Create
+                </h1>
                 <div class="flex gap-2 justify-between w-full">
                     <button id="deptBtn"
                     class="w-full bg-green-500 text-white rounded py-1 mt-2">
@@ -2823,14 +2825,12 @@
             const wrap = document.createElement("div");
             wrap.className = "space-y-2";
             wrap.innerHTML = `
-                <h1 id="fieldheader" class="mt-2 font-bold text-center text-2xl mb-1">
-                    Create
-                </h1>
                 <input id="fieldid"
                     placeholder="Name..."
                     class="w-full border rounded-2xl px-3 py-2 hidden" />
             `;
 
+            wrap.id = "wrapfield"
             wrap.prepend(wrap1);
 
             /* ---------- ACTION BOX ---------- */
@@ -2843,9 +2843,11 @@
             const deptBtn = wrap.querySelector("#deptBtn");
             const empBtn = wrap.querySelector("#empBtn");
             const fieldInput = wrap.querySelector("#fieldid");
+            const fieldheader = wrap.querySelector("#fieldheader");
 
             deptBtn.onclick = () => {
                 deptBtnname = "DEPARTMENT";
+                fieldheader.textContent = "Create " + deptBtnname;
                 fieldInput.classList.remove("hidden");
                 deptBtn.classList.add("hidden");
                 empBtn.classList.add("hidden");
@@ -2854,6 +2856,7 @@
 
             empBtn.onclick = () => {
                 deptBtnname = "EMPLOYEE";
+                fieldheader.textContent = "Create " + deptBtnname;
                 fieldInput.classList.remove("hidden");
                 deptBtn.classList.add("hidden");
                 empBtn.classList.add("hidden");
@@ -3182,6 +3185,7 @@
     </script>
 </body>
 </html>
+
 
 
 
