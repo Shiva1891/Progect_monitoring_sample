@@ -2636,8 +2636,10 @@
             await employeedatafunction();
 
             // Render rows
-            employeedata.forEach(d => {
-                const arr = d[col];
+            employeedata
+                .filter(p => p.department?.toUpperCase() === col)
+                .forEach(d => {
+                const arr = d[employee_names];
                 if (!Array.isArray(arr)) return;
                 arr.forEach(obj => {
                     const nameKey = Object.keys(obj).find(k => k.startsWith("name"));
@@ -3236,5 +3238,6 @@
     </script>
 </body>
 </html>
+
 
 
