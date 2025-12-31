@@ -2907,7 +2907,7 @@
                     actionBox.innerHTML = "";
                     if (!e.target.value) return;
                     const names = [];
-                    processes
+                    cachedProcesses
                         .filter(p => p.process_type?.toUpperCase() === "DEPARTMENT")
                         .forEach(emp => {
                             if (!emp.process_name) return;
@@ -3239,6 +3239,7 @@
     </script>
 </body>
 </html>
+
 
 
 
