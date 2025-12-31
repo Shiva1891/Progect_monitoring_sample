@@ -2866,7 +2866,7 @@
                         const val = fieldInput.value
                         if(!val) return;
                         // 🔥 SAVE TO SQL
-                        const res = await fetch(`/processes`, {
+                        const res = fetch(`/processes`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
@@ -2874,12 +2874,13 @@
                         process_type: "DEPARTMENT"
                         })
                     });
-                        if (!res.ok) throw new Error(await res.text());
+                        if (!res.ok) throw new Error( res.text());
+                        alert("success to save DEPARTMENT");
                         // ✅ update frontend list AFTER SQL success
                         fieldInput.value = "";
                     } catch (err) {
                         console.error("Process save failed:", err);
-                        alert("Failed to save process");
+                        alert("Failed to save DEPARTMENT");
                     }
                 }); 
             };
@@ -2898,8 +2899,8 @@
                 actionBox.innerHTML = "";
                 if (!e.target.value) return;
 
-                const res = await fetch(`/processes`);
-                const processes = await res.json();
+                const res = fetch(`/processes`);
+                const processes = res.json();
 
                 const names = [];
                 
@@ -3233,6 +3234,7 @@
     </script>
 </body>
 </html>
+
 
 
 
