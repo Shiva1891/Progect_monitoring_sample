@@ -330,7 +330,7 @@ async function start() {
    //await db.query("ALTER TABLE employee MODIFY department varchar(255);");
    //await db.query("ALTER TABLE employee DROP COLUMN assembly;");
    //await db.query("ALTER TABLE employee DROP COLUMN delivery;");
-   await db.query("ALTER TABLE employee RENAME COLUMN designers_name TO employee_names;");
+   //await db.query("ALTER TABLE employee RENAME COLUMN designers_name TO employee_names;");
    //await db.query("ALTER TABLE projects MODIFY designer_name JSON NULL");
       
 
@@ -343,6 +343,7 @@ async function start() {
 }
 
 start();
+
 
 
 
