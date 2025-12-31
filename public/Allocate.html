@@ -183,7 +183,7 @@
             const names = [];
 
             ["employee_names"]
-                .filter(p => ["DESIGN","DRAFTING"].includes(p.process_type?.toUpperCase()))
+                .filter(p => ["DESIGN","DRAFTING"].includes(p.department?.toUpperCase()))
                 .forEach(col => {
                 if (Array.isArray(record[col])) {
                     record[col].forEach(item => {
@@ -201,7 +201,7 @@
             const SOURCES = ["employee_names"]; // add "finish" if needed
 
             SOURCES
-                .filter(p => ["DESIGN","DRAFTING"].includes(p.process_type?.toUpperCase()))
+                .filter(p => ["DESIGN","DRAFTING"].includes(p.department?.toUpperCase()))
                 .forEach(col => {
                 const arr = record[col];
                 if (!Array.isArray(arr)) return;
@@ -411,7 +411,7 @@
 
                     for (const emp of employees) {
                         ["emploee_names"]
-                            .filter(p => ["DESIGN","DRAFTING"].includes(p.process_type?.toUpperCase()))
+                            .filter(p => ["DESIGN","DRAFTING"].includes(p.department?.toUpperCase()))
                             .forEach(col => {
                                 if (Array.isArray(emp[col])) {
                                     emp[col] = emp[col].filter(e => e.name !== name);
@@ -634,6 +634,7 @@
     </script>
 </body>
 </html>
+
 
 
 
