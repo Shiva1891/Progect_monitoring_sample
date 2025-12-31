@@ -188,9 +188,9 @@
                     const names = [];
 
                     data.forEach(emp => {
-                        if (!Array.isArray(emp.production)) return;
+                        if (!Array.isArray(emp.employee_names)) return;
 
-                        emp.production.forEach(p => {
+                        emp.employee_names.forEach(p => {
                             if (p.user_type === selectedprocessname && p.name) {
                                 names.push(p.name);
                             }
@@ -2632,7 +2632,7 @@
             document.getElementById("relativediv").classList.remove("pl-6");
             
             document.getElementById("createdepartment").classList.add("hidden");
-            document.getElementById("fieldheader").classList.add("hidden");
+            document.getElementById("fieldWrap")?.classList.add("hidden");
             document.getElementById("fieldid").classList.add("hidden");
             document.getElementById("fieldbtns").classList.add("hidden");
             document.getElementById("rightPanel").classList.add("hidden");
@@ -2837,9 +2837,9 @@ function createFieldSetup(employeeheaders, listBox) {
             </button>
         </div>
     `;
-
+    wrap.id = "fieldWrap";
     wrap.prepend(wrap1);
-
+    
     const actionBox = document.createElement("div");
     actionBox.className = "space-y-2";
     wrap.appendChild(actionBox);
@@ -2855,6 +2855,7 @@ function createFieldSetup(employeeheaders, listBox) {
     deptBtn.onclick = () => {
         deptBtnname = "DEPARTMENT";
         fieldInput.value = "";
+        document.getElementById("backspacebtn").classList.remove("hidden");
         fieldInput.classList.remove("hidden");
         deptAddBtn.classList.add("hidden");
         deptBtn.classList.add("hidden");
@@ -2865,6 +2866,7 @@ function createFieldSetup(employeeheaders, listBox) {
     /* ---------- EMPLOYEE MODE ---------- */
     empBtn.onclick = () => {
         deptBtnname = "EMPLOYEE";
+        document.getElementById("backspacebtn").classList.remove("hidden");
         fieldInput.classList.remove("hidden");
         deptBtn.classList.add("hidden");
         empBtn.classList.add("hidden");
@@ -2933,7 +2935,7 @@ function createFieldSetup(employeeheaders, listBox) {
 
 
         async function loadDepartments() {
-    const res = await fetch("/employee/1");
+    const res = await fetch("/employee");
     const data = await res.json();
 
     const deptBox = document.getElementById("departmentList");
@@ -3283,6 +3285,7 @@ function createFieldSetup(employeeheaders, listBox) {
     </script>
 </body>
 </html>
+
 
 
 
