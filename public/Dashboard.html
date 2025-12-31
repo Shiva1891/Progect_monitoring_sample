@@ -3127,12 +3127,12 @@
                     newEmployee.user_type = accounttype;
                 }
 
-                const payload = { employee_names: [newEmployee], department: n };
+                const payload = { employee_names: [newEmployee] };
 
                 await fetch(`/employee`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload, department: n)
                 });
 
                 alert("Employee created");
@@ -3238,6 +3238,7 @@
     </script>
 </body>
 </html>
+
 
 
 
