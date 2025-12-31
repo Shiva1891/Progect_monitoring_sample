@@ -3132,7 +3132,10 @@
                 await fetch(`/employee`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload, department: n)
+                    body: JSON.stringify({
+                        ...payload,
+                        department: n
+                    })
                 });
 
                 alert("Employee created");
@@ -3238,6 +3241,7 @@
     </script>
 </body>
 </html>
+
 
 
 
