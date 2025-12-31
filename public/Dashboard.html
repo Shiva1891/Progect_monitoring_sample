@@ -2803,96 +2803,193 @@
 
 
         let deptBtnname = null;
+let deptCount = 1;
 
-        function createFieldSetup(employeeheaders, listBox) {
+function createFieldSetup(employeeheaders, listBox) {
 
-            /* ---------- BUTTON WRAPPER ---------- */
-            const wrap1 = document.createElement("div");
-            wrap1.className = "space-y-2";
-            wrap1.innerHTML = `
-                <div class="flex gap-2 justify-between w-full">
-                    <button id="deptBtn"
-                    class="w-full bg-green-500 text-white rounded py-1 mt-2">
-                    + Dept
-                </button>
+    /* ---------- HEADER + BUTTONS ---------- */
+    const wrap1 = document.createElement("div");
+    wrap1.className = "space-y-2";
+    wrap1.innerHTML = `
+        <h1 class="mt-2 font-bold text-center text-2xl mb-1">Create</h1>
+        <div class="flex gap-2 w-full">
+            <button id="deptBtn" class="w-full bg-green-500 text-white rounded py-1">
+                + Dept
+            </button>
+            <button id="empBtn" class="w-full bg-green-500 text-white rounded py-1">
+                + Employee
+            </button>
+        </div>
+        <div id="departmentList" class="space-y-2 mt-4"></div>
+    `;
 
-                <button id="empBtn"
-                    class="w-full bg-green-500 text-white rounded py-1 mt-2">
-                    + Employee
-                </button>
-            </div>
-            `;
+    /* ---------- INPUT + ADD ---------- */
+    const wrap = document.createElement("div");
+    wrap.className = "space-y-2";
+    wrap.innerHTML = `
+        <div class="flex gap-2 items-center">
+            <input id="fieldid"
+                placeholder="Name..."
+                class="w-full border rounded-2xl px-3 py-2 hidden" />
+            <button id="deptaddBtn"
+                class="bg-green-500 text-white rounded px-3 py-2 hidden">
+                +
+            </button>
+        </div>
+    `;
 
-            /* ---------- MAIN WRAPPER ---------- */
-            const wrap = document.createElement("div");
-            wrap.className = "space-y-2";
-            wrap.innerHTML = `
-                <h1 id="fieldheader" class="mt-2 font-bold text-center text-2xl mb-1">
-                    Create
-                </h1>
-                <input id="fieldid"
-                    placeholder="Name..."
-                    class="w-full border rounded-2xl px-3 py-2 hidden" />
-            `;
+    wrap.prepend(wrap1);
 
-            wrap.prepend(wrap1);
+    const actionBox = document.createElement("div");
+    actionBox.className = "space-y-2";
+    wrap.appendChild(actionBox);
 
-            /* ---------- ACTION BOX ---------- */
-            const actionBox = document.createElement("div");
-            actionBox.id = "actionBtn";
-            actionBox.className = "space-y-2";
-            wrap.appendChild(actionBox);
+    /* ---------- ELEMENTS ---------- */
+    const deptBtn = wrap.querySelector("#deptBtn");
+    const empBtn = wrap.querySelector("#empBtn");
+    const fieldInput = wrap.querySelector("#fieldid");
+    const deptAddBtn = wrap.querySelector("#deptaddBtn");
+    const departmentList = wrap.querySelector("#departmentList");
 
-            /* ---------- BUTTON EVENTS ---------- */
-            const deptBtn = wrap.querySelector("#deptBtn");
-            const empBtn = wrap.querySelector("#empBtn");
-            const fieldInput = wrap.querySelector("#fieldid");
+    /* ---------- DEPARTMENT MODE ---------- */
+    deptBtn.onclick = () => {
+        deptBtnname = "DEPARTMENT";
+        fieldInput.value = "";
+        fieldInput.classList.remove("hidden");
+        deptAddBtn.classList.add("hidden");
+        deptBtn.classList.add("hidden");
+        empBtn.classList.add("hidden");
+        fieldInput.focus();
+    };
 
-            deptBtn.onclick = () => {
-                deptBtnname = "DEPARTMENT";
-                fieldInput.classList.remove("hidden");
-                deptBtn.classList.add("hidden");
-                empBtn.classList.add("hidden");
-                fieldInput.focus();
-            };
+    /* ---------- EMPLOYEE MODE ---------- */
+    empBtn.onclick = () => {
+        deptBtnname = "EMPLOYEE";
+        fieldInput.classList.remove("hidden");
+        deptBtn.classList.add("hidden");
+        empBtn.classList.add("hidden");
+        departmentList.classList.add("hidden");
+        fieldInput.focus();
+    };
 
-            empBtn.onclick = () => {
-                deptBtnname = "EMPLOYEE";
-                fieldInput.classList.remove("hidden");
-                deptBtn.classList.add("hidden");
-                empBtn.classList.add("hidden");
-                fieldInput.focus();
-            };
+    /* ---------- INPUT HANDLER ---------- */
+    fieldInput.addEventListener("input", e => {
+        const value = e.target.value.trim();
 
-            /* ---------- INPUT HANDLER ---------- */
-            fieldInput.addEventListener("input", e => {
-                actionBox.innerHTML = "";
-                if (!e.target.value) return;
-
-                const names = employeeheaders
-                    .filter(h => normalizef(h) !== "id")
-                    .join("/");
-
-                splitNames(names).forEach(n => {
-                    const btn = document.createElement("button");
-                    btn.className = "w-full p-1 bg-gray-200 hover:bg-gray-300 rounded";
-
-                    const name =
-                        normalizef(n) === "designers_name"
-                            ? "Designer"
-                            : n.replace(/_name/g, " ");
-
-                    btn.textContent = name;
-
-                    btn.onclick = () => feildcreate(name, n);
-                    actionBox.appendChild(btn);
-                });
-            });
-
-            return wrap;
+        if (deptBtnname === "DEPARTMENT") {
+            deptAddBtn.classList.toggle("hidden", !value);
         }
 
+        if (deptBtnname === "EMPLOYEE") {
+            actionBox.innerHTML = "";
+            if (!value) return;
 
+            const names = employeeheaders
+                .filter(h => normalizef(h) !== "id")
+                .join("/");
+
+            splitNames(names).forEach(n => {
+                const btn = document.createElement("button");
+                btn.className = "w-full p-1 bg-gray-200 hover:bg-gray-300 rounded";
+                btn.textContent =
+                    normalizef(n) === "designers_name"
+                        ? "Designer"
+                        : n.replace(/_name/g, " ");
+                btn.onclick = () => feildcreate(btn.textContent, n);
+                actionBox.appendChild(btn);
+            });
+        }
+    });
+
+    /* ---------- ADD DEPARTMENT (FETCH) ---------- */
+    deptAddBtn.onclick = async () => {
+        const deptName = fieldInput.value.trim().toUpperCase();
+        if (!deptName) return;
+
+        const payload = {
+            employee_names: null,
+            department: [
+                { [`department_${deptCount++}`]: deptName }
+            ]
+        };
+
+        const res = await fetch("/employee", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        fieldInput.value = "";
+        deptAddBtn.classList.add("hidden");
+
+        alert("Department added successfully");
+    };
+
+    return wrap;
+}
+
+
+
+        async function loadDepartments() {
+    const res = await fetch("/employee/1");
+    const data = await res.json();
+
+    const deptBox = document.getElementById("departmentList");
+    deptBox.innerHTML = "";
+
+    data.department.forEach(obj => {
+        const key = Object.keys(obj)[0];
+        const value = obj[key];
+
+        const row = document.createElement("div");
+        row.className = "flex gap-2 items-center";
+
+        const input = document.createElement("input");
+        input.value = value;
+        input.className = "border px-2 py-1 rounded w-full";
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Save";
+        editBtn.className = "bg-blue-500 text-white px-2 rounded";
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "X";
+        delBtn.className = "bg-red-500 text-white px-2 rounded";
+
+        /* EDIT */
+        editBtn.onclick = async () => {
+            await fetch("/employee/department/edit", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    key,
+                    value: input.value.toUpperCase()
+                })
+            });
+            alert("Updated");
+        };
+
+        /* DELETE */
+        delBtn.onclick = async () => {
+            if (!confirm("Delete department?")) return;
+
+            await fetch("/employee/department/delete", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ key })
+            });
+
+            loadDepartments();
+        };
+
+        row.append(input, editBtn, delBtn);
+        deptBox.appendChild(row);
+    });
+}
+
+        loadDepartments();
         function getFirst(arr) {
             return Array.isArray(arr) && arr.length ? arr[0] : null;
         }
@@ -3186,6 +3283,7 @@
     </script>
 </body>
 </html>
+
 
 
 
