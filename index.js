@@ -326,8 +326,8 @@ app.put("/employee/department/edit", async (req, res) => {
 async function start() {
   await connectDB();
 
-   //await db.query("truncate employee");
-   await db.query("ALTER TABLE employee MODIFY department varchar(255);");
+   await db.query("TRUNCATE TABLE employee");
+   await db.query("ALTER TABLE employee MODIFY COLUMN department VARCHAR(255)");
    //await db.query("ALTER TABLE employee DROP COLUMN assembly;");
    //await db.query("ALTER TABLE employee DROP COLUMN delivery;");
    //await db.query("ALTER TABLE employee RENAME COLUMN designers_name TO employee_names;");
@@ -343,6 +343,7 @@ async function start() {
 }
 
 start();
+
 
 
 
