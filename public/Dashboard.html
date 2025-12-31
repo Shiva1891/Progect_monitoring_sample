@@ -2824,10 +2824,15 @@
             /* ---------- MAIN WRAPPER ---------- */
             const wrap = document.createElement("div");
             wrap.className = "space-y-2";
-            wrap.innerHTML = `
+            wrap.innerHTML = `<div class="flex justify-between gap-2">
                 <input id="fieldid"
                     placeholder="Name..."
                     class="w-full border rounded-2xl px-3 py-2 hidden" />
+                    <button id="adddepartName"
+                    class="bg-green-500 text-white rounded px-1 mt-2">
+                    +
+                </button>
+                </div>
             `;
 
             wrap.id = "wrapfield"
@@ -2844,16 +2849,20 @@
             const empBtn = wrap.querySelector("#empBtn");
             const fieldInput = wrap.querySelector("#fieldid");
             const fieldheader = wrap.querySelector("#fieldheader");
+            const adddepartName = wrap.querySelector("#adddepartName");
 
             deptBtn.onclick = () => {
                 deptBtnname = "DEPARTMENT";
                 fieldheader.textContent = "Create " + deptBtnname;
                 document.getElementById("backspacebtn").classList.remove("hidden");
                 document.getElementById("backspacebtn").onclick = user_access;
+                adddepartName.classList.remove("hidden");
                 fieldInput.classList.remove("hidden");
                 deptBtn.classList.add("hidden");
                 empBtn.classList.add("hidden");
                 fieldInput.focus();
+                fieldInput.addEventListener("input", e => {
+                }); 
             };
 
             empBtn.onclick = () => {
@@ -2865,10 +2874,8 @@
                 deptBtn.classList.add("hidden");
                 empBtn.classList.add("hidden");
                 fieldInput.focus();
-            };
-
-            /* ---------- INPUT HANDLER ---------- */
-            fieldInput.addEventListener("input", e => {
+                /* ---------- INPUT HANDLER ---------- */
+                fieldInput.addEventListener("input", e => {
                 actionBox.innerHTML = "";
                 if (!e.target.value) return;
 
@@ -2891,7 +2898,7 @@
                     actionBox.appendChild(btn);
                 });
             });
-
+            };
             return wrap;
         }
 
@@ -3164,7 +3171,7 @@
                 productions.push("PROGRAM");
             }
             processes
-                .filter(p => p.process_type?.toUpperCase() === procname)
+                //.filter(p => p.process_type?.toUpperCase() === procname)
                 .forEach(emp => {
                     if (!emp.process_name) return;
 
@@ -3189,6 +3196,7 @@
     </script>
 </body>
 </html>
+
 
 
 
