@@ -79,7 +79,7 @@
         function extractNamesFromEmployeeRecord(record) {
             const names = [];
 
-            ["designers_name"].forEach(col =>{
+            ["employee_names"].forEach(col =>{
                 const data = record[col];
 
                 if (!Array.isArray(data)) return;
@@ -3249,6 +3249,7 @@
     </script>
 </body>
 </html>
+
 
 
 
