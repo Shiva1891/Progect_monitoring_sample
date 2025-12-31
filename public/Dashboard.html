@@ -3129,7 +3129,7 @@
                     newEmployee.user_type = accounttype;
                 }
 
-                const payload = { [n]: [newEmployee] };
+                const payload = { employee_names: [newEmployee], department: n };
 
                 await fetch(`/employee`, {
                     method: "POST",
@@ -3240,6 +3240,7 @@
     </script>
 </body>
 </html>
+
 
 
 
