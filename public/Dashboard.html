@@ -3211,7 +3211,6 @@
             chooseInput.parentElement.appendChild(list);
         }
         async function loadProcesses(name) {
-            const procname = name.trim().toUpperCase();
 
             const res = await fetch(`/employee`);
             const processes = await res.json();
@@ -3221,7 +3220,7 @@
                 productions.push("PROGRAM");
             }
             processes
-                .filter(p => p.process_type?.toUpperCase() === procname)
+               .filter(p => ["PRODUCTION", "FINISH"].includes(p.process_type?.toUpperCase()))
                 .forEach(emp => {
                     if (!emp.process_name) return;
 
@@ -3246,6 +3245,7 @@
     </script>
 </body>
 </html>
+
 
 
 
