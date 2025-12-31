@@ -2641,28 +2641,24 @@
              const nameKey = [];
             // Render rows
             cachedProcesses
-                        .forEach(emp => {
-                            if (!emp.department) return;
-                            if (Array.isArray(emp.department)) {
-                                nameKey.push(...emp.department);
-                                } else if (typeof emp.department === "string") {
-                                try {
-                                    const parsed = JSON.parse(emp.department);
-                                    Array.isArray(parsed)
-                                        ? nameKey.push(...parsed)
-                                        : nameKey.push(parsed);
-                                    } catch {
-                                    nameKey.push(emp.department);
-                                    }
-                                }
-                            });
-
-                    listBox.appendChild(
+                .forEach(emp => { 
+                    if (!emp.department) return;
+                    if (Array.isArray(emp.department)) {
+                        nameKey.push(...emp.department);
+                    } else if (typeof emp.department === "string") {
+                        try {   
+                            const parsed = JSON.parse(emp.department);
+                            Array.isArray(parsed)
+                                ? nameKey.push(...parsed)
+                                : nameKey.push(parsed);
+                        } catch {    
+                            nameKey.push(emp.department);
+                        }       
+                    }   
+                    listBox.appendChild(      
                         createRow(obj[nameKey], col, obj, d.id)
-                    );
+                    );      
                 });
-            });
-
         }
         async function showDepartment() {
             if (cachedProcesses.length) return cachedProcesses;
@@ -3251,3 +3247,4 @@
     </script>
 </body>
 </html>
+
