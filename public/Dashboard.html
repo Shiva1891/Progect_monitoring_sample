@@ -2903,7 +2903,7 @@
                 fieldInput.focus();
                 const processes = await loadProcesses();
                 /* ---------- INPUT HANDLER (ONLY ONCE) ---------- */
-                fieldInput.oninput = e => {
+                fieldInput.addEventListener("input", e => {
                     actionBox.innerHTML = "";
                     if (!e.target.value) return;
                     const names = [];
@@ -3239,6 +3239,7 @@
     </script>
 </body>
 </html>
+
 
 
 
