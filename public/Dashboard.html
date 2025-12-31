@@ -2802,26 +2802,73 @@
 
 
 
+        let deptBtnname = null;
 
         function createFieldSetup(employeeheaders, listBox) {
+
+            /* ---------- BUTTON WRAPPER ---------- */
+            const wrap1 = document.createElement("div");
+            wrap1.className = "space-y-2";
+            wrap1.innerHTML = `
+                <div class="flex gap-2 justify-between w-full">
+                    <button id="deptBtn"
+                    class="w-full bg-green-500 text-white rounded py-1 mt-2">
+                    + Dept
+                </button>
+
+                <button id="empBtn"
+                    class="w-full bg-green-500 text-white rounded py-1 mt-2">
+                    + Employee
+                </button>
+            </div>
+            `;
+
+            /* ---------- MAIN WRAPPER ---------- */
             const wrap = document.createElement("div");
             wrap.className = "space-y-2";
             wrap.innerHTML = `
-            <h1 id="fieldheader" class="mt-2 font-bold text-2xl mb-1">Field Setup</h1>
-            <input id="fieldid" placeholder="Name..." class="w-full border rounded-2xl px-3 py-2" />
+                <h1 id="fieldheader" class="mt-2 font-bold text-center text-2xl mb-1">
+                    Create
+                </h1>
+                <input id="fieldid"
+                    placeholder="Name..."
+                    class="w-full border rounded-2xl px-3 py-2 hidden" />
             `;
 
+            wrap.prepend(wrap1);
+
+            /* ---------- ACTION BOX ---------- */
             const actionBox = document.createElement("div");
-            actionBox.id = "actionBtn"
+            actionBox.id = "actionBtn";
             actionBox.className = "space-y-2";
             wrap.appendChild(actionBox);
 
-            wrap.querySelector("#fieldid").addEventListener("input", e => {
-                actionBox.innerHTML = "";
-                if (!e.target.value) return document.getElementById("rightPanel").classList.add("hidden");
+            /* ---------- BUTTON EVENTS ---------- */
+            const deptBtn = wrap.querySelector("#deptBtn");
+            const empBtn = wrap.querySelector("#empBtn");
+            const fieldInput = wrap.querySelector("#fieldid");
 
-                document.getElementById("relativediv").classList.remove("pl-6");
-                document.getElementById("createdepartment").classList.add("hidden");
+            deptBtn.onclick = () => {
+                deptBtnname = "DEPARTMENT";
+                fieldInput.classList.remove("hidden");
+                deptBtn.classList.add("hidden");
+                empBtn.classList.add("hidden");
+                fieldInput.focus();
+            };
+
+            empBtn.onclick = () => {
+                deptBtnname = "EMPLOYEE";
+                fieldInput.classList.remove("hidden");
+                deptBtn.classList.add("hidden");
+                empBtn.classList.add("hidden");
+                fieldInput.focus();
+            };
+
+            /* ---------- INPUT HANDLER ---------- */
+            fieldInput.addEventListener("input", e => {
+                actionBox.innerHTML = "";
+                if (!e.target.value) return;
+
                 const names = employeeheaders
                     .filter(h => normalizef(h) !== "id")
                     .join("/");
@@ -2829,9 +2876,14 @@
                 splitNames(names).forEach(n => {
                     const btn = document.createElement("button");
                     btn.className = "w-full p-1 bg-gray-200 hover:bg-gray-300 rounded";
+
                     const name =
-                        normalizef(n) === "designers_name" ? "Designer" : n.replace(/_name/g, " ");
-                    btn.textContent = name
+                        normalizef(n) === "designers_name"
+                            ? "Designer"
+                            : n.replace(/_name/g, " ");
+
+                    btn.textContent = name;
+
                     btn.onclick = () => feildcreate(name, n);
                     actionBox.appendChild(btn);
                 });
@@ -2839,6 +2891,7 @@
 
             return wrap;
         }
+
 
         function getFirst(arr) {
             return Array.isArray(arr) && arr.length ? arr[0] : null;
@@ -3133,6 +3186,7 @@
     </script>
 </body>
 </html>
+
 
 
 
