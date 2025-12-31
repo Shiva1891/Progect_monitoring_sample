@@ -183,7 +183,6 @@
             const names = [];
 
             ["employee_names"]
-                .filter(p => ["DESIGN","DRAFTING"].includes(p.department?.toUpperCase()))
                 .forEach(col => {
                 if (Array.isArray(record[col])) {
                     record[col].forEach(item => {
@@ -201,7 +200,6 @@
             const SOURCES = ["employee_names"]; // add "finish" if needed
 
             SOURCES
-                .filter(p => ["DESIGN","DRAFTING"].includes(p.department?.toUpperCase()))
                 .forEach(col => {
                 const arr = record[col];
                 if (!Array.isArray(arr)) return;
@@ -259,7 +257,9 @@
                 // create designer options
                 let options = `<option value="">-- Select Designer --</option>`;
                 const allNames = [];
-                employee.forEach(record => {
+                employee
+                    .filter(p => ["DESIGN","DRAFTING"].includes(p.department?.toUpperCase()))
+                    .forEach(record => {
                     const names = extractNamesFromEmployeeRecord(record);
                     allNames.push(...names);
                 });
@@ -350,7 +350,9 @@
 
             let allDesigners = [];
 
-            employee.forEach(emp => {
+            employee
+                .filter(p => ["DESIGN","DRAFTING"].includes(p.department?.toUpperCase()))
+                .forEach(emp => {
                 allDesigners.push(...extractDesignersFromEmployee(emp));
             });
 
@@ -493,13 +495,13 @@
 
                 // 2️⃣ Find employee
                 const emp = employees.find(e => String(e.id) === String(empId));
-                if (!emp || !Array.isArray(emp.designers_name)) {
+                if (!emp || !Array.isArray(emp.employee_names)) {
                     alert("Employee or production data not found");
                     return;
                 }
 
                 // 3️⃣ Update name inside production
-                emp.designers_name = emp.designers_name.map(obj => {
+                emp.employee_names = emp.employee_names.map(obj => {
                     const updated = { ...obj };
 
                     Object.keys(updated).forEach(k => {
@@ -515,7 +517,7 @@
                 await fetch(`${API.employee}/${empId}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ designers_name: emp.designers_name })
+                    body: JSON.stringify({ employee_names: emp.employee_names })
                 });
 
                 alert("Designer name updated successfully");
@@ -535,7 +537,9 @@
 
             let allDesigners = [];
 
-            employee.forEach(emp => {
+            employee
+                .filter(p => ["DESIGN","DRAFTING"].includes(p.department?.toUpperCase()))
+                .forEach(emp => {
                 allDesigners.push(...extractDesignersFromEmployee(emp));
             });
 
@@ -634,6 +638,7 @@
     </script>
 </body>
 </html>
+
 
 
 
