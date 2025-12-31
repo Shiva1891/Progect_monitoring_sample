@@ -2638,8 +2638,10 @@
             await employeedatafunction();
 
             // Render rows
+            const normalizeDept = d =>
+                d?.replace(/"/g, "").trim().toUpperCase();
             employeedata
-                .filter(p => p.department?.toUpperCase() === col.toUpperCase())
+                .filter(p => normalizeDept(p.department) === normalizeDept(col))
                 .forEach(d => {
                 const arr = d["employee_names"];
                 if (!Array.isArray(arr)) return;
@@ -3244,6 +3246,7 @@
     </script>
 </body>
 </html>
+
 
 
 
