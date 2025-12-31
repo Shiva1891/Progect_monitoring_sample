@@ -2619,11 +2619,8 @@
             document.getElementById("backspacebtn").onclick = user_access;
 
             // Header text
-            document.getElementById("tabcontent").textContent =
-                normalizef(col) === "designers_name"
-                    ? "Designers"
-                    : col.replace(/_/g, " ");
-
+            document.getElementById("tabcontent").textContent = col;
+            
             // UI visibility
             document.getElementById("listfieldnames").classList.remove("hidden");
             document.getElementById("backspacebtn").classList.remove("hidden");
@@ -3247,6 +3244,7 @@
     </script>
 </body>
 </html>
+
 
 
 
