@@ -45,10 +45,6 @@
     </script>
     
     <script>
-        //const PORT = "4000";
-
-        //const HOST = "192.168.0.200";
-
         const allNames = [];
 
         function extractNamesFromObject(obj) {
@@ -83,7 +79,7 @@
         function extractNamesFromEmployeeRecord(record) {
             const names = [];
 
-            ["employee_names"].forEach(col =>{
+            ["designers_name"].forEach(col =>{
                 const data = record[col];
 
                 if (!Array.isArray(data)) return;
@@ -180,7 +176,7 @@
         
 
         function loadprocesses() {
-
+            const selectedprocessname = processId.trim().toUpperCase();
             const vmcDropdown = document.getElementById("vmcDropdown");
             vmcDropdown.innerHTML = "";
             vmcDropdown.classList.remove("hidden");
@@ -195,7 +191,7 @@
                         if (!Array.isArray(emp.production)) return;
 
                         emp.production.forEach(p => {
-                            if (p.user_type === processId && p.name) {
+                            if (p.user_type === selectedprocessname && p.name) {
                                 names.push(p.name);
                             }
                         });
@@ -206,7 +202,7 @@
                     let listHTML = `
             <div class="bg-white p-6 rounded-lg shadow-lg w-80 relative">
                 <div class="flex justify-between items-center mb-2">
-                    <h1 class="text-xl font-semibold">${processId}</h1>
+                    <h1 class="text-xl font-semibold">${selectedprocessname}</h1>
                     <button onclick="closetype()"
                         class="rounded text-white bg-red-500 hover:bg-red-600 px-2 pb-1">x</button>
                 </div>
@@ -248,15 +244,11 @@
                         `<div class="p-4 text-red-600">API Error: ${err}</div>`;
                 });
         }
-
-
-         
-
+        let processId = [];
         let currentSection = null;
-        let currentBtn = null;   // 👈 add this
-        
-
+        let currentBtn = null;
         function updatestatus(processName, btn) {
+             
             const manufacturing = document.getElementById("manufacturing");
             const sectionId = processName.toLowerCase();
             const section = document.getElementById(sectionId);
@@ -298,11 +290,8 @@
             currentSection = section;
             currentBtn = btn;   // 👈 store active button
         }
-
-        let currentprocess = null;
         let processBtn = null;
-        let processId = null;
-
+        let currentprocess = null;
         function operatorpage(processName, pbtn) {
             
             const manufacturing = document.getElementById("manufacturing");
@@ -434,12 +423,12 @@
             // Prepare JSON with sequence arrays
             const newProject = {
                 jobno: newjobno,
-                project_type: autoAddWithSequence(null, "type", "NEW"),
+                project_type: autoAddWithSequence(null, "project_type", "NEW"),
                 enquery_date: autoAddWithSequence(null, "enquery_date", new Date().toISOString().slice(0, 10)),
                 project_name: projectname,
                 customer: customername,
                 contact_person: contactperson,
-                quantity: autoAddWithSequence(null, "quantity", parchaseqty),
+                quantity: autoAddWithSequence(null, "quantity", Number(parchaseqty) || 0 ),
                 expected_date: autoAddWithSequence(null, "expected_date", todate),
                 overallstatus: "ALLOCATE"
             };
@@ -471,12 +460,12 @@
         
         function allocatepage() {
             localStorage.setItem("selectedDesigner", "Allocate");
-            window.location.href = "Login.html"
+            window.location.href = "login"
         }
 
         function draftingpage() {
             localStorage.setItem("selectedDesigner", "Drafting");
-            window.location.href = "Login.html"
+            window.location.href = "login"
         }
 
         function closetype() {
@@ -496,12 +485,10 @@
         function closeup() {
             document.getElementById("project").classList.add("hidden");
             document.getElementById("status").classList.add("hidden");
-            document.getElementById("newcustomer").classList.add("hidden");
         }
 
         function closecus() {
             document.getElementById("project").classList.remove("hidden");
-            document.getElementById("newcustomer").classList.add("hidden");
         }
 
         let selectitem = null;
@@ -1526,7 +1513,7 @@
         }
 
         async function buildProcessSections() {
-            const res = await fetch("http://192.168.0.200:4000/processes");
+            const res = await fetch("/processes");
             const processes = await res.json();
 
             const wrapper = document.getElementById("processWrapper");
@@ -2541,18 +2528,24 @@
         function createHeader() {
             const div = document.createElement("div");
             div.className =
-                "w-full bg-white h-10 rounded-lg px-3 font-semibold flex items-center";
-
+                "w-full bg-white h-10 rounded-lg px-3 font-semibold flex gap-2 items-center";
             div.innerHTML = `
-        <div class="flex gap-2 w-full items-center">
-            <div class="flex-1 flex justify-between items-center">
-                <h1 id="tabcontent">Setting</h1>
-                <button id="backspacebtn" class="hidden px-2 h-6 bg-gray-200 rounded">
-                    <span class="material-icons">arrow_left</span>
-                </button>
-            </div>
-            <button onclick="closetype()" class="px-3 bg-red-500 text-white rounded">x</button>
-        </div>`;
+            <div id="relativediv" class="relative group pl-6 flex items-center gap-2 w-full">
+                <!-- + Button (hidden by default) -->
+                <button id="createdepartment" class="px-1 bg-green-500 hover:bg-green-600 text-white rounded absolute left-0 ">+</button>
+                <!-- Content -->
+                <div class="flex gap-2 w-full items-center">
+                    <div class="flex-1 flex justify-between items-center w-full">
+                        <h1 id="tabcontent" class="cursor-pointer">
+                            Departments
+                        </h1>
+                        <button id="backspacebtn" class="hidden px-2 h-6 bg-gray-200 rounded">
+                            <span class="material-icons">arrow_left</span>
+                        </button>
+                    </div>
+                    <button onclick="closetype()" class="px-3 bg-red-500 text-white rounded">x</button>
+                </div>
+            </div>`;
             return div;
         }
         function createBody(employeeheaders) {
@@ -2574,7 +2567,7 @@
 
             const btnRow = document.createElement("div");
             btnRow.id = "fieldbtns"
-            btnRow.className = "flex gap-2 font-semibold justify-between";
+            btnRow.className = "space-y-2 font-semibold";
 
             const listBox = document.createElement("div");
             listBox.id = "listfieldnames";
@@ -2582,11 +2575,22 @@
 
             employeeheaders.forEach(col => {
                 const btn = document.createElement("button");
-                btn.className = "p-1 bg-green-200 rounded text-sm";
-                btn.textContent =
-                    normalizef(col) == "designers_name" ? "Designers" : col.replace(/_name/g, " ");
-
+                btn.className = "p-1 bg-green-200 rounded flex gap-2 justify-between w-full";
+                /* Title */
+                const title = document.createElement("span");
+                title.className = "text-sm text-black font-semibold";
+                title.textContent =
+                    normalizef(col) === "designers_name"
+                    ? "Designers"
+                    : col.replace(/_name/g, " ");
+                /* Icon */
+                const icon = document.createElement("span");
+                icon.className = "material-icons";
+                icon.textContent = "arrow_left";
+                /* Click */
                 btn.onclick = () => renderEmployees(col, listBox);
+                /* Append correctly */
+                btn.append(title, icon);
                 btnRow.appendChild(btn);
             });
 
@@ -2625,7 +2629,9 @@
             // UI visibility
             document.getElementById("listfieldnames").classList.remove("hidden");
             document.getElementById("backspacebtn").classList.remove("hidden");
-
+            document.getElementById("relativediv").classList.remove("pl-6");
+            
+            document.getElementById("createdepartment").classList.add("hidden");
             document.getElementById("fieldheader").classList.add("hidden");
             document.getElementById("fieldid").classList.add("hidden");
             document.getElementById("fieldbtns").classList.add("hidden");
@@ -2641,7 +2647,6 @@
             employeedata.forEach(d => {
                 const arr = d[col];
                 if (!Array.isArray(arr)) return;
-
                 arr.forEach(obj => {
                     const nameKey = Object.keys(obj).find(k => k.startsWith("name"));
                     if (!nameKey) return;
@@ -2682,15 +2687,14 @@
 
             document.getElementById("emp_name").value = data.name ?? "";
             document.getElementById("emp_username").value = data.user_name ?? "";
-            document.getElementById("emp_usertype").value = data.user_type ?? "USER";
+            document.getElementById("emp_account").value = data.account_type ?? "USER";
             document.getElementById("emp_password").value = data.user_password ?? "";
-            document.getElementById("emp_account").value = data.account_type ?? "";
-            if (!data.account_type) {
-                document.getElementById("emp_account").classList.add("hidden");
+            document.getElementById("emp_usertype").value = data.user_type ?? "";
+            if (!data.user_type) {
+                document.getElementById("emp_usertype").classList.add("hidden");
                 document.getElementById("emp_process").classList.add("hidden");
                 document.getElementById("emp_div").classList.add("hidden");
             }
-
             document.getElementById("saveBtn").onclick =
                 () => updateEmployee(col, employeeId, data.seq);
         }
@@ -2708,10 +2712,10 @@
             wrapper.innerHTML = `
             <div id="emp_process" class="text-sm text-gray-700 text-left font-medium">Process</div>
             <div id="emp_div" class="relative flex justify-between mt-2">
-            <input id="emp_account" class="w-full border rounded-2xl px-2 py-1 font-normal" readonly = true />
-            <button id="arrowclick" class="absolute right-2 top-[4px] cursor-pointer">
+            <input id="emp_usertype" class="w-full border rounded-2xl px-2 py-1 font-normal" readonly = true />
+            <div id="arrowclick" class="absolute right-2 top-[4px] cursor-pointer">
             <span class="material-icons">arrow_drop_down</span>
-            </button>
+            </div>
             </div>
             
             <div class="text-sm text-gray-700 text-left font-medium mt-2">Name</div>
@@ -2721,7 +2725,7 @@
             <input id="emp_username" class="w-full border rounded-2xl px-2 py-1 font-normal"/>
 
             <div class="text-sm text-gray-700 text-left font-medium mt-2">Account Type</div>
-            <select id="emp_usertype" class="w-full border rounded-2xl px-2 py-1 font-normal">
+            <select id="emp_account" class="w-full border rounded-2xl px-2 py-1 font-normal">
                 <option value="USER">User</option>
                 <option value="ADMIN">Admin</option>
             </select>
@@ -2749,7 +2753,7 @@
                 return;
             }
 
-            document.getElementById("emp_usertype").value = employee.user_type;
+            document.getElementById("emp_usertype").value = employee.account_type;
             document.getElementById("emp_name").value = employee.name;
             document.getElementById("emp_username").value = employee.user_name;
             document.getElementById("emp_account").value = employee.account_type;
@@ -2765,17 +2769,17 @@
                     seq,
                     name: document.getElementById("emp_name").value.trim().toUpperCase(),
                     user_name: document.getElementById("emp_username").value.trim().toUpperCase(),
-                    user_type: document.getElementById("emp_usertype").value,
+                    account_type: document.getElementById("emp_account").value,
                     user_password: document.getElementById("emp_password").value
                 }]
             };
 
-            const accountType = document.getElementById("emp_account");
-            if (accountType && accountType.value) {
-                payload[col][0].account_type = accountType.value.toUpperCase();
+            const userType = document.getElementById("emp_usertype");
+            if (userType && userType.value) {
+                payload[col][0].user_type = userType.value.toUpperCase();
             }
 
-            fetch(`http://${HOST}:${PORT}/employee/${employeeId}`, {
+            fetch(`/employee/${employeeId}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -2798,23 +2802,72 @@
 
 
 
+        let deptBtnname = null;
 
         function createFieldSetup(employeeheaders, listBox) {
+
+            /* ---------- BUTTON WRAPPER ---------- */
+            const wrap1 = document.createElement("div");
+            wrap1.className = "space-y-2";
+            wrap1.innerHTML = `
+                <div class="flex gap-2 justify-between w-full">
+                    <button id="deptBtn"
+                    class="w-full bg-green-500 text-white rounded py-1 mt-2">
+                    + Dept
+                </button>
+
+                <button id="empBtn"
+                    class="w-full bg-green-500 text-white rounded py-1 mt-2">
+                    + Employee
+                </button>
+            </div>
+            `;
+
+            /* ---------- MAIN WRAPPER ---------- */
             const wrap = document.createElement("div");
             wrap.className = "space-y-2";
             wrap.innerHTML = `
-    <h1 id="fieldheader" class="mt-2 font-bold text-2xl mb-1">Field Setup</h1>
-    <input id="fieldid" placeholder="Name..." class="w-full border rounded-2xl px-3 py-2" />
-`;
+                <h1 id="fieldheader" class="mt-2 font-bold text-center text-2xl mb-1">
+                    Create
+                </h1>
+                <input id="fieldid"
+                    placeholder="Name..."
+                    class="w-full border rounded-2xl px-3 py-2 hidden" />
+            `;
 
+            wrap.prepend(wrap1);
+
+            /* ---------- ACTION BOX ---------- */
             const actionBox = document.createElement("div");
-            actionBox.id = "actionBtn"
+            actionBox.id = "actionBtn";
             actionBox.className = "space-y-2";
             wrap.appendChild(actionBox);
 
-            wrap.querySelector("#fieldid").addEventListener("input", e => {
+            /* ---------- BUTTON EVENTS ---------- */
+            const deptBtn = wrap.querySelector("#deptBtn");
+            const empBtn = wrap.querySelector("#empBtn");
+            const fieldInput = wrap.querySelector("#fieldid");
+
+            deptBtn.onclick = () => {
+                deptBtnname = "DEPARTMENT";
+                fieldInput.classList.remove("hidden");
+                deptBtn.classList.add("hidden");
+                empBtn.classList.add("hidden");
+                fieldInput.focus();
+            };
+
+            empBtn.onclick = () => {
+                deptBtnname = "EMPLOYEE";
+                fieldInput.classList.remove("hidden");
+                deptBtn.classList.add("hidden");
+                empBtn.classList.add("hidden");
+                fieldInput.focus();
+            };
+
+            /* ---------- INPUT HANDLER ---------- */
+            fieldInput.addEventListener("input", e => {
                 actionBox.innerHTML = "";
-                if (!e.target.value) return document.getElementById("rightPanel").classList.add("hidden");
+                if (!e.target.value) return;
 
                 const names = employeeheaders
                     .filter(h => normalizef(h) !== "id")
@@ -2823,9 +2876,14 @@
                 splitNames(names).forEach(n => {
                     const btn = document.createElement("button");
                     btn.className = "w-full p-1 bg-gray-200 hover:bg-gray-300 rounded";
+
                     const name =
-                        normalizef(n) === "designers_name" ? "Designer" : n.replace(/_name/g, " ");
-                    btn.textContent = name
+                        normalizef(n) === "designers_name"
+                            ? "Designer"
+                            : n.replace(/_name/g, " ");
+
+                    btn.textContent = name;
+
                     btn.onclick = () => feildcreate(name, n);
                     actionBox.appendChild(btn);
                 });
@@ -2833,6 +2891,7 @@
 
             return wrap;
         }
+
 
         function getFirst(arr) {
             return Array.isArray(arr) && arr.length ? arr[0] : null;
@@ -3000,22 +3059,20 @@
                 const seq = getNextSeqFromEmployees(employeedata, n);
 
                 let choosetype = null;
-                if (!adminCheckbox.checked) {
+                if(!adminCheckbox.checked){
                     choosetype = "USER";
                 } else choosetype = "ADMIN";
-
+                
                 const newEmployee = {
                     seq,
                     name: fieldName,
                     user_name: fielduser,
-                    user_type: choosetype,
+                    account_type: choosetype,
                     user_password: fieldpasswoard
                 };
-
-                
                 
                 if (!["designers_name", "drafting", "assembly", "delivery"].includes(n)) {
-                    newEmployee.account_type = accounttype;
+                    newEmployee.user_type = accounttype;
                 }
 
                 const payload = { [n]: [newEmployee] };
@@ -3059,7 +3116,7 @@
             const createType = type;
             let chooseInput = null;
             if (createType === "edit") {
-                chooseInput = document.getElementById("emp_account");
+                chooseInput = document.getElementById("emp_usertype");
             } else {
                 chooseInput = document.getElementById("choosefieldname");
             }
@@ -3078,7 +3135,7 @@
             const list = document.createElement("div");
             list.id = "processList";
             list.className =
-                "absolute top-10 left-0 w-full bg-white border rounded-xl shadow z-50 max-h-40 overflow-y-auto";
+                "absolute top-7 left-0 w-full bg-white border rounded-xl shadow z-50 max-h-40 overflow-y-auto";
 
             productions.forEach(p => {
                 const item = document.createElement("div");
@@ -3089,13 +3146,10 @@
                     chooseInput.value = p;
                     list.remove();
                 };
-
                 list.appendChild(item);
             });
-
             chooseInput.parentElement.appendChild(list);
         }
-
         async function loadProcesses(name) {
             const procname = name.trim().toUpperCase();
 
@@ -3127,13 +3181,14 @@
                         }
                     }
                 });
-
             return [...new Set(productions)]; // ✅ unique values
         }
-
-        
-
     </script>
 </body>
 </html>
+
+
+
+
+
 
