@@ -2636,7 +2636,7 @@
             document.getElementById("fieldid").classList.add("hidden");
             document.getElementById("fieldbtns").classList.add("hidden");
             document.getElementById("rightPanel").classList.add("hidden");
-            document.getElementById("actionBtn").classList.add("hidden");
+            //document.getElementById("actionBtn").classList.add("hidden");
 
             listBox.innerHTML = "";
 
@@ -2883,23 +2883,26 @@ function createFieldSetup(employeeheaders, listBox) {
         }
 
         if (deptBtnname === "EMPLOYEE") {
-            actionBox.innerHTML = "";
-            if (!value) return;
+            const actionBox = document.getElementById("departmentList");
+                actionBox.innerHTML = "";
 
-            const names = employeeheaders
-                .filter(h => normalizef(h) !== "id")
-                .join("/");
+                // Assume 'data' is the API response
+                const data = [
+                  { "department_1": "RAJASEKAR" },
+                  { "department_2": "DESIGN" }
+                ];
 
-            splitNames(names).forEach(n => {
-                const btn = document.createElement("button");
-                btn.className = "w-full p-1 bg-gray-200 hover:bg-gray-300 rounded";
-                btn.textContent =
-                    normalizef(n) === "designers_name"
-                        ? "Designer"
-                        : n.replace(/_name/g, " ");
-                btn.onclick = () => feildcreate(btn.textContent, n);
-                actionBox.appendChild(btn);
-            });
+                data.forEach(deptObj => {
+                    // Get the first value of the object (department name)
+                    const deptName = Object.values(deptObj)[0];
+
+                    const btn = document.createElement("button");
+                    btn.className = "w-full p-1 bg-gray-200 hover:bg-gray-300 rounded";
+                    btn.textContent = deptName;
+
+                    btn.onclick = () => feildcreate("Department", deptName); // or send key if needed
+                    actionBox.appendChild(btn);
+                });
         }
     });
 
@@ -2932,66 +2935,6 @@ function createFieldSetup(employeeheaders, listBox) {
     return wrap;
 }
 
-
-
-        async function loadDepartments() {
-    const res = await fetch("/employee");
-    const data = await res.json();
-
-    const deptBox = document.getElementById("departmentList");
-    deptBox.innerHTML = "";
-
-    data.department.forEach(obj => {
-        const key = Object.keys(obj)[0];
-        const value = obj[key];
-
-        const row = document.createElement("div");
-        row.className = "flex gap-2 items-center";
-
-        const input = document.createElement("input");
-        input.value = value;
-        input.className = "border px-2 py-1 rounded w-full";
-
-        const editBtn = document.createElement("button");
-        editBtn.textContent = "Save";
-        editBtn.className = "bg-blue-500 text-white px-2 rounded";
-
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "X";
-        delBtn.className = "bg-red-500 text-white px-2 rounded";
-
-        /* EDIT */
-        editBtn.onclick = async () => {
-            await fetch("/employee/department/edit", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    key,
-                    value: input.value.toUpperCase()
-                })
-            });
-            alert("Updated");
-        };
-
-        /* DELETE */
-        delBtn.onclick = async () => {
-            if (!confirm("Delete department?")) return;
-
-            await fetch("/employee/department/delete", {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ key })
-            });
-
-            loadDepartments();
-        };
-
-        row.append(input, editBtn, delBtn);
-        deptBox.appendChild(row);
-    });
-}
-
-        loadDepartments();
         function getFirst(arr) {
             return Array.isArray(arr) && arr.length ? arr[0] : null;
         }
@@ -3285,6 +3228,7 @@ function createFieldSetup(employeeheaders, listBox) {
     </script>
 </body>
 </html>
+
 
 
 
