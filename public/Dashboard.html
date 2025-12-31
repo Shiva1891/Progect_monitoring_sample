@@ -2901,7 +2901,7 @@
                 deptBtn.classList.add("hidden");
                 empBtn.classList.add("hidden");
                 fieldInput.focus();
-                const processes = await loadProcesses();
+                const processes = loadDepartment();
                 /* ---------- INPUT HANDLER (ONLY ONCE) ---------- */
                 fieldInput.addEventListener("input", e => {
                     actionBox.innerHTML = "";
@@ -2940,7 +2940,7 @@
 
         let cachedProcesses = [];
             /* ---------- LOAD PROCESSES ONCE ---------- */
-        async function loadProcesses() {
+        async function loadDepartment() {
             if (cachedProcesses.length) return cachedProcesses;
                 const res = await fetch('/processes');
                 cachedProcesses = await res.json();
@@ -3239,6 +3239,7 @@
     </script>
 </body>
 </html>
+
 
 
 
