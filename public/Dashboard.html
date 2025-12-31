@@ -2861,7 +2861,26 @@
                 deptBtn.classList.add("hidden");
                 empBtn.classList.add("hidden");
                 fieldInput.focus();
-                fieldInput.addEventListener("input", e => {
+                adddepartName.addEventListener("click", e => {
+                    try {
+                        const val = fieldInput.value
+                        if(!val) return;
+                        // 🔥 SAVE TO SQL
+                        const res = await fetch(`/processes`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                        process_name: val,
+                        process_type: "DEPARTMENT"
+                        })
+                    });
+                        if (!res.ok) throw new Error(await res.text());
+                        // ✅ update frontend list AFTER SQL success
+                        fieldInput.value = "";
+                    } catch (err) {
+                        console.error("Process save failed:", err);
+                        alert("Failed to save process");
+                    }
                 }); 
             };
 
@@ -2879,21 +2898,39 @@
                 actionBox.innerHTML = "";
                 if (!e.target.value) return;
 
-                const names = employeeheaders
-                    .filter(h => normalizef(h) !== "id")
-                    .join("/");
+                const res = await fetch(`/processes`);
+                const processes = await res.json();
 
-                splitNames(names).forEach(n => {
+                const names = [];
+                
+                processes
+                    .filter(p => p.process_type?.toUpperCase() === "DEPARTMENT")
+                    .forEach(emp => {
+                        if (!emp.process_name) return;
+
+                        if (Array.isArray(emp.process_name)) {
+                            names.push(...emp.process_name);
+                        }
+                        else if (typeof emp.process_name === "string") {
+                            try {
+                                const parsed = JSON.parse(emp.process_name);
+                                if (Array.isArray(parsed)) {
+                                    names.push(...parsed);
+                                } else {
+                                    names.push(parsed);
+                                }
+                            } catch {
+                                names.push(emp.process_name);
+                            }
+                        }
+                });
+                return [...new Set(names)]; // ✅ unique values
+                    
+                names.forEach(n => {
                     const btn = document.createElement("button");
                     btn.className = "w-full p-1 bg-gray-200 hover:bg-gray-300 rounded";
-
-                    const name =
-                        normalizef(n) === "designers_name"
-                            ? "Designer"
-                            : n.replace(/_name/g, " ");
-
+                    const name = n;
                     btn.textContent = name;
-
                     btn.onclick = () => feildcreate(name, n);
                     actionBox.appendChild(btn);
                 });
@@ -3196,6 +3233,7 @@
     </script>
 </body>
 </html>
+
 
 
 
