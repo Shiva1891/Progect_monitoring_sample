@@ -2639,7 +2639,7 @@
 
             // Render rows
             employeedata
-                .filter(p => p.department?.toUpperCase() === col)
+                .filter(p => p.department?.toUpperCase() === col.toUpperCase())
                 .forEach(d => {
                 const arr = d["employee_names"];
                 if (!Array.isArray(arr)) return;
@@ -3244,6 +3244,7 @@
     </script>
 </body>
 </html>
+
 
 
 
