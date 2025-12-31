@@ -2868,7 +2868,7 @@
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                        process_name: val,
+                        process_name: normalizef(val),
                         process_type: "DEPARTMENT"
                         })
                     });
@@ -2928,7 +2928,7 @@
                         const btn = document.createElement("button");
                         btn.className = "w-full p-1 bg-gray-200 hover:bg-gray-300 rounded";
                         btn.textContent = normalizef(name);
-                        btn.onclick = () => feildcreate(name, name);
+                        btn.onclick = () => feildcreate(normalizef(name), normalizef(name));
                         actionBox.appendChild(btn);
                         });
                     });
@@ -3128,13 +3128,13 @@
                 }
 
                 const payload = { employee_names: [newEmployee] };
-
+                const newDept = n.replace(/"/g, "");
                 await fetch(`/employee`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         ...payload,
-                        department: n
+                        department: newDept
                     })
                 });
 
@@ -3242,6 +3242,7 @@
     </script>
 </body>
 </html>
+
 
 
 
