@@ -2569,13 +2569,15 @@
             listBox.id = "listfieldnames";
             listBox.className = "hidden mt-2 bg-white rounded-lg p-3 space-y-2";
 
-            employeedata.forEach(col => {
+            [...new Set(employeedata.map(e => cleanDept(e.department)))]
+                .filter(Boolean)
+                .forEach(col => { 
                 const btn = document.createElement("button");
                 btn.className = "p-1 bg-green-200 rounded flex gap-2 justify-between w-full";
                 /* Title */
                 const title = document.createElement("span");
                 title.className = "text-sm text-black font-semibold";
-                title.textContent = col.department;
+                title.textContent = col.department.replace(/"/g, "");
                 /* Icon */
                 const icon = document.createElement("span");
                 icon.className = "material-icons";
@@ -3140,7 +3142,7 @@
 
                 alert("Employee created");
                 loadAPI();
-                user_access();
+                await user_access();
             };
 
 
@@ -3242,6 +3244,7 @@
     </script>
 </body>
 </html>
+
 
 
 
