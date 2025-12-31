@@ -3127,7 +3127,7 @@
                     user_password: fieldpasswoard
                 };
                 
-                if (!["designers_name", "drafting", "assembly", "delivery"].includes(n)) {
+                if (!["design", "program", "drafting", "assembly", "delivery"].includes(n)) {
                     newEmployee.user_type = accounttype;
                 }
 
@@ -3153,7 +3153,7 @@
             /* ---------- Assemble ---------- */
             wrapper.append(title);
 
-            if (n !== "designers_name" && n !== "drafting" && n !== "assembly" && n !== "delivery") {
+            if (!["design", "program", "drafting", "assembly", "delivery"].includes(n)) {
                 wrapper.append(chooseWrapper);
             }
 
@@ -3246,6 +3246,7 @@
     </script>
 </body>
 </html>
+
 
 
 
