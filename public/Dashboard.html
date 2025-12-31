@@ -2856,6 +2856,7 @@
                 deptBtnname = "DEPARTMENT";
                 fieldInput.value = "";
                 document.getElementById("backspacebtn").classList.remove("hidden");
+                document.getElementById("backspacebtn").onclick = user_access;
                 fieldInput.classList.remove("hidden");
                 deptAddBtn.classList.add("hidden");
                 deptBtn.classList.add("hidden");
@@ -2867,6 +2868,7 @@
             empBtn.onclick = () => {
                 deptBtnname = "EMPLOYEE";
                 document.getElementById("backspacebtn").classList.remove("hidden");
+                document.getElementById("backspacebtn").onclick = user_access;
                 fieldInput.classList.remove("hidden");
                 deptBtn.classList.add("hidden");
                 empBtn.classList.add("hidden");
@@ -2908,29 +2910,41 @@
 
             /* ---------- ADD DEPARTMENT (FETCH) ---------- */
             deptAddBtn.onclick = async () => {
-                const deptName = fieldInput.value.trim().toUpperCase();
-                if (!deptName) return;
+            const deptName = fieldInput.value.trim().toUpperCase();
+            if (!deptName) return;
 
-                const payload = {
-                    employee_names: null,
-                    department: [
-                        { [`department_${deptCount++}`]: deptName }
-                    ]
-                };
+            try {
+                // 1️⃣ Fetch current departments
+                const resFetch = await fetch("/employee/1");
+                if (!resFetch.ok) throw new Error("Failed to fetch employee");
+                const currentData = await resFetch.json();
+                const deptArray = currentData.department || [];
 
+                // 2️⃣ Determine next key
+                const nextKey = `department_${deptArray.length + 1}`;
+                deptArray.push({ [nextKey]: deptName });
+
+                // 3️⃣ Update backend
                 const res = await fetch("/employee/1", {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ department: deptArray, employee_names: null })
                 });
 
-                const data = await res.json();
+                if (!res.ok) throw new Error("Failed to update department");
 
                 fieldInput.value = "";
                 deptAddBtn.classList.add("hidden");
 
+                // 4️⃣ Refresh department list
+                //loadDepartments(document.getElementById("departmentList"));
                 alert("Department added successfully");
-            };
+            } catch (err) {
+                console.error(err);
+                alert("Error adding department");
+            }
+        };
+
 
             return wrap;
         }
@@ -3228,6 +3242,7 @@
     </script>
 </body>
 </html>
+
 
 
 
