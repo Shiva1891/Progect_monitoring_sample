@@ -170,7 +170,6 @@
         // API base (keep your existing addresses)
         const API = {
             projects: "/projects",
-            designers: "/designers",
             employee: "/employee"
         };
 
@@ -183,7 +182,9 @@
         function extractNamesFromEmployeeRecord(record) {
             const names = [];
 
-            ["designers_name"].forEach(col => {
+            ["employee_names"]
+                .filter(p => ["DESIGN","DRAFTING"].includes(p.process_type?.toUpperCase()))
+                .forEach(col => {
                 if (Array.isArray(record[col])) {
                     record[col].forEach(item => {
                         if (item.name) names.push(item.name);
@@ -197,9 +198,11 @@
             const result = [];
 
             // ONLY employee columns
-            const SOURCES = ["designers_name"]; // add "finish" if needed
+            const SOURCES = ["employee_names"]; // add "finish" if needed
 
-            SOURCES.forEach(col => {
+            SOURCES
+                .filter(p => ["DESIGN","DRAFTING"].includes(p.process_type?.toUpperCase()))
+                .forEach(col => {
                 const arr = record[col];
                 if (!Array.isArray(arr)) return;
 
@@ -407,7 +410,8 @@
                     const employees = await res.json();
 
                     for (const emp of employees) {
-                        ["designers_name"]
+                        ["emploee_names"]
+                            .filter(p => ["DESIGN","DRAFTING"].includes(p.process_type?.toUpperCase()))
                             .forEach(col => {
                                 if (Array.isArray(emp[col])) {
                                     emp[col] = emp[col].filter(e => e.name !== name);
@@ -630,6 +634,7 @@
     </script>
 </body>
 </html>
+
 
 
 
