@@ -2848,6 +2848,8 @@
             deptBtn.onclick = () => {
                 deptBtnname = "DEPARTMENT";
                 fieldheader.textContent = "Create " + deptBtnname;
+                document.getElementById("backspacebtn").classList.remove("hidden");
+                document.getElementById("backspacebtn").onclick = user_access;
                 fieldInput.classList.remove("hidden");
                 deptBtn.classList.add("hidden");
                 empBtn.classList.add("hidden");
@@ -2857,6 +2859,8 @@
             empBtn.onclick = () => {
                 deptBtnname = "EMPLOYEE";
                 fieldheader.textContent = "Create " + deptBtnname;
+                document.getElementById("backspacebtn").classList.remove("hidden");   
+                document.getElementById("backspacebtn").onclick = user_access;
                 fieldInput.classList.remove("hidden");
                 deptBtn.classList.add("hidden");
                 empBtn.classList.add("hidden");
@@ -3185,6 +3189,7 @@
     </script>
 </body>
 </html>
+
 
 
 
