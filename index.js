@@ -168,15 +168,11 @@ app.post("/employee", async (req, res) => {
 
     const [r] = await db.query(`
       INSERT INTO employee
-      (designers_name, drafting, production, finish, assembly, delivery)
-      VALUES (?, ?, ?, ?, ?, ?)
+      (employee_names, department)
+      VALUES (?, ?)
     `, [
-      toJson(t.designers_name),
-      toJson(t.drafting),
-      toJson(t.production),
-      toJson(t.finish),
-      toJson(t.assembly),
-      toJson(t.delivery)
+      toJson(t.employee_names),
+      toJson(t.department)
     ]);
 
     res.json({ id: r.insertId });
@@ -274,6 +270,56 @@ app.delete("/employee/:id", simpleDelete("employee"));
 app.delete("/processes/:id", simpleDelete("processes"));
 app.delete("/live_projects/:id", simpleDelete("live_projects"));
 
+app.delete("/employee/department/delete", async (req, res) => {
+  try {
+    const { key } = req.body;
+
+    const [rows] = await db.query(
+      "SELECT department FROM employee WHERE id = 1"
+    );
+
+    let departments = JSON.parse(rows[0].department);
+
+    departments = departments.filter(obj => !obj[key]);
+
+    await db.query(
+      "UPDATE employee SET department = ? WHERE id = 1",
+      [JSON.stringify(departments)]
+    );
+
+    res.json({ message: "Department deleted", departments });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put("/employee/department/edit", async (req, res) => {
+  try {
+    const { key, value } = req.body;
+    // key = department_1, value = NEW NAME
+
+    const [rows] = await db.query(
+      "SELECT department FROM employee WHERE id = 1"
+    );
+
+    let departments = JSON.parse(rows[0].department);
+
+    departments = departments.map(obj =>
+      obj[key] ? { [key]: value } : obj
+    );
+
+    await db.query(
+      "UPDATE employee SET department = ? WHERE id = 1",
+      [JSON.stringify(departments)]
+    );
+
+    res.json({ message: "Department updated", departments });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 /* ===============================
    🚀 START
 ================================ */
@@ -297,6 +343,7 @@ async function start() {
 }
 
 start();
+
 
 
 
