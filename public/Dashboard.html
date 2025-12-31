@@ -2530,10 +2530,7 @@
             div.className =
                 "w-full bg-white h-10 rounded-lg px-3 font-semibold flex gap-2 items-center";
             div.innerHTML = `
-            <div id="relativediv" class="relative group pl-6 flex items-center gap-2 w-full">
-                <!-- + Button (hidden by default) -->
-                <button id="createdepartment" class="px-1 bg-green-500 hover:bg-green-600 text-white rounded absolute left-0 ">+</button>
-                <!-- Content -->
+            <div id="relativediv" class="relative group flex items-center gap-2 w-full">
                 <div class="flex gap-2 w-full items-center">
                     <div class="flex-1 flex justify-between items-center w-full">
                         <h1 id="tabcontent" class="cursor-pointer">
@@ -2556,7 +2553,6 @@
             const right = document.createElement("div");
             right.id = "rightPanel";
             right.className = "hidden bg-white rounded w-[270px] p-2 text-center font-bold";
-
             body.append(left, right);
             return body;
         }
@@ -3186,6 +3182,7 @@
     </script>
 </body>
 </html>
+
 
 
 
