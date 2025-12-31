@@ -2636,15 +2636,26 @@
             listBox.innerHTML = "";
 
             // Reload data
-            await employeedatafunction();
+            await showDepartment();
 
+             const nameKey = [];
             // Render rows
-            employeedata.forEach(d => {
-                const arr = d[col];
-                if (!Array.isArray(arr)) return;
-                arr.forEach(obj => {
-                    const nameKey = Object.keys(obj).find(k => k.startsWith("name"));
-                    if (!nameKey) return;
+            cachedProcesses
+                        .forEach(emp => {
+                            if (!emp.department) return;
+                            if (Array.isArray(emp.department)) {
+                                nameKey.push(...emp.department);
+                                } else if (typeof emp.department === "string") {
+                                try {
+                                    const parsed = JSON.parse(emp.department);
+                                    Array.isArray(parsed)
+                                        ? nameKey.push(...parsed)
+                                        : nameKey.push(parsed);
+                                    } catch {
+                                    nameKey.push(emp.department);
+                                    }
+                                }
+                            });
 
                     listBox.appendChild(
                         createRow(obj[nameKey], col, obj, d.id)
@@ -2653,8 +2664,12 @@
             });
 
         }
-
-
+        async function showDepartment() {
+            if (cachedProcesses.length) return cachedProcesses;
+            const res = await fetch('/employee');
+            cachedProcesses = await res.json();
+            return cachedProcesses;
+        }
         function createRow(name, col, data, employeeId) {
             const row = document.createElement("div");
             row.className =
@@ -2670,13 +2685,9 @@
                 🗑
             </button>
         </div>
-    `;
+    `; 
             return row;
         }
-
-
-
-
         function openEditEmployee(col, data, employeeId) {
             showEditEmployeeForm(col);
 
@@ -2943,9 +2954,9 @@
             /* ---------- LOAD PROCESSES ONCE ---------- */
         async function loadDepartment() {
             if (cachedProcesses.length) return cachedProcesses;
-                const res = await fetch('/processes');
-                cachedProcesses = await res.json();
-                return cachedProcesses;
+            const res = await fetch('/processes');
+            cachedProcesses = await res.json();
+            return cachedProcesses;
         }
         function getFirst(arr) {
             return Array.isArray(arr) && arr.length ? arr[0] : null;
@@ -3207,7 +3218,7 @@
         async function loadProcesses(name) {
             const procname = name.trim().toUpperCase();
 
-            const res = await fetch(`/processes`);
+            const res = await fetch(`/employee`);
             const processes = await res.json();
 
             const productions = [];
@@ -3215,7 +3226,7 @@
                 productions.push("PROGRAM");
             }
             processes
-                //.filter(p => p.process_type?.toUpperCase() === procname)
+                .filter(p => p.process_type?.toUpperCase() === procname)
                 .forEach(emp => {
                     if (!emp.process_name) return;
 
@@ -3240,25 +3251,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
