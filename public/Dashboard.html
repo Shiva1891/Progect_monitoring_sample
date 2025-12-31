@@ -2874,7 +2874,7 @@
                         process_type: "DEPARTMENT"
                         })
                     });
-                        if (!res.ok) throw new Error( res.text());
+                        //if (!res.ok) throw new Error( res.text());
                         alert("success to save DEPARTMENT");
                         // ✅ update frontend list AFTER SQL success
                         fieldInput.value = "";
@@ -2899,33 +2899,34 @@
                 actionBox.innerHTML = "";
                 if (!e.target.value) return;
 
-                const res = fetch(`/processes`);
-                const processes = res.json();
-
-                const names = [];
+                fetch('/processes')
+                    .then(res => res.json())
+                    .then(processes => {
+                        const names = [];
                 
-                processes
-                    .filter(p => p.process_type?.toUpperCase() === "DEPARTMENT")
-                    .forEach(emp => {
-                        if (!emp.process_name) return;
+                        processes
+                            .filter(p => p.process_type?.toUpperCase() === "DEPARTMENT")
+                            .forEach(emp => {
+                                if (!emp.process_name) return;
 
-                        if (Array.isArray(emp.process_name)) {
-                            names.push(...emp.process_name);
-                        }
-                        else if (typeof emp.process_name === "string") {
-                            try {
-                                const parsed = JSON.parse(emp.process_name);
-                                if (Array.isArray(parsed)) {
-                                    names.push(...parsed);
-                                } else {
-                                    names.push(parsed);
+                                if (Array.isArray(emp.process_name)) {
+                                    names.push(...emp.process_name);
                                 }
-                            } catch {
-                                names.push(emp.process_name);
-                            }
-                        }
-                });
-                return [...new Set(names)]; // ✅ unique values
+                                else if (typeof emp.process_name === "string") {
+                                    try {
+                                        const parsed = JSON.parse(emp.process_name);
+                                        if (Array.isArray(parsed)) {
+                                            names.push(...parsed);
+                                        } else {
+                                            names.push(parsed);
+                                        }
+                                    } catch {
+                                        names.push(emp.process_name);
+                                    }
+                                }
+                            });
+                        return [...new Set(names)]; // ✅ unique values
+                    });
                     
                 names.forEach(n => {
                     const btn = document.createElement("button");
@@ -3234,6 +3235,7 @@
     </script>
 </body>
 </html>
+
 
 
 
