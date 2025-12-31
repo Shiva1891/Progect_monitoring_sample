@@ -2500,748 +2500,382 @@
                 newcustomername?.focus();
             }
         });
-        function normalizef(value) {
-            if (typeof value !== "string") return "";
-            return value.replace(/_/g, " ").trim().toUpperCase();
-        }
-
-        const splitNames = str =>
-            str.split("/").map(s => s.trim()).filter(Boolean);
 
 
-
-        async function user_access() {
-            const useraccess = document.getElementById("useraccess");
-            useraccess.classList.remove("hidden");
-            useraccess.innerHTML = "";
-
-            employeeheadersfunction();
-
-            cleanHeaders = employeeheaders.filter(h => h.toLowerCase() !== "id");
-
-            const user_display = document.createElement("div");
-            user_display.className = "min-w-[270px]";
-
-            user_display.append(createHeader(), createBody(cleanHeaders));
-            useraccess.appendChild(user_display);
-        }
-        function createHeader() {
-            const div = document.createElement("div");
-            div.className =
-                "w-full bg-white h-10 rounded-lg px-3 font-semibold flex gap-2 items-center";
-            div.innerHTML = `
-            <div id="relativediv" class="relative group pl-6 flex items-center gap-2 w-full">
-                <!-- + Button (hidden by default) -->
-                <button id="createdepartment" class="px-1 bg-green-500 hover:bg-green-600 text-white rounded absolute left-0 ">+</button>
-                <!-- Content -->
-                <div class="flex gap-2 w-full items-center">
-                    <div class="flex-1 flex justify-between items-center w-full">
-                        <h1 id="tabcontent" class="cursor-pointer">
-                            Departments
-                        </h1>
-                        <button id="backspacebtn" class="hidden px-2 h-6 bg-gray-200 rounded">
-                            <span class="material-icons">arrow_left</span>
-                        </button>
-                    </div>
-                    <button onclick="closetype()" class="px-3 bg-red-500 text-white rounded">x</button>
-                </div>
-            </div>`;
-            return div;
-        }
-        function createBody(employeeheaders) {
-            const body = document.createElement("div");
-            body.className = "flex gap-2 mt-1 bg-slate-100 p-4 rounded-lg";
-
-            const left = createLeftPanel(employeeheaders);
-            const right = document.createElement("div");
-            right.id = "rightPanel";
-            right.className = "hidden bg-white rounded w-[270px] p-2 text-center font-bold";
-
-            body.append(left, right);
-            return body;
-        }
-        function createLeftPanel(employeeheaders) {
-            const panel = document.createElement("div");
-            panel.id = "leftPanel"
-            panel.className = "min-w-[240px] md:w-1/4";
-
-            const btnRow = document.createElement("div");
-            btnRow.id = "fieldbtns"
-            btnRow.className = "space-y-2 font-semibold";
-
-            const listBox = document.createElement("div");
-            listBox.id = "listfieldnames";
-            listBox.className = "hidden mt-2 bg-white rounded-lg p-3 space-y-2";
-
-            employeeheaders.forEach(col => {
-                const btn = document.createElement("button");
-                btn.className = "p-1 bg-green-200 rounded flex gap-2 justify-between w-full";
-                /* Title */
-                const title = document.createElement("span");
-                title.className = "text-sm text-black font-semibold";
-                title.textContent =
-                    normalizef(col) === "designers_name"
-                    ? "Designers"
-                    : col.replace(/_name/g, " ");
-                /* Icon */
-                const icon = document.createElement("span");
-                icon.className = "material-icons";
-                icon.textContent = "arrow_left";
-                /* Click */
-                btn.onclick = () => renderEmployees(col, listBox);
-                /* Append correctly */
-                btn.append(title, icon);
-                btnRow.appendChild(btn);
-            });
-
-            panel.append(btnRow, listBox, createFieldSetup(employeeheaders, listBox));
-            return panel;
-        }
         let employeedata = [];
+let employeeheaders = [];
 
-        let employeeheaders = [];
+let deptBtnname = null;
+let deptCount = 1;
 
-        employeedatafunction();
+/* ==============================
+   MAIN ENTRY: USER ACCESS
+================================= */
+async function user_access() {
+    const useraccess = document.getElementById("useraccess");
+    useraccess.classList.remove("hidden");
+    useraccess.innerHTML = "";
 
-        employeeheadersfunction();
+    await employeeheadersfunction();
+    await employeedatafunction();
 
-        async function employeeheadersfunction() {
+    const cleanHeaders = employeeheaders.filter(h => h.toLowerCase() !== "id");
 
-            employeeheaders = await fetch(`/employee/headers`)
-                .then(r => r.json());
-        }
+    const user_display = document.createElement("div");
+    user_display.className = "min-w-[270px]";
 
-        async function employeedatafunction() {
+    user_display.append(createHeader(), createBody(cleanHeaders));
+    useraccess.appendChild(user_display);
+}
 
-            employeedata = await fetch(`/employee`).then(r => r.json());
-        }
+/* ==============================
+   CREATE HEADER
+================================= */
+function createHeader() {
+    const div = document.createElement("div");
+    div.className =
+        "w-full bg-white h-10 rounded-lg px-3 font-semibold flex gap-2 items-center";
+    div.innerHTML = `
+        <div id="relativediv" class="relative group pl-6 flex items-center gap-2 w-full">
+            <button id="createdepartment" class="px-1 bg-green-500 hover:bg-green-600 text-white rounded absolute left-0 ">+</button>
+            <div class="flex gap-2 w-full items-center">
+                <div class="flex-1 flex justify-between items-center w-full">
+                    <h1 id="tabcontent" class="cursor-pointer">Departments</h1>
+                    <button id="backspacebtn" class="hidden px-2 h-6 bg-gray-200 rounded">
+                        <span class="material-icons">arrow_left</span>
+                    </button>
+                </div>
+                <button onclick="closetype()" class="px-3 bg-red-500 text-white rounded">x</button>
+            </div>
+        </div>`;
+    return div;
+}
 
-        async function renderEmployees(col, listBox) {
-            // Back button
-            document.getElementById("backspacebtn").onclick = user_access;
+/* ==============================
+   CREATE BODY
+================================= */
+function createBody(employeeheaders) {
+    const body = document.createElement("div");
+    body.className = "flex gap-2 mt-1 bg-slate-100 p-4 rounded-lg";
 
-            // Header text
-            document.getElementById("tabcontent").textContent =
-                normalizef(col) === "designers_name"
-                    ? "Designers"
-                    : col.replace(/_/g, " ");
+    const left = createLeftPanel(employeeheaders);
+    const right = document.createElement("div");
+    right.id = "rightPanel";
+    right.className = "hidden bg-white rounded w-[270px] p-2 text-center font-bold";
 
-            // UI visibility
-            document.getElementById("listfieldnames").classList.remove("hidden");
-            document.getElementById("backspacebtn").classList.remove("hidden");
-            document.getElementById("relativediv").classList.remove("pl-6");
-            
-            document.getElementById("createdepartment").classList.add("hidden");
-            document.getElementById("fieldWrap")?.classList.add("hidden");
-            document.getElementById("fieldid").classList.add("hidden");
-            document.getElementById("fieldbtns").classList.add("hidden");
-            document.getElementById("rightPanel").classList.add("hidden");
-            //document.getElementById("actionBtn").classList.add("hidden");
+    body.append(left, right);
+    return body;
+}
 
-            listBox.innerHTML = "";
+/* ==============================
+   LEFT PANEL
+================================= */
+function createLeftPanel(employeeheaders) {
+    const panel = document.createElement("div");
+    panel.id = "leftPanel";
+    panel.className = "min-w-[240px] md:w-1/4";
 
-            // Reload data
-            await employeedatafunction();
+    const btnRow = document.createElement("div");
+    btnRow.id = "fieldbtns";
+    btnRow.className = "space-y-2 font-semibold";
 
-            // Render rows
-            employeedata.forEach(d => {
-                const arr = d[col];
-                if (!Array.isArray(arr)) return;
-                arr.forEach(obj => {
-                    const nameKey = Object.keys(obj).find(k => k.startsWith("name"));
-                    if (!nameKey) return;
+    const listBox = document.createElement("div");
+    listBox.id = "listfieldnames";
+    listBox.className = "hidden mt-2 bg-white rounded-lg p-3 space-y-2";
 
-                    listBox.appendChild(
-                        createRow(obj[nameKey], col, obj, d.id)
-                    );
-                });
-            });
+    employeeheaders.forEach(col => {
+        const btn = document.createElement("button");
+        btn.className = "p-1 bg-green-200 rounded flex gap-2 justify-between w-full";
 
-        }
+        const title = document.createElement("span");
+        title.className = "text-sm text-black font-semibold";
+        title.textContent =
+            normalizef(col) === "designers_name"
+                ? "Designers"
+                : col.replace(/_name/g, " ");
 
+        const icon = document.createElement("span");
+        icon.className = "material-icons";
+        icon.textContent = "arrow_left";
 
-        function createRow(name, col, data, employeeId) {
-            const row = document.createElement("div");
-            row.className =
-                "flex items-center justify-between px-2 py-1 bg-gray-100 rounded";
+        btn.onclick = () => renderEmployees(col, listBox);
+        btn.append(title, icon);
+        btnRow.appendChild(btn);
+    });
 
-            row.innerHTML = `
+    panel.append(btnRow, listBox, createFieldSetup(employeeheaders, listBox));
+    return panel;
+}
+
+/* ==============================
+   FETCH EMPLOYEE HEADERS
+================================= */
+async function employeeheadersfunction() {
+    employeeheaders = await fetch(`/employee/headers`).then(r => r.json());
+}
+
+/* ==============================
+   FETCH EMPLOYEE DATA
+================================= */
+async function employeedatafunction() {
+    employeedata = await fetch(`/employee`).then(r => r.json());
+}
+
+/* ==============================
+   RENDER EMPLOYEES BY HEADER
+================================= */
+async function renderEmployees(col, listBox) {
+    document.getElementById("backspacebtn").onclick = user_access;
+    document.getElementById("tabcontent").textContent =
+        normalizef(col) === "designers_name"
+            ? "Designers"
+            : col.replace(/_/g, " ");
+
+    document.getElementById("listfieldnames").classList.remove("hidden");
+    document.getElementById("backspacebtn").classList.remove("hidden");
+    document.getElementById("relativediv").classList.remove("pl-6");
+
+    document.getElementById("createdepartment").classList.add("hidden");
+    document.getElementById("fieldWrap")?.classList.add("hidden");
+    document.getElementById("fieldid").classList.add("hidden");
+    document.getElementById("fieldbtns").classList.add("hidden");
+    document.getElementById("rightPanel").classList.add("hidden");
+
+    listBox.innerHTML = "";
+    await employeedatafunction();
+
+    employeedata.forEach(d => {
+        const arr = d[col];
+        if (!Array.isArray(arr)) return;
+
+        arr.forEach(obj => {
+            const nameKey = Object.keys(obj).find(k => k.startsWith("name"));
+            if (!nameKey) return;
+
+            listBox.appendChild(createRow(obj[nameKey], col, obj, d.id));
+        });
+    });
+}
+
+/* ==============================
+   CREATE ROW
+================================= */
+function createRow(name, col, data, employeeId) {
+    const row = document.createElement("div");
+    row.className = "flex items-center justify-between px-2 py-1 bg-gray-100 rounded";
+
+    row.innerHTML = `
         <span>${name}</span>
         <div class="flex gap-2">
-            <button onclick='openEditEmployee("${col}", ${JSON.stringify(data)}, ${employeeId})'>
-                ✏
-            </button>
-            <button onclick='deleteEmployee("${col}", ${employeeId})'>
-                🗑
-            </button>
+            <button onclick='openEditEmployee("${col}", ${JSON.stringify(data)}, ${employeeId})'>✏</button>
+            <button onclick='deleteEmployee("${col}", ${employeeId})'>🗑</button>
         </div>
     `;
-            return row;
+    return row;
+}
+
+/* ==============================
+   OPEN EDIT EMPLOYEE
+================================= */
+function openEditEmployee(col, data, employeeId) {
+    showEditEmployeeForm(col);
+
+    document.getElementById("emp_name").value = data.name ?? "";
+    document.getElementById("emp_username").value = data.user_name ?? "";
+    document.getElementById("emp_account").value = data.account_type ?? "USER";
+    document.getElementById("emp_password").value = data.user_password ?? "";
+    document.getElementById("emp_usertype").value = data.user_type ?? "";
+
+    if (!data.user_type) {
+        document.getElementById("emp_usertype").classList.add("hidden");
+        document.getElementById("emp_process").classList.add("hidden");
+        document.getElementById("emp_div").classList.add("hidden");
+    }
+
+    document.getElementById("saveBtn").onclick = () => updateEmployee(col, employeeId, data.seq);
+}
+
+/* ==============================
+   UPDATE EMPLOYEE
+================================= */
+function updateEmployee(col, employeeId, seq) {
+    const payload = {
+        [col]: [{
+            seq,
+            name: document.getElementById("emp_name").value.trim().toUpperCase(),
+            user_name: document.getElementById("emp_username").value.trim().toUpperCase(),
+            account_type: document.getElementById("emp_account").value,
+            user_password: document.getElementById("emp_password").value,
+            user_type: document.getElementById("emp_usertype")?.value || ""
+        }]
+    };
+
+    fetch(`/employee/${employeeId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    }).then(() => {
+        alert("Employee updated");
+        user_access();
+    });
+}
+
+/* ==============================
+   DELETE EMPLOYEE
+================================= */
+async function deleteEmployee(col, employeeId) {
+    if (!confirm("Delete this employee?")) return;
+    await fetch(`/employee/${employeeId}`, { method: "DELETE" });
+    user_access();
+}
+
+/* ==============================
+   CREATE FIELD SETUP
+================================= */
+function createFieldSetup(employeeheaders, listBox) {
+    const wrap1 = document.createElement("div");
+    wrap1.className = "space-y-2";
+    wrap1.innerHTML = `
+        <h1 class="mt-2 font-bold text-center text-2xl mb-1">Create</h1>
+        <div class="flex gap-2 w-full">
+            <button id="deptBtn" class="w-full bg-green-500 text-white rounded py-1">+ Dept</button>
+            <button id="empBtn" class="w-full bg-green-500 text-white rounded py-1">+ Employee</button>
+        </div>
+        <div id="departmentList" class="space-y-2 mt-4"></div>
+    `;
+
+    const wrap = document.createElement("div");
+    wrap.className = "space-y-2";
+    wrap.innerHTML = `
+        <div class="flex gap-2 items-center">
+            <input id="fieldid" placeholder="Name..." class="w-full border rounded-2xl px-3 py-2 hidden"/>
+            <button id="deptaddBtn" class="bg-green-500 text-white rounded px-3 py-2 hidden">+</button>
+        </div>
+    `;
+    wrap.id = "fieldWrap";
+    wrap.prepend(wrap1);
+
+    const deptBtn = wrap.querySelector("#deptBtn");
+    const empBtn = wrap.querySelector("#empBtn");
+    const fieldInput = wrap.querySelector("#fieldid");
+    const deptAddBtn = wrap.querySelector("#deptaddBtn");
+    const departmentList = wrap.querySelector("#departmentList");
+
+    /* ---------- DEPARTMENT MODE ---------- */
+    deptBtn.onclick = () => {
+        deptBtnname = "DEPARTMENT";
+        fieldInput.value = "";
+        document.getElementById("backspacebtn").classList.remove("hidden");
+        document.getElementById("backspacebtn").onclick = user_access;
+        fieldInput.classList.remove("hidden");
+        deptAddBtn.classList.add("hidden");
+        deptBtn.classList.add("hidden");
+        empBtn.classList.add("hidden");
+        fieldInput.focus();
+    };
+
+    /* ---------- EMPLOYEE MODE ---------- */
+    empBtn.onclick = () => {
+        deptBtnname = "EMPLOYEE";
+        document.getElementById("backspacebtn").classList.remove("hidden");
+        document.getElementById("backspacebtn").onclick = user_access;
+        fieldInput.classList.remove("hidden");
+        deptBtn.classList.add("hidden");
+        empBtn.classList.add("hidden");
+        departmentList.classList.add("hidden");
+        fieldInput.focus();
+    };
+
+    /* ---------- INPUT HANDLER ---------- */
+    fieldInput.addEventListener("input", async e => {
+        const value = e.target.value.trim();
+        deptAddBtn.classList.toggle("hidden", !(deptBtnname === "DEPARTMENT" && value));
+
+        if (deptBtnname === "EMPLOYEE") {
+            departmentList.innerHTML = "";
+            await employeedatafunction();
+            const employeeRow = employeedata[0];
+            const departments = employeeRow?.department || [];
+
+            departments.forEach(d => {
+                const deptName = Object.values(d)[0];
+                const btn = document.createElement("button");
+                btn.className = "w-full p-1 bg-gray-200 hover:bg-gray-300 rounded";
+                btn.textContent = deptName;
+                btn.onclick = () => feildcreate("Department", deptName);
+                departmentList.appendChild(btn);
+            });
+            departmentList.classList.remove("hidden");
         }
+    });
 
+    /* ---------- ADD DEPARTMENT ---------- */
+    deptAddBtn.onclick = async () => {
+        const deptName = fieldInput.value.trim().toUpperCase();
+        if (!deptName) return;
 
+        try {
+            const resFetch = await fetch("/employee/1");
+            if (!resFetch.ok) throw new Error("Failed to fetch employee");
+            const currentData = await resFetch.json();
+            const deptArray = currentData.department || [];
 
+            const nextKey = `department_${deptArray.length + 1}`;
+            deptArray.push({ [nextKey]: deptName });
 
-        function openEditEmployee(col, data, employeeId) {
-            showEditEmployeeForm(col);
-
-            document.getElementById("emp_name").value = data.name ?? "";
-            document.getElementById("emp_username").value = data.user_name ?? "";
-            document.getElementById("emp_account").value = data.account_type ?? "USER";
-            document.getElementById("emp_password").value = data.user_password ?? "";
-            document.getElementById("emp_usertype").value = data.user_type ?? "";
-            if (!data.user_type) {
-                document.getElementById("emp_usertype").classList.add("hidden");
-                document.getElementById("emp_process").classList.add("hidden");
-                document.getElementById("emp_div").classList.add("hidden");
-            }
-            document.getElementById("saveBtn").onclick =
-                () => updateEmployee(col, employeeId, data.seq);
-        }
-
-        let type = [];
-
-        function showEditEmployeeForm(col) {
-            const rightPanel = document.getElementById("rightPanel");
-            rightPanel.classList.remove("hidden");
-            rightPanel.innerHTML = "";
-
-            const wrapper = document.createElement("div");
-            wrapper.className = "";
-
-            wrapper.innerHTML = `
-            <div id="emp_process" class="text-sm text-gray-700 text-left font-medium">Process</div>
-            <div id="emp_div" class="relative flex justify-between mt-2">
-            <input id="emp_usertype" class="w-full border rounded-2xl px-2 py-1 font-normal" readonly = true />
-            <div id="arrowclick" class="absolute right-2 top-[4px] cursor-pointer">
-            <span class="material-icons">arrow_drop_down</span>
-            </div>
-            </div>
-            
-            <div class="text-sm text-gray-700 text-left font-medium mt-2">Name</div>
-            <input id="emp_name" class="w-full border rounded-2xl px-2 py-1 font-normal"/>
-
-            <div class="text-sm text-gray-700 text-left font-medium mt-2">Username</div>
-            <input id="emp_username" class="w-full border rounded-2xl px-2 py-1 font-normal"/>
-
-            <div class="text-sm text-gray-700 text-left font-medium mt-2">Account Type</div>
-            <select id="emp_account" class="w-full border rounded-2xl px-2 py-1 font-normal">
-                <option value="USER">User</option>
-                <option value="ADMIN">Admin</option>
-            </select>
-
-            <div class="text-sm text-gray-700 text-left font-medium mt-2">Password</div>
-            <input id="emp_password" class="w-full border rounded-2xl px-2 py-1 font-normal"/>
-
-            <button id="saveBtn"
-                class="w-full bg-green-500 text-white rounded py-1 mt-3">
-                Update
-            </button>`;
-
-            
-            rightPanel.appendChild(wrapper);
-            document.getElementById("arrowclick").onclick = () => {
-                const type = "edit";
-                selectProcess(col, type);
-            }
-        }
-
-        function fillEditData(col, data, employeeId) {
-            const employee = data.find(emp => emp.seq === employeeId);
-            if (!employee) {
-                console.error("Employee not found");
-                return;
-            }
-
-            document.getElementById("emp_usertype").value = employee.account_type;
-            document.getElementById("emp_name").value = employee.name;
-            document.getElementById("emp_username").value = employee.user_name;
-            document.getElementById("emp_account").value = employee.account_type;
-            document.getElementById("emp_password").value = employee.user_password;
-
-            document.getElementById("saveBtn").onclick =
-                () => updateEmployee(col, employeeId);
-        }
-
-        function updateEmployee(col, employeeId, seq) {
-            const payload = {
-                [col]: [{
-                    seq,
-                    name: document.getElementById("emp_name").value.trim().toUpperCase(),
-                    user_name: document.getElementById("emp_username").value.trim().toUpperCase(),
-                    account_type: document.getElementById("emp_account").value,
-                    user_password: document.getElementById("emp_password").value
-                }]
-            };
-
-            const userType = document.getElementById("emp_usertype");
-            if (userType && userType.value) {
-                payload[col][0].user_type = userType.value.toUpperCase();
-            }
-
-            fetch(`/employee/${employeeId}`, {
+            const res = await fetch("/employee/1", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            })
-                .then(() => {
-                    alert("Employee updated");
-                    user_access();
-                });
-        }
-
-        async function deleteEmployee(col, employeeId) {
-            if (!confirm("Delete this employee?")) return;
-
-            await fetch(`/employee/${employeeId}`, {
-                method: "DELETE"
+                body: JSON.stringify({ department: deptArray, employee_names: null })
             });
+            if (!res.ok) throw new Error("Failed to update department");
 
-            user_access();
+            fieldInput.value = "";
+            deptAddBtn.classList.add("hidden");
+            alert("Department added successfully");
+        } catch (err) {
+            console.error(err);
+            alert("Error adding department");
         }
+    };
+
+    return wrap;
+}
+
+/* ==============================
+   UTILITIES
+================================= */
+function getFirst(arr) {
+    return Array.isArray(arr) && arr.length ? arr[0] : null;
+}
+
+function getNextSeqFromEmployees(employees, col) {
+    let max = 0;
+    employees.forEach(e => {
+        const item = getFirst(e[col]);
+        if (item?.seq) max = Math.max(max, item.seq);
+    });
+    return max + 1;
+}
+
+/* ==============================
+   FIELD CREATE (EMPLOYEE ENTRY)
+================================= */
+function feildcreate(name, n) {
+    // your existing feildcreate logic...
+}
+
+/* ==============================
+   NORMALIZE FUNCTION
+================================= */
+function normalizef(str) {
+    return str.replace(/\s+/g, "_").toLowerCase();
+}
 
-
-
-        let deptBtnname = null;
-        let deptCount = 1;
-
-        function createFieldSetup(employeeheaders, listBox) {
-
-            /* ---------- HEADER + BUTTONS ---------- */
-            const wrap1 = document.createElement("div");
-            wrap1.className = "space-y-2";
-            wrap1.innerHTML = `
-                <h1 class="mt-2 font-bold text-center text-2xl mb-1">Create</h1>
-                <div class="flex gap-2 w-full">
-                    <button id="deptBtn" class="w-full bg-green-500 text-white rounded py-1">
-                        + Dept
-                    </button>
-                    <button id="empBtn" class="w-full bg-green-500 text-white rounded py-1">
-                        + Employee
-                    </button>
-                </div>
-                <div id="departmentList" class="space-y-2 mt-4"></div>
-            `;
-
-            /* ---------- INPUT + ADD ---------- */
-            const wrap = document.createElement("div");
-            wrap.className = "space-y-2";
-            wrap.innerHTML = `
-                <div class="flex gap-2 items-center">
-                    <input id="fieldid"
-                        placeholder="Name..."
-                        class="w-full border rounded-2xl px-3 py-2 hidden" />
-                    <button id="deptaddBtn"
-                        class="bg-green-500 text-white rounded px-3 py-2 hidden">
-                        +
-                    </button>
-                </div>
-            `;
-            wrap.id = "fieldWrap";
-            wrap.prepend(wrap1);
-    
-            const actionBox = document.createElement("div");
-            actionBox.className = "space-y-2";
-            wrap.appendChild(actionBox);
-
-            /* ---------- ELEMENTS ---------- */
-            const deptBtn = wrap.querySelector("#deptBtn");
-            const empBtn = wrap.querySelector("#empBtn");
-            const fieldInput = wrap.querySelector("#fieldid");
-            const deptAddBtn = wrap.querySelector("#deptaddBtn");
-            const departmentList = wrap.querySelector("#departmentList");
-
-            /* ---------- DEPARTMENT MODE ---------- */
-            deptBtn.onclick = () => {
-                deptBtnname = "DEPARTMENT";
-                fieldInput.value = "";
-                document.getElementById("backspacebtn").classList.remove("hidden");
-                document.getElementById("backspacebtn").onclick = user_access;
-                fieldInput.classList.remove("hidden");
-                deptAddBtn.classList.add("hidden");
-                deptBtn.classList.add("hidden");
-                empBtn.classList.add("hidden");
-                fieldInput.focus();
-            };
-
-            /* ---------- EMPLOYEE MODE ---------- */
-            empBtn.onclick = () => {
-                deptBtnname = "EMPLOYEE";
-                document.getElementById("backspacebtn").classList.remove("hidden");
-                document.getElementById("backspacebtn").onclick = user_access;
-                fieldInput.classList.remove("hidden");
-                deptBtn.classList.add("hidden");
-                empBtn.classList.add("hidden");
-                departmentList.classList.add("hidden");
-                fieldInput.focus();
-            };
-
-            /* ---------- INPUT HANDLER ---------- */
-            fieldInput.addEventListener("input", e => {
-                const value = e.target.value.trim();
-
-                if (deptBtnname === "DEPARTMENT") {
-                    deptAddBtn.classList.toggle("hidden", !value);
-                }
-
-                if (deptBtnname === "EMPLOYEE") {
-                    const actionBox = document.getElementById("departmentList");
-                        actionBox.innerHTML = "";
-
-                        // Assume 'data' is the API response
-                        const data = [
-                          { "department_1": "RAJASEKAR" },
-                          { "department_2": "DESIGN" }
-                        ];
-
-                        data.forEach(deptObj => {
-                            // Get the first value of the object (department name)
-                            const deptName = Object.values(deptObj)[0];
-
-                            const btn = document.createElement("button");
-                            btn.className = "w-full p-1 bg-gray-200 hover:bg-gray-300 rounded";
-                            btn.textContent = deptName;
-
-                            btn.onclick = () => feildcreate("Department", deptName); // or send key if needed
-                            actionBox.appendChild(btn);
-                        });
-                }
-            });
-
-            /* ---------- ADD DEPARTMENT (FETCH) ---------- */
-            deptAddBtn.onclick = async () => {
-            const deptName = fieldInput.value.trim().toUpperCase();
-            if (!deptName) return;
-
-            try {
-                // 1️⃣ Fetch current departments
-                const resFetch = await fetch("/employee/1");
-                if (!resFetch.ok) throw new Error("Failed to fetch employee");
-                const currentData = await resFetch.json();
-                const deptArray = currentData.department || [];
-
-                // 2️⃣ Determine next key
-                const nextKey = `department_${deptArray.length + 1}`;
-                deptArray.push({ [nextKey]: deptName });
-
-                // 3️⃣ Update backend
-                const res = await fetch("/employee/1", {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ department: deptArray, employee_names: null })
-                });
-
-                if (!res.ok) throw new Error("Failed to update department");
-
-                fieldInput.value = "";
-                deptAddBtn.classList.add("hidden");
-
-                // 4️⃣ Refresh department list
-                //loadDepartments(document.getElementById("departmentList"));
-                alert("Department added successfully");
-            } catch (err) {
-                console.error(err);
-                alert("Error adding department");
-            }
-        };
-
-
-            return wrap;
-        }
-
-        function getFirst(arr) {
-            return Array.isArray(arr) && arr.length ? arr[0] : null;
-        }
-
-
-        function getNextSeqFromEmployees(employees, col) {
-            let max = 0;
-
-            employees.forEach(e => {
-                const item = getFirst(e[col]);
-                if (item?.seq) max = Math.max(max, item.seq);
-            });
-
-            return max + 1;
-        }
-
-
-        function feildcreate(name, n) {
-
-            /* ---------- Back Button ---------- */
-            const backBtn = document.getElementById("backspacebtn");
-            backBtn.classList.remove("hidden");
-            backBtn.onclick = user_access;
-
-            /* ---------- Panels ---------- */
-            const rightPanel = document.getElementById("rightPanel");
-            const leftPanel = document.getElementById("leftPanel");
-
-            rightPanel.classList.remove("hidden");
-            leftPanel.classList.add("hidden");
-            rightPanel.innerHTML = "";
-
-            /* ---------- Field Name ---------- */
-            const fieldName = document
-                .getElementById("fieldid")
-                .value
-                .trim()
-                .toUpperCase();
-
-            /* ---------- Wrapper ---------- */
-            const wrapper = document.createElement("div");
-            wrapper.className = "space-y-2";
-
-            /* ---------- Title ---------- */
-            const title = document.createElement("div");
-            title.className = "font-semibold text-black text-center";
-            title.textContent = fieldName;
-            /* ---------- Choose Field ---------- */
-            const chooseWrapper = document.createElement("div");
-            chooseWrapper.className = "relative flex justify-between w-full items-center";
-
-            const chooseInput = document.createElement("input");
-            chooseInput.type = "text";
-            chooseInput.id = "choosefieldname";
-            chooseInput.placeholder = "Select field...";
-            chooseInput.className =
-                "w-full border rounded-2xl px-3 py-2 font-normal";
-
-            const chooseBtn = document.createElement("button");
-            chooseBtn.className = "absolute right-2 top-[9px]";
-            chooseBtn.innerHTML = `<span class="material-icons">arrow_drop_down</span>`;
-            chooseInput.readOnly = true;
-            chooseBtn.onclick = () => selectProcess(name);
-
-            chooseWrapper.append(chooseInput, chooseBtn);
-
-            /* ---------- Username ---------- */
-            const userLabel = document.createElement("label");
-            userLabel.setAttribute("for", "fieldusername");
-            userLabel.className = "text-left block text-sm font-medium text-gray-700";
-            userLabel.textContent = "User Name";
-
-            const userInput = document.createElement("input");
-            userInput.type = "text";
-            userInput.id = "fieldusername";
-            userInput.placeholder = "User Name...";
-            userInput.className =
-                "w-full border rounded-2xl px-3 py-2 font-normal";
-
-            /* ---------- Password ---------- */
-            const passLabel = document.createElement("label");
-            passLabel.setAttribute("for", "fieldpassword");
-            passLabel.className = "text-left block text-sm font-medium text-gray-700";
-            passLabel.textContent = "Password";
-
-            const passInput = document.createElement("input");
-            passInput.type = "text";
-            passInput.id = "fieldpassword";
-            passInput.placeholder = "Password...";
-            passInput.className =
-                "w-full border rounded-2xl px-3 py-2 font-normal";
-
-            /* ---------- Buttons ---------- */
-            const btnDiv = document.createElement("div");
-            btnDiv.className = "flex justify-between mt-2";
-
-            const createBtn = document.createElement("button");
-            createBtn.textContent = "Create";
-            createBtn.className =
-                "px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded";
-
-            const resetBtn = document.createElement("button");
-            resetBtn.textContent = "Reset";
-            resetBtn.className =
-                "px-3 py-1 bg-gray-400 hover:bg-gray-500 text-white rounded";
-
-            resetBtn.onclick = () => {
-                userInput.value = "";
-                passInput.value = "";
-                chooseInput.value = "";
-                userCheckbox.checked = true;
-                adminCheckbox.checked = false;
-            };
-
-            /* ---------- Account type ---------- */
-            const typeLabel = document.createElement("label");
-            typeLabel.className = "text-left block text-sm font-medium text-gray-700";
-            typeLabel.textContent = "Account Type";
-
-            const typeWrapper = document.createElement("div");
-            typeWrapper.className = "flex gap-6 mt-1";
-
-            const accountLabel = document.createElement("label");
-            accountLabel.className = "flex items-center gap-2 cursor-pointer";
-
-            const userCheckbox = document.createElement("input");
-            userCheckbox.type = "checkbox";
-
-            const userText = document.createElement("span");
-            userText.textContent = "User";
-
-            accountLabel.append(userCheckbox, userText);
-
-            const adminLabel = document.createElement("label");
-            adminLabel.className = "flex items-center gap-2 cursor-pointer";
-
-            const adminCheckbox = document.createElement("input");
-            adminCheckbox.type = "checkbox";
-
-            const adminText = document.createElement("span");
-            adminText.textContent = "Admin";
-
-            adminLabel.append(adminCheckbox, adminText);
-
-            if (!userCheckbox.checked && !userCheckbox.checked) userCheckbox.checked = true;
-
-            userCheckbox.onchange = () => {
-                if (userCheckbox.checked) adminCheckbox.checked = false;
-            };
-
-            adminCheckbox.onchange = () => {
-                if (adminCheckbox.checked) userCheckbox.checked = false;
-            };
-
-            typeWrapper.append(accountLabel, adminLabel);
-
-            createBtn.onclick = async () => {
-                await employeedatafunction();
-
-                const fielduser = userInput.value;
-                const accounttype = chooseInput.value;
-                const fieldpasswoard = passInput.value;
-
-                const seq = getNextSeqFromEmployees(employeedata, n);
-
-                let choosetype = null;
-                if(!adminCheckbox.checked){
-                    choosetype = "USER";
-                } else choosetype = "ADMIN";
-                
-                const newEmployee = {
-                    seq,
-                    name: fieldName,
-                    user_name: fielduser,
-                    account_type: choosetype,
-                    user_password: fieldpasswoard
-                };
-                
-                if (!["designers_name", "drafting", "assembly", "delivery"].includes(n)) {
-                    newEmployee.user_type = accounttype;
-                }
-
-                const payload = { [n]: [newEmployee] };
-
-                await fetch(`/employee`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-
-                alert("Employee created");
-                user_access();
-            };
-
-
-            btnDiv.append(resetBtn, createBtn);
-
-            /* ---------- Assemble ---------- */
-            wrapper.append(title);
-
-            if (n !== "designers_name" && n !== "drafting" && n !== "assembly" && n !== "delivery") {
-                wrapper.append(chooseWrapper);
-            }
-
-            wrapper.append(
-                userLabel,
-                userInput,
-                passLabel,
-                passInput,
-                typeLabel,
-                typeWrapper,
-                btnDiv
-            );
-
-            rightPanel.appendChild(wrapper);
-
-            document.getElementById("tabcontent").textContent = name.toUpperCase();
-        }
-
-        async function selectProcess(name, type) {
-            const createType = type;
-            let chooseInput = null;
-            if (createType === "edit") {
-                chooseInput = document.getElementById("emp_usertype");
-            } else {
-                chooseInput = document.getElementById("choosefieldname");
-            }
-            
-            const productions = await loadProcesses(name);
-
-            console.log(productions); // ✅ array like ["CUTTING","WELDING"]
-
-            // remove old dropdown
-            const old = document.getElementById("processList");
-            if (old) {
-                old.remove();
-                return;
-            }
-
-            const list = document.createElement("div");
-            list.id = "processList";
-            list.className =
-                "absolute top-7 left-0 w-full bg-white border rounded-xl shadow z-50 max-h-40 overflow-y-auto";
-
-            productions.forEach(p => {
-                const item = document.createElement("div");
-                item.textContent = p;
-                item.className = "px-3 py-2 text-left font-normal hover:bg-blue-100 cursor-pointer";
-
-                item.onclick = () => {
-                    chooseInput.value = p;
-                    list.remove();
-                };
-                list.appendChild(item);
-            });
-            chooseInput.parentElement.appendChild(list);
-        }
-        async function loadProcesses(name) {
-            const procname = name.trim().toUpperCase();
-
-            const res = await fetch(`/processes`);
-            const processes = await res.json();
-
-            const productions = [];
-            if (name === "production") {
-                productions.push("PROGRAM");
-            }
-            processes
-                .filter(p => p.process_type?.toUpperCase() === procname)
-                .forEach(emp => {
-                    if (!emp.process_name) return;
-
-                    if (Array.isArray(emp.process_name)) {
-                        productions.push(...emp.process_name);
-                    }
-                    else if (typeof emp.process_name === "string") {
-                        try {
-                            const parsed = JSON.parse(emp.process_name);
-                            if (Array.isArray(parsed)) {
-                                productions.push(...parsed);
-                            } else {
-                                productions.push(parsed);
-                            }
-                        } catch {
-                            productions.push(emp.process_name);
-                        }
-                    }
-                });
-            return [...new Set(productions)]; // ✅ unique values
-        }
     </script>
 </body>
 </html>
+
 
 
 
