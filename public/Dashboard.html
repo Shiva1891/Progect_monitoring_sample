@@ -2815,16 +2815,17 @@ function createFieldSetup(employeeheaders, listBox) {
         if (!deptName) return;
 
         try {
-            const mainEmployeeId = 1; // change this to your actual record ID
-            const resFetch = await fetch(`/employee/${mainEmployeeId}`);
-            if (!resFetch.ok) throw new Error("Failed to fetch employee");
-            const currentData = await resFetch.json();
+            const resFetch = await fetch("/employee"); // fetch all employees
+            if (!resFetch.ok) throw new Error("Failed to fetch employees");
+            const employees = await resFetch.json();
+
+            const currentData = employees[0]; // use the first employee for departments
             const deptArray = currentData.department || [];
 
             const nextKey = `department_${deptArray.length + 1}`;
             deptArray.push({ [nextKey]: deptName });
 
-            const res = await fetch("/employee/1", {
+            const res = await fetch(`/employee/${currentData.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ department: deptArray, employee_names: null })
@@ -2876,6 +2877,7 @@ function normalizef(str) {
     </script>
 </body>
 </html>
+
 
 
 
