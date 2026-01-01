@@ -257,8 +257,11 @@
                 // create designer options
                 let options = `<option value="">-- Select Designer --</option>`;
                 const allNames = [];
+                const normalize = v =>
+                    v?.replace(/"/g, "").trim().toUpperCase();
+                
                 employee
-                    .filter(p => ["DESIGN","DRAFTING"].includes(p.department?.toUpperCase()))
+                    .filter(p => ["DESIGN", "DRAFTING"].includes(normalize(p.department)))
                     .forEach(record => {
                     const names = extractNamesFromEmployeeRecord(record);
                     allNames.push(...names);
@@ -349,9 +352,10 @@
             div.innerHTML = "";
 
             let allDesigners = [];
-
+            const normalize = v =>
+                v?.replace(/"/g, "").trim().toUpperCase();
             employee
-                .filter(p => ["DESIGN","DRAFTING"].includes(p.department?.toUpperCase()))
+                .filter(p => ["DESIGN", "DRAFTING"].includes(normalize(p.department)))
                 .forEach(emp => {
                 allDesigners.push(...extractDesignersFromEmployee(emp));
             });
@@ -410,10 +414,13 @@
 
                     const res = await fetch(API.employee);
                     const employees = await res.json();
-
+                    const allNames = [];
+                    const normalize = v =>
+                        v?.replace(/"/g, "").trim().toUpperCase();
+                    
                     for (const emp of employees) {
                         ["emploee_names"]
-                            .filter(p => ["DESIGN","DRAFTING"].includes(p.department?.toUpperCase()))
+                            .filter(p => ["DESIGN", "DRAFTING"].includes(normalize(p.department)))
                             .forEach(col => {
                                 if (Array.isArray(emp[col])) {
                                     emp[col] = emp[col].filter(e => e.name !== name);
@@ -538,7 +545,7 @@
             let allDesigners = [];
 
             employee
-                .filter(p => ["DESIGN","DRAFTING"].includes(p.department?.toUpperCase()))
+                .filter(p => ["DESIGN", "DRAFTING"].includes(normalize(p.department)))
                 .forEach(emp => {
                 allDesigners.push(...extractDesignersFromEmployee(emp));
             });
@@ -638,6 +645,7 @@
     </script>
 </body>
 </html>
+
 
 
 
