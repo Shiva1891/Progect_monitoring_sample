@@ -66,12 +66,16 @@
                     let matchedUser = null;
 
             
+                    const allNames = [];
+                    const normalize = v =>
+                        v?.replace(/"/g, "").trim().toUpperCase();
+                    
                     data.forEach(emp => {
                 
-                        if (!Array.isArray(emp.designers_name)) return;
+                        if (!Array.isArray(emp.employee_names)) return;
 
                 
-                        emp.designers_name.forEach(p => {
+                        emp.employee_names.forEach(p => {
                     
                             if (p.name === tempname) {
                         
@@ -195,6 +199,7 @@
 
 </body>
 </html>
+
 
 
 
