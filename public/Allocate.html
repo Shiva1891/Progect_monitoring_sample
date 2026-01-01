@@ -543,7 +543,9 @@
             container.innerHTML = "";
 
             let allDesigners = [];
-
+            const normalize = v =>
+                v?.replace(/"/g, "").trim().toUpperCase();
+            
             employee
                 .filter(p => ["DESIGN", "DRAFTING"].includes(normalize(p.department)))
                 .forEach(emp => {
@@ -645,6 +647,7 @@
     </script>
 </body>
 </html>
+
 
 
 
