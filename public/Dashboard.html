@@ -191,9 +191,9 @@
                     const names = [];
 
                     data.forEach(emp => {
-                        if (!Array.isArray(emp.production)) return;
+                        if (!Array.isArray(emp.employee_names)) return;
 
-                        emp.production.forEach(p => {
+                        emp.employee_names.forEach(p => {
                             if (p.user_type === selectedprocessname && p.name) {
                                 names.push(p.name);
                             }
@@ -3222,9 +3222,7 @@
             const processes = await res.json();
 
             const productions = [];
-            if (name === "production") {
-                productions.push("PROGRAM");
-            }
+           
             processes
                .filter(p => ["PRODUCTION", "FINISH"].includes(p.process_type?.toUpperCase()))
                 .forEach(emp => {
@@ -3251,6 +3249,7 @@
     </script>
 </body>
 </html>
+
 
 
 
