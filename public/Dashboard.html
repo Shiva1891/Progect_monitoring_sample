@@ -111,7 +111,7 @@
                         const allNames = [];
 
                         data
-                            .filter(p => ["PRODUCTION", "FINISH"].includes(p.department?.toUpperCase()))
+                            .filter(p => ["DESIGN", "DRAFTING"].includes(p.department?.toUpperCase()))
                             .forEach(record => {
                             const names = extractNamesFromEmployeeRecord(record);
                             allNames.push(...names);
@@ -3250,6 +3250,7 @@
     </script>
 </body>
 </html>
+
 
 
 
