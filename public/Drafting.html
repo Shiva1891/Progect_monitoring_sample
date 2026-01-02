@@ -598,7 +598,7 @@
             html += `
         <div class="space-y-2">
             <button class="px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded w-full" onclick="addrevRow(${rowIndex}, 'after')">Revision</button>
-            ${locked ? '' : <button class="px-2 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded w-full" onclick="duplicateRow(${rowIndex}, 'before')">Duplicate</button>`}
+            ${locked ? '' : `<button class="px-2 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded w-full" onclick="duplicateRow(${rowIndex}, 'before')">Duplicate</button>`}
             <button class="px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded w-full" onclick="removeRow(${rowIndex})">Remove</button>
         </div>`;
             html += `</div>`;
@@ -1176,6 +1176,7 @@
     </script>
 </body>
 </html>
+
 
 
 
