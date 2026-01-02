@@ -585,7 +585,7 @@
         // ---------------------------------------------------------
         // Dropdown to show for production processes (checkbox list)
         // ---------------------------------------------------------
-        function actionDropdownbtn(rowIndex) {
+        function actionDropdownbtn(rowIndex, row) {
             const div = document.getElementById(`actiondropdown_${rowIndex}`);
             if (!div) return;
             if (!div.classList.contains('hidden')) { div.classList.add('hidden'); return; }
@@ -593,6 +593,8 @@
             // build list from window._availableProProcesses
             let html = `<div>`;
 
+            const locked = isRowLocked(row);
+            
             html += `
         <div class="space-y-2">
             <button class="px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded w-full"
@@ -1178,6 +1180,7 @@
     </script>
 </body>
 </html>
+
 
 
 
