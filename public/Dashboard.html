@@ -202,46 +202,49 @@
 
                     const unique = [...new Set(names)];
 
-                    let listHTML = `
-            <div class="bg-white p-6 rounded-lg shadow-lg w-80 relative">
-                <div class="flex justify-between items-center mb-2">
-                    <h1 class="text-xl font-semibold">${selectedprocessname}</h1>
-                    <button onclick="closetype()"
-                        class="rounded text-white bg-red-500 hover:bg-red-600 px-2 pb-1">x</button>
-                </div>
-
-                <ul class="bg-green-100 py-2 px-2 rounded-2xl shadow">`;
-
-                    if (names.length === 0) {
-                        listHTML += `
-                    <li class="px-4 py-2 text-gray-500">
-                        No users found
-                    </li>`;
-                    } else {
+                    if (names.length > 1 || names.length === 0) {
+                    
+                        let listHTML = `
+                            <div class="bg-white p-6 rounded-lg shadow-lg w-80 relative">
+                            <div class="flex justify-between items-center mb-2">
+                            <h1 class="text-xl font-semibold">${selectedprocessname}</h1>
+                            <button onclick="closetype()"
+                            class="rounded text-white bg-red-500 hover:bg-red-600 px-2 pb-1">x</button>
+                            </div>
+                            <ul class="bg-green-100 py-2 px-2 rounded-2xl shadow">`;
+                        if (names.length === 0) {
+                            listHTML += `<li class="px-4 py-2 text-gray-500">No users found</li>`;
+                            } else {
+                            names.forEach(name => {
+                                listHTML += `
+                                <li>
+                                    <a class="process-item block px-4 py-2 hover:bg-green-200
+                                       font-semibold cursor-pointer rounded-2xl"
+                                       data-name="${name}">
+                                       ${name}
+                                    </a>
+                                </li>`;
+                            });
+                            }
+                        listHTML += `</ul></div>`;
+                        vmcDropdown.innerHTML = listHTML;
+                        // click event
+                        vmcDropdown.querySelectorAll(".process-item").forEach(item => {
+                            item.onclick = () => {
+                                const name = item.dataset.name;
+                                localStorage.setItem("selectedDesigner", processId.trim().toUpperCase());
+                                localStorage.setItem("employee", name);
+                                window.location.href = "production";
+                                };
+                            });
+                        } else {
                         names.forEach(name => {
-                            listHTML += `
-                        <li>
-                            <a class="process-item block px-4 py-2 hover:bg-green-200
-                               font-semibold cursor-pointer rounded-2xl"
-                               data-name="${name}">
-                               ${name}
-                            </a>
-                        </li>`;
-                        });
-                    }
-
-                    listHTML += `</ul></div>`;
-                    vmcDropdown.innerHTML = listHTML;
-
-                    // click event
-                    vmcDropdown.querySelectorAll(".process-item").forEach(item => {
-                        item.onclick = () => {
-                            const name = item.dataset.name;
-                            localStorage.setItem("selectedDesigner", name);
-                            window.location.href = "login";
-                        };
-                    });
-                })
+                            localStorage.setItem("selectedDesigner", processId.trim().toUpperCase());
+                            localStorage.setItem("employee", name.trim().toUpperCase());
+                            window.location.href = "production";
+                            });
+                        }
+                    })
                 .catch(err => {
                     vmcDropdown.innerHTML =
                         `<div class="p-4 text-red-600">API Error: ${err}</div>`;
@@ -3249,6 +3252,7 @@
     </script>
 </body>
 </html>
+
 
 
 
