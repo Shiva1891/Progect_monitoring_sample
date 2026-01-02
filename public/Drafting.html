@@ -607,16 +607,11 @@
                 Revision
             </button>
 
-            ${
-                locked
-                    ? ''
-                    : `
             <button
-                class="px-2 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded w-full"
+                class="px-2 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded w-full hidden"
                 onclick="duplicateRow(${rowIndex}, 'before')">
                 Duplicate
-            </button>`
-            }
+            </button>
 
             ${
                 locked
