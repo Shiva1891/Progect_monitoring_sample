@@ -71,6 +71,10 @@ app.get("/designer", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "Designer.html"));
 });
 
+app.get("/production", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "production.html"));
+});
+
 /* ===============================
    📥 GET APIs
 ================================ */
@@ -343,6 +347,7 @@ async function start() {
 }
 
 start();
+
 
 
 
