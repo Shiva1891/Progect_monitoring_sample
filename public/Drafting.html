@@ -60,7 +60,15 @@
 
         <!-- RIGHT: main panel -->
         <div class="w-4/5 bg-white p-3 shadow-xl rounded-2xl w-full min-h-[90vh]">
-            <h2 class="text-xl font-bold mb-2 text-gray-800">Activate Project</h2>
+            <div>
+                <h2 class="text-xl font-bold mb-2 text-gray-800">Activate Project</h2>
+                <button id="userMenuBtn" aria-haspopup="true" aria-expanded="false"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-50 w-full">
+                    <span class="material-icons">person</span>
+                    <span class="text-sm">Designing</span>
+                    <span class="material-icons">arrow_drop_down</span>
+                </button>
+            </div>
 
             <div id="projectInfo" class="bg-sky-100 rounded-xl p-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
@@ -1167,5 +1175,6 @@
     </script>
 </body>
 </html>
+
 
 
