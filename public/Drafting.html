@@ -1265,7 +1265,7 @@
 
     try {
         // 🔹 Fetch current project only
-        const resProject = await fetch(`/projects/${id}`);
+        const resProject = await fetch(`/projects?id=${id}`);
         if (!resProject.ok) throw new Error("Failed to load project");
 
         const p = await resProject.json();
@@ -1351,6 +1351,7 @@
     </script>
 </body>
 </html>
+
 
 
 
