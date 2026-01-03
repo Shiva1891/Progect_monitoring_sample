@@ -62,13 +62,14 @@
         <div class="w-4/5 bg-white p-3 shadow-xl rounded-2xl w-full min-h-[90vh]">
             <div class="flex justify-between">
                 <h2 class="text-xl font-bold mb-2 text-gray-800">Activate Project</h2>
-                <div>
+                <div class="relative">
                     <button id="userMenuBtn" aria-haspopup="true" aria-expanded="false"
                         class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-50 w-full">
                         <span class="material-icons">person</span>
-                        <span class="text-sm">Designing</span>
+                        <span class="text-sm">Designers</span>
                         <span class="material-icons">arrow_drop_down</span>
                     </button>
+                    <div id="designerDropdown" class="absolute"></div>
                 </div>
             </div>
 
@@ -122,6 +123,89 @@
         //const PORT = "4000";
         //const HOST = "192.168.0.200";
 
+
+        function loaddesigners() {
+            const userBtn = document.getElementById("userMenuBtn");
+            const dropdown = document.getElementById("designerDropdown");
+
+            userBtn.addEventListener("click", () => {
+                dropdown.classList.toggle("hidden");
+                
+                // Load only when opening
+                if (dropdown.classList.contains("hidden")) return;
+
+                fetch(`/employee`)
+                    .then(res => res.json())
+                    .then(data => {
+
+                        const allNames = [];
+                        const normalize = v =>
+                            v?.replace(/"/g, "").trim().toUpperCase();
+                        data
+                            .filter(p => ["DESIGN", "DRAFTING"].includes(normalize(p.department)))
+                            .forEach(record => {
+                            const names = extractNamesFromEmployeeRecord(record);
+                            allNames.push(...names);
+                        });
+
+                        const uniqueNames = [...new Set(allNames)];
+
+                        console.log(uniqueNames);
+                        // ["SEKAR", "BALAJI-DE", "NIRMAL"]
+                   
+
+                        dropdown.innerHTML = "";
+
+                        let listHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-lg w-80 relative items-center">
+                    <div class="flex gap-2 justify-between items-center">
+                        <h1 class="text-xl font-semibold">Designers</h1>
+                        <div class="py-2">
+                            <button onclick="closetype()"
+                                class="rounded text-white bg-red-500 hover:bg-red-600 px-2 pb-1">
+                                x
+                            </button>
+                        </div>
+                    </div>
+                    <ul class="bg-green-100 py-2 px-2 rounded-2xl shadow">`;
+
+                        uniqueNames.forEach(name => {
+                            listHTML += `
+                        <li>
+                            <a class="designer-item block px-4 py-2 hover:bg-green-200 font-semibold cursor-pointer"
+                               data-name="${name}">
+                               ${name}
+                            </a>
+                        </li>`;
+                        });
+
+                        listHTML += `</ul></div>`;
+                        dropdown.innerHTML = listHTML;
+
+                        document.querySelectorAll(".designer-item").forEach(item => {
+                            item.addEventListener("click", () => {
+                                const name = item.dataset.name;
+
+                                localStorage.setItem("selectedDesigner", name);
+                                window.location.href = "login";
+                                dropdown.classList.add("hidden");
+                            });
+                        });
+                    })
+                    .catch(err => {
+                        dropdown.innerHTML =
+                            `<div class="p-4 text-red-600">API Error: ${err}</div>`;
+                    });
+            });
+
+            // close when clicking outside
+            document.addEventListener("click", (e) => {
+                if (!userBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add("hidden");
+                }
+            });
+        }
+        
         function formatDateISOtoDDMMYYYY(dateStr) {
             if (!dateStr) return "";
             const d = new Date(dateStr);
@@ -1202,6 +1286,7 @@
     </script>
 </body>
 </html>
+
 
 
 
