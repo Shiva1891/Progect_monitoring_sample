@@ -66,7 +66,7 @@
                     <button id="userMenuBtn" aria-haspopup="true" aria-expanded="false"
                         class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-50 w-full">
                         <span class="material-icons">person</span>
-                        <span class="text-sm">Designers</span>
+                        <span id="designerName" class="text-sm">Designers</span>
                         <span class="material-icons">arrow_drop_down</span>
                     </button>
                     <div id="designerDropdown" class="absolute right-0 z-30 mt-2"></div>
@@ -188,7 +188,7 @@
                         uniqueNames.forEach(name => {
                             listHTML += `
                         <li>
-                            <a class="designer-item block px-4 py-2 hover:bg-green-200 font-semibold cursor-pointer"
+                            <a class="designer-item block px-4 py-2 hover:bg-green-200 font-semibold cursor-pointer rounded-2xl"
                                data-name="${name}">
                                ${name}
                             </a>
@@ -201,9 +201,9 @@
                         document.querySelectorAll(".designer-item").forEach(item => {
                             item.addEventListener("click", () => {
                                 const name = item.dataset.name;
-
-                                localStorage.setItem("selectedDesigner", name);
-                                window.location.href = "login";
+                                document.getElementById("designerName").textContent = name;
+                                //localStorage.setItem("selectedDesigner", name);
+                                //window.location.href = "login";
                                 dropdown.classList.add("hidden");
                             });
                         });
@@ -1302,6 +1302,7 @@
     </script>
 </body>
 </html>
+
 
 
 
