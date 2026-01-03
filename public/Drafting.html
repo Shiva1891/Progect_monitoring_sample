@@ -124,7 +124,30 @@
         //const HOST = "192.168.0.200";
 
         loaddesigners();
-        
+
+        function extractNamesFromObject(obj) {
+            return Object.keys(obj)
+                .filter(k => k.startsWith("name") && obj[k])
+                .map(k => obj[k]);
+        }
+
+        function extractNamesFromEmployeeRecord(record) {
+            const names = [];
+
+            ["employee_names"].forEach(col =>{
+                const data = record[col];
+
+                if (!Array.isArray(data)) return;
+
+                data.forEach(item => {
+                    const extracted = extractNamesFromObject(item);
+                    names.push(...extracted);
+                });
+            });
+
+            return names;
+        }
+
         function loaddesigners() {
             const userBtn = document.getElementById("userMenuBtn");
             const dropdown = document.getElementById("designerDropdown");
@@ -1287,6 +1310,7 @@
     </script>
 </body>
 </html>
+
 
 
 
