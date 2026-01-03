@@ -244,6 +244,7 @@
             document.getElementById("diagramCount").classList.add("hidden");
             document.getElementById("clrbtn").classList.add("hidden");
             document.getElementById("addbtn").classList.add("hidden");
+            document.getElementById("designerName").textContent = "Designers";
             
         }
 
@@ -1249,23 +1250,51 @@
         // Set project to LIVE (update projects table)
         // -----------------------
         async function setlive() {
-            const id = localStorage.getItem("projectID");
-            if (!id) return alert("Project missing");
-            try {
-                const res = await fetch(`/projects/${id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ overallstatus: "LIVE" })
-                });
-                if (!res.ok) throw new Error(await res.text());
-                await res.json();
-                alert("Change to LIVE Successfully!");
-                loadDraftingJobs();
-                refreshBtn();
-            } catch (err) { console.error(err); alert("Error updating job: " + err.message); }
+            const designerName = document.getElementById("designerName").textContent;
+            if(designerName !== "Designers") {
+
+                // Auto sequence arrays
+                p.drafting = autoAddWithSequence(p.designer_name, "drafting_name", designerName);
+                
+                const id = localStorage.getItem("projectID");
+                if (!id) return alert("Project missing");
+                try {
+                    const res = await fetch(`/projects/${id}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ 
+                            overallstatus: "LIVE",
+                            drafting: p.drafting
+                        })
+                    });
+                    if (!res.ok) throw new Error(await res.text());
+                    await res.json();
+                    alert("Change to LIVE Successfully!");
+                    //settoDraftingname();
+                    loadDraftingJobs();
+                    refreshBtn();
+                } catch (err) { console.error(err); alert("Error updating job: " + err.message); }
+            } else {
+                alert("Select the responsible person");
+                return;
+            }
             
         }
 
+        function autoAddWithSequence(existingArray, keyPrefix, value) {
+                let arr = [];
+
+                if (existingArray) {
+                    if (typeof existingArray === "string") arr = JSON.parse(existingArray);
+                    else if (Array.isArray(existingArray)) arr = [...existingArray];
+                }
+
+                const nextIndex = arr.length + 1;
+                arr.push({ [`${keyPrefix}_${nextIndex}`]: value });
+
+                return arr;
+            }
+        
         // -----------------------
         // Set diagram numbers (create dno_N entries)
         // -----------------------
@@ -1302,6 +1331,7 @@
     </script>
 </body>
 </html>
+
 
 
 
