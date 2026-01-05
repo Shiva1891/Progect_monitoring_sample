@@ -1274,11 +1274,12 @@
                 p.drafting = p.drafting || [];
 
         // 🔹 ADD new drafting data
-        //p.drafting.push({
-            //name: designerName,
-            //status: "LIVE",
-            //createdAt: new Date().toISOString()
-            //});
+        p.drafting.push({
+            OLD: p.drafting,
+            name: designerName,
+            status: "LIVE",
+            createdAt: new Date().toISOString()
+            });
         
         // 🔹 Auto sequence AFTER adding
         p.drafting = autoAddWithSequence( p.drafting, "drafting", designerName);
@@ -1356,6 +1357,7 @@
     </script>
 </body>
 </html>
+
 
 
 
