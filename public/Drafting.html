@@ -1250,32 +1250,38 @@
         // Set project to LIVE (update projects table)
         // -----------------------
         async function setlive() {
-    const designerName = document.getElementById("designerName")?.textContent?.trim();
+            const designerName = document.getElementById("designerName")?.textContent?.trim();
 
-    if (!designerName || designerName === "Designers") {
-        alert("Select the responsible person");
-        return;
-    }
+            if (!designerName || designerName === "Designers") {
+                alert("Select the responsible person");
+                return;
+                }
+            
+            const id = localStorage.getItem("projectID");
+            if (!id) {
+                alert("Project missing");
+                return;
+                }
 
-    const id = localStorage.getItem("projectID");
-    if (!id) {
-        alert("Project missing");
-        return;
-    }
+            try {
+                // 🔹 Fetch current project only
+                const resProject = await fetch(`/projects?id=${id}`);
+                if (!resProject.ok) throw new Error("Failed to load project");
 
-    try {
-        // 🔹 Fetch current project only
-        const resProject = await fetch(`/projects?id=${id}`);
-        if (!resProject.ok) throw new Error("Failed to load project");
+                const p = await resProject.json();
 
-        const p = await resProject.json();
+                // 🔹 Ensure drafting array exists
+                p.drafting = p.drafting || [];
 
-        // 🔹 Auto sequence
-        p.drafting = autoAddWithSequence(
-            p.drafting || [],
-            "drafting",
-            designerName
-        );
+        // 🔹 ADD new drafting data
+        p.drafting.push({
+            name: designerName,
+            status: "LIVE",
+            createdAt: new Date().toISOString()
+            });
+        
+        // 🔹 Auto sequence AFTER adding
+        p.drafting = autoAddWithSequence( p.drafting, "drafting", designerName);
 
         // 🔹 Update project
         const res = await fetch(`/projects/${id}`, {
@@ -1284,9 +1290,8 @@
             body: JSON.stringify({
                 overallstatus: "LIVE",
                 drafting: p.drafting
-            })
-        });
-
+                })
+            });
         if (!res.ok) throw new Error(await res.text());
 
         await res.json();
@@ -1294,12 +1299,12 @@
         alert("Changed to LIVE Successfully!");
         loadDraftingJobs();
         refreshBtn();
-
-    } catch (err) {
+        } 
+    catch (err) {
         console.error(err);
         alert("Error updating job: " + err.message);
-    }
-}
+        }
+            }
 
         function autoAddWithSequence(existingArray, keyPrefix, value) {
                 let arr = [];
@@ -1351,6 +1356,7 @@
     </script>
 </body>
 </html>
+
 
 
 
