@@ -685,25 +685,12 @@
             <button onclick="savebtn(${slList.length})"
                     class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold mr-2">
                 SAVE ALL
-            </button>`
-
-            if(job_type == "LIVE") {
-            tb.innerHTML += `
-            <button id="setliveBtn" onclick="setlive()"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold hidden">
-                SET TO LIVE
-            </button>`
-            }
+            </button>
             
-            if(job_type == "DRAFTING") {
-            tb.innerHTML += `
             <button id="setliveBtn" onclick="setlive()"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold">
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold ${job_type ? "LIVE" : `hidden`}">
                 SET TO LIVE
-            </button>`
-            }
-            
-            tb.innerHTML += `
+            </button>
     </td>
 </tr>`;
         }
@@ -1391,6 +1378,7 @@
     </script>
 </body>
 </html>
+
 
 
 
