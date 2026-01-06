@@ -1321,7 +1321,7 @@
                 }
 
                 const nextIndex = arr.length + 1;
-                arr.push({ [`${keyPrefix}_${nextIndex}`]: value });
+                arr.push({ [`${keyPrefix}_${nextIndex}`]: value, [`date_${nextIndex}`]: new Date().toISOString().slice(0, 10) });
 
                 return arr;
             }
@@ -1362,6 +1362,7 @@
     </script>
 </body>
 </html>
+
 
 
 
