@@ -257,6 +257,8 @@
         // -----------------------
 
         let job_type = [];
+
+        let job_drawing = [];
         
         async function loadDraftingJobs() {
             try {
@@ -450,12 +452,16 @@
                     document.getElementById("setbtn").classList.add("hidden");
                     document.getElementById("diagramCount").classList.add("hidden");
                     if(job_type == "LIVE") {
-                    document.getElementById("clrbtn").classList.add("hidden");
-                    document.getElementById("setliveBtn").classList.add("hidden");
+                        document.getElementById("clrbtn").classList.add("hidden");
+                        if(job_drawing) {
+                            document.getElementById("setliveBtn").classList.add("hidden");
+                        }
                     }
                     if(job_type == "DRAFTING") {
-                    document.getElementById("clrbtn").classList.remove("hidden");
-                    document.getElementById("setliveBtn").classList.remove("hidden");
+                        document.getElementById("clrbtn").classList.remove("hidden");
+                        if(job_drawing) {
+                            document.getElementById("setliveBtn").classList.add("hidden");
+                        }
                     }
                 }
             }
@@ -565,6 +571,9 @@
         // Renders the main table rows and inline editors
         // -----------------------
         function displayTable(slList) {
+
+            job_drawing = "YES";
+            
             window._slList = slList.map(r => ({ ...r }));
 
             const tb = document.getElementById("tableBody");
@@ -1376,6 +1385,7 @@
     </script>
 </body>
 </html>
+
 
 
 
