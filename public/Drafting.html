@@ -285,8 +285,8 @@
                 });
 
                 const jobID = localStorage.getItem("projectID");
-                if (job_type == "DRAFTING" || jobID) takeJob(jobID);
-                if (job_type == "LIVE" || jobID) editJob(jobID);    
+                if (job_type == "DRAFTING" && jobID) takeJob(jobID);
+                if (job_type == "LIVE" && jobID) editJob(jobID);    
                 else {
                     document.getElementById("tableBody").innerHTML = "";
                     ["pname", "pjob", "pqty", "pcustomer", "pcontact", "pexpected"].forEach(id => document.getElementById(id).textContent = "-");
@@ -1378,6 +1378,7 @@
     </script>
 </body>
 </html>
+
 
 
 
