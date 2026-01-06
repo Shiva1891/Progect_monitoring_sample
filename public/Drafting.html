@@ -1280,10 +1280,12 @@
             drafting = typeof p.drafting === "string"
                 ? JSON.parse(p.drafting)
                 : [...p.drafting];
-        }
-
+            
         // 🔹 Add new drafting entry with sequence
         drafting = autoAddWithSequence(drafting, "drafting", designerName);
+        } else {
+            drafting = autoAddWithSequence(null, "drafting", designerName);
+        }
 
         // 🔹 Update project
         const res = await fetch(`/projects/${id}`, {
@@ -1360,6 +1362,7 @@
     </script>
 </body>
 </html>
+
 
 
 
