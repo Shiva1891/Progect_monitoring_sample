@@ -1115,8 +1115,6 @@
             list.splice(idx, 1);
             displayTable(list);
             clearbtn = "CLEAR";
-            clearAllDrawings();
-            saveAllDrawings();
         }
 
         async function savebtn() {
@@ -1296,11 +1294,13 @@
                 });
                 if (!res.ok) throw new Error(await res.text());
                 await res.json();
-                document.getElementById("setbtn").classList.remove("hidden");
-                document.getElementById("diagramCount").classList.remove("hidden");
+                //document.getElementById("setbtn").classList.remove("hidden");
+                //document.getElementById("diagramCount").classList.remove("hidden");
                 //document.getElementById("clrbtn").classList.add("hidden");
                 //document.getElementById("addbtn").classList.add("hidden");
             } catch (err) { console.error(err); alert('Save failed: ' + err.message); }
+            clearAllDrawings();
+            saveAllDrawings();
         }
 
         // -----------------------
@@ -1418,6 +1418,7 @@
     </script>
 </body>
 </html>
+
 
 
 
