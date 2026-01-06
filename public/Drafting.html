@@ -1273,16 +1273,12 @@
                 // 🔹 Ensure drafting array exists
                 p.drafting = p.drafting || [];
 
-        // 🔹 ADD new drafting data
-        p.drafting.push({
-            OLD: p.drafting,
-            name: designerName,
-            status: "LIVE",
-            createdAt: new Date().toISOString()
-            });
-        
-        // 🔹 Auto sequence AFTER adding
-        p.drafting = autoAddWithSequence( p.drafting, "drafting", designerName);
+                if(p.drafting) {
+                    // 🔹 Auto sequence AFTER adding
+                    p.drafting = autoAddWithSequence( p.drafting, "drafting", designerName);
+                } else {
+                    p.drafting = autoAddWithSequence( null, "drafting", designerName);
+                }
 
         // 🔹 Update project
         const res = await fetch(`/projects/${id}`, {
@@ -1357,6 +1353,7 @@
     </script>
 </body>
 </html>
+
 
 
 
