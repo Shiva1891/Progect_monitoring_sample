@@ -1271,9 +1271,9 @@
                 const p = await resProject.json();
 
                 // 🔹 Ensure drafting array exists
-                p.drafting = p.drafting || [];
+                //p.drafting = p.drafting || [];
 
-                if(p.drafting) {
+                if(p.drafting.lenght !== 0) {
                     // 🔹 Auto sequence AFTER adding
                     p.drafting = autoAddWithSequence( p.drafting, "drafting", designerName);
                 } else {
@@ -1353,6 +1353,7 @@
     </script>
 </body>
 </html>
+
 
 
 
