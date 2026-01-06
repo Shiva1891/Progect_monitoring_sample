@@ -256,8 +256,8 @@
         // Load jobs (right panel)
         // -----------------------
 
+        let job_type = [];
         
-
         async function loadDraftingJobs() {
             try {
                 const res = await fetch(`/projects`);
@@ -283,7 +283,8 @@
                 });
 
                 const jobID = localStorage.getItem("projectID");
-                if (jobID) takeJob(jobID);
+                if (job_type == "DRAFTING" || jobID) takeJob(jobID);
+                if (job_type == "LIVE" || jobID) editJob(jobID);    
                 else {
                     document.getElementById("tableBody").innerHTML = "";
                     ["pname", "pjob", "pqty", "pcustomer", "pcontact", "pexpected"].forEach(id => document.getElementById(id).textContent = "-");
@@ -295,6 +296,10 @@
         // Take job (left panel)
         // -----------------------
         async function takeJob(id) {
+            job_type = "DRAFTING";
+
+            //setjobtype(job_type);
+
             if (!id) {
                 localStorage.getItem("projectID");
                 
@@ -348,7 +353,9 @@
 
         }
 
-
+        function setjobtype(job_type) {
+            document.getElementById("").
+        }
 
 
         function readProjectType(project) {
@@ -363,6 +370,10 @@
         // Edit job (left panel)
         // -----------------------
         async function editJob(id) {
+            job_type = "LIVE";
+
+            //setjobtype(job_type);
+            
             if (!id) {
                 localStorage.getItem("projectID");
 
@@ -438,14 +449,17 @@
                     slList.push(project[key][0]);
                     document.getElementById("setbtn").classList.add("hidden");
                     document.getElementById("diagramCount").classList.add("hidden");
-                    //document.getElementById("clrbtn").classList.remove("hidden");
-                    //document.getElementById("addbtn").classList.remove("hidden");
+                    if(job_type == "LIVE") {
+                    document.getElementById("clrbtn").classList.add("hidden");
+                    document.getElementById("setliveBtn").classList.add("hidden");
+                    }
+                    if(job_type == "DRAFTING") {
+                    document.getElementById("clrbtn").classList.add("hidden");
+                    document.getElementById("setliveBtn").classList.add("hidden");
+                    }
                 }
             }
-
-
-
-
+            
             // Save live project id for later PUT
             localStorage.setItem("liveProjectId", project.id);
 
@@ -671,7 +685,7 @@
                     class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold mr-2">
                 SAVE ALL
             </button>
-            <button onclick="setlive()"
+            <button id="setliveBtn" onclick="setlive()"
                     class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold">
                 SET TO LIVE
             </button>
@@ -1362,6 +1376,7 @@
     </script>
 </body>
 </html>
+
 
 
 
