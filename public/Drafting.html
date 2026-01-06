@@ -374,7 +374,7 @@
         async function editJob(id) {
             job_type = "LIVE";
 
-            //setjobtype(job_type);
+            choosedrawingName(id);
             
             if (!id) {
                 localStorage.getItem("projectID");
@@ -426,6 +426,39 @@
 
         }
 
+        async function choosedrawingName(id) {
+            const resProject = await fetch(`/projects?id=${id}`);
+            if (!resProject.ok) throw new Error("Failed to load project");
+
+            const projects = await resProject.json();
+
+            // 🔹 Find current project
+            const p = projects.find(pr => pr.id == id);
+            if (!p) throw new Error("Project not found");
+
+            // 🔹 Normalize drafting
+            let drafting = [];
+            if (p.drafting) {
+                drafting = typeof p.drafting === "string"
+                    ? JSON.parse(p.drafting)
+                    : [...p.drafting];
+                }
+
+            // 🔹 Get LAST drafting name
+            let lastDraftingName = null;
+
+            if (drafting.length) {
+                const lastObj = drafting[drafting.length - 1];
+
+                const draftingKey = Object.keys(lastObj)
+                    .find(k => k.startsWith("drafting_"));
+
+                lastDraftingName = draftingKey ? lastObj[draftingKey] : null;
+                }
+
+            console.log("Last drafting:", lastDraftingName);
+        }
+        
         // -----------------------
         // Load drawings for selected job
         // -----------------------
@@ -1381,6 +1414,7 @@
     </script>
 </body>
 </html>
+
 
 
 
