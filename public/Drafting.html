@@ -688,11 +688,14 @@
             </button>
             
             <button id="setliveBtn" onclick="setlive()"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold ${job_type ? "LIVE" : `hidden`}">
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold">
                 SET TO LIVE
             </button>
     </td>
 </tr>`;
+            if(job_type == "LIVE") {
+                document.getElementById("setliveBtn").classList.add('hidden');
+            }
         }
 
 
@@ -1378,6 +1381,7 @@
     </script>
 </body>
 </html>
+
 
 
 
