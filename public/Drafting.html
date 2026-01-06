@@ -355,11 +355,6 @@
 
         }
 
-        function setjobtype(job_type) {
-           return;
-        }
-
-
         function readProjectType(project) {
             if (Array.isArray(project.project_type) && project.project_type.length > 0) {
                 const last = project.project_type[project.project_type.length - 1];
@@ -455,8 +450,8 @@
 
                 lastDraftingName = draftingKey ? lastObj[draftingKey] : null;
                 }
-
-            console.log("Last drafting:", lastDraftingName);
+            document.getElementById("designerName").textContent = lastDraftingName;
+            //console.log("Last drafting:", lastDraftingName);
         }
         
         // -----------------------
@@ -1414,6 +1409,7 @@
     </script>
 </body>
 </html>
+
 
 
 
