@@ -1275,11 +1275,11 @@
 
                 const draft = selectLive.find(p => p.id === id);
 
-                if(draft.lenght !== 0) {
+                if(p.drafting.lenght !== 0) {
                     // 🔹 Auto sequence AFTER adding
-                    draft = autoAddWithSequence( p.drafting, "drafting", designerName);
+                    p.drafting = autoAddWithSequence( p.drafting, "drafting", designerName);
                 } else {
-                    draft = autoAddWithSequence( null, "drafting", designerName);
+                    p.drafting = autoAddWithSequence( null, "drafting", designerName);
                 }
 
         // 🔹 Update project
@@ -1288,7 +1288,7 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 overallstatus: "LIVE",
-                drafting: draft
+                drafting: p.drafting
                 })
             });
         if (!res.ok) throw new Error(await res.text());
@@ -1355,6 +1355,7 @@
     </script>
 </body>
 </html>
+
 
 
 
