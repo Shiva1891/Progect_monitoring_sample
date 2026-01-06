@@ -453,13 +453,13 @@
                     document.getElementById("diagramCount").classList.add("hidden");
                     if(job_type == "LIVE") {
                         document.getElementById("clrbtn").classList.add("hidden");
-                        if(job_drawing) {
+                        if(job_drawing == "YES") {
                             document.getElementById("setliveBtn").classList.add("hidden");
                         }
                     }
                     if(job_type == "DRAFTING") {
                         document.getElementById("clrbtn").classList.remove("hidden");
-                        if(job_drawing) {
+                        if(job_drawing == "YES") {
                             document.getElementById("setliveBtn").classList.add("hidden");
                         }
                     }
@@ -1385,6 +1385,7 @@
     </script>
 </body>
 </html>
+
 
 
 
