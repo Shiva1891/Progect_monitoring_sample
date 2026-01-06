@@ -1268,18 +1268,18 @@
                 const resProject = await fetch(`/projects?id=${id}`);
                 if (!resProject.ok) throw new Error("Failed to load project");
 
-                const p = await resProject.json();
+                const selectLive = await resProject.json();
 
                 // 🔹 Ensure drafting array exists
                 //p.drafting = p.drafting || [];
 
-                const draft = p.drafting;
+                const draft = selectLive.find(p => p.id === id);
 
                 if(draft.lenght !== 0) {
                     // 🔹 Auto sequence AFTER adding
-                    p.drafting = autoAddWithSequence( p.drafting, "drafting", designerName);
+                    draft = autoAddWithSequence( p.drafting, "drafting", designerName);
                 } else {
-                    p.drafting = autoAddWithSequence( null, "drafting", designerName);
+                    draft = autoAddWithSequence( null, "drafting", designerName);
                 }
 
         // 🔹 Update project
@@ -1288,7 +1288,7 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 overallstatus: "LIVE",
-                drafting: p.drafting
+                drafting: draft
                 })
             });
         if (!res.ok) throw new Error(await res.text());
@@ -1355,6 +1355,7 @@
     </script>
 </body>
 </html>
+
 
 
 
