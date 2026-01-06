@@ -304,6 +304,7 @@
                 localStorage.getItem("projectID");
                 
             } else {
+                
                 localStorage.setItem("projectID", id);
                 
             }
@@ -1111,6 +1112,7 @@
             if (!confirm('Remove this drawing?')) return;
             list.splice(idx, 1);
             displayTable(list);
+            clearbtn = "CLEAR";
             clearAllDrawings();
             saveAllDrawings();
         }
@@ -1258,7 +1260,7 @@
             notifyDashboardRefresh();
 
         }
-
+        
         // -----------------------
         // CLEAR ALL DIAGRAMS
         // -----------------------
@@ -1270,9 +1272,17 @@
             const list = window._slList || [];
             const payload = {};
 
-            for (let i = list.length + 1 ; i <= 50; i++) {
-                const rIndex = i;
-                payload[`dno_${rIndex}`] = null
+            if(clearbtn !== "CLEAR") {
+                for (let i = 0 + 1 ; i <= 50; i++) {
+                    const rIndex = i;
+                    payload[`dno_${rIndex}`] = null;
+                }
+            } else {
+                for (let i = list.length + 1 ; i <= 50; i++) {
+                    const rIndex = i;
+                    payload[`dno_${rIndex}`] = null;
+                    }
+                clearbtn == null;
             }
 
             // fill remaining dno_x as null (optional) - we only send those we have
@@ -1284,8 +1294,8 @@
                 });
                 if (!res.ok) throw new Error(await res.text());
                 await res.json();
-                //document.getElementById("setbtn").classList.remove("hidden");
-                //document.getElementById("diagramCount").classList.remove("hidden");
+                document.getElementById("setbtn").classList.remove("hidden");
+                document.getElementById("diagramCount").classList.remove("hidden");
                 //document.getElementById("clrbtn").classList.add("hidden");
                 //document.getElementById("addbtn").classList.add("hidden");
             } catch (err) { console.error(err); alert('Save failed: ' + err.message); }
@@ -1406,6 +1416,7 @@
     </script>
 </body>
 </html>
+
 
 
 
