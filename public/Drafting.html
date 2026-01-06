@@ -453,15 +453,9 @@
                     document.getElementById("diagramCount").classList.add("hidden");
                     if(job_type == "LIVE") {
                         document.getElementById("clrbtn").classList.add("hidden");
-                        if(job_drawing == "YES") {
-                            document.getElementById("setliveBtn").classList.add("hidden");
-                        }
                     }
                     if(job_type == "DRAFTING") {
                         document.getElementById("clrbtn").classList.remove("hidden");
-                        if(job_drawing == "YES") {
-                            document.getElementById("setliveBtn").classList.add("hidden");
-                        }
                     }
                 }
             }
@@ -572,8 +566,6 @@
         // -----------------------
         function displayTable(slList) {
 
-            job_drawing = "YES";
-            
             window._slList = slList.map(r => ({ ...r }));
 
             const tb = document.getElementById("tableBody");
@@ -693,11 +685,25 @@
             <button onclick="savebtn(${slList.length})"
                     class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold mr-2">
                 SAVE ALL
-            </button>
+            </button>`
+
+            if(job_type == "LIVE") {
+            tb.innerHTML += `
+            <button id="setliveBtn" onclick="setlive()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold hidden">
+                SET TO LIVE
+            </button>`
+            }
+            
+            if(job_type == "DRAFTING") {
+            tb.innerHTML += `
             <button id="setliveBtn" onclick="setlive()"
                     class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold">
                 SET TO LIVE
-            </button>
+            </button>`
+            }
+            
+            tb.innerHTML += `
     </td>
 </tr>`;
         }
@@ -1385,6 +1391,7 @@
     </script>
 </body>
 </html>
+
 
 
 
