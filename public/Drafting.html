@@ -278,7 +278,7 @@
                           </div>`;
                     document.querySelectorAll(".jobid").forEach(item => {
                             item.addEventListener("click", () => {
-                                takeJob(${job.id});
+                                takeJob(job.id);
                             });
                         });
                     if ((job.overallstatus || "").toUpperCase() === "DRAFTING") draftingDiv.innerHTML += block;
@@ -289,7 +289,7 @@
                         </div>`;
                 document.querySelectorAll(".jobid").forEach(item => {
                     item.addEventListener("click", () => {
-                        takeJob(${job.id});
+                        takeJob(job.id);
                     });
                 });
                 });
@@ -1447,4 +1447,5 @@
     </script>
 </body>
 </html>
+
 
