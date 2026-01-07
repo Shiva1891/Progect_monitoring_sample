@@ -306,17 +306,18 @@
                 localStorage.getItem("projectID");
                 
             } else {
-                
-                localStorage.setItem("projectID", id);
-                
+                jobno = localStorage.getItem("jobname");
+                const res = await fetch(`/live_projects?id=${jobno}`);
+                const data = await res.json();
+                const p = data.find(item => item.jobno == jobno);
+                if (!p) return alert("Project not found");
+                //localStorage.setItem("projectID", id);
             }
-            
             document.getElementById("rpanel").classList.add("hidden");
             try {
-
-                const res = await fetch(`/projects?id=${id}`);
+                const res = await fetch(`/projects?id=${p.jobno}`);
                 const data = await res.json();
-                const p = data.find(item => item.id == id);
+                const p = data.find(item => item.jobno == p.jobno);
                 if (!p) return alert("Project not found");
 
                 const lastQty = Array.isArray(p.quantity) && p.quantity.length > 0
@@ -1436,69 +1437,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
