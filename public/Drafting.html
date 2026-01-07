@@ -337,21 +337,21 @@
 
                 const liveres = await fetch(`/live_projects?id=${p.jobno}`);
                 const livedata = await liveres.json();
-                const p = livedata.find(item => item.jobno == p.jobno);
-                if (!p) return alert("Project not found");
+                const lp = livedata.find(item => item.jobno == p.jobno);
+                if (!lp) return alert("Project not found");
 
-                window._projectType = readProjectType(p);
+                window._projectType = readProjectType(lp);
 
-                localStorage.setItem("jobname", p.jobno);
-                await loadDrawings(p.jobno);
+                localStorage.setItem("jobname", lp.jobno);
+                await loadDrawings(lp.jobno);
 
                 document.querySelectorAll(".jobid").forEach(el => el.classList.remove("hidden"));
                 document.querySelectorAll(".jobcr").forEach(el => el.classList.remove("bg-green-200"));
 
-                const activeBlock = document.getElementById("job-" + p.id);
+                const activeBlock = document.getElementById("job-" + lp.id);
                 if (activeBlock) activeBlock.classList.add("hidden");
 
-                const cngclr = document.getElementById("jobc-" + p.id);
+                const cngclr = document.getElementById("jobc-" + lp.id);
                 if (cngclr) cngclr.classList.add("bg-green-200");
 
             } catch (e) {
@@ -1440,6 +1440,7 @@
     </script>
 </body>
 </html>
+
 
 
 
