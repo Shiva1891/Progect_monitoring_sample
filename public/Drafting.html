@@ -1132,6 +1132,7 @@
             // ensure we are using current window._slList as source of truth
             const list = window._slList || [];
             const payload = {};
+            if(clearbtn !== "CLEAR") {
             if (list.length > 0) {
                 for (let i = 0; i < list.length; i++) {
                     const rIndex = i + 1;
@@ -1228,13 +1229,13 @@
                     operator: "-"
                     }
                 ];
+            }   
             } else {
-                if(clearbtn !== "CLEAR") {
+                
                     for (let i = 0 + 1 ; i <= 50; i++) {
                         const rIndex = i;
                         payload[`dno_${rIndex}`] = null;
                         }
-                    }
                 clearbtn = null;
                 document.getElementById("setbtn").classList.remove("hidden");
                 document.getElementById("diagramCount").classList.remove("hidden");
@@ -1434,6 +1435,7 @@
     </script>
 </body>
 </html>
+
 
 
 
