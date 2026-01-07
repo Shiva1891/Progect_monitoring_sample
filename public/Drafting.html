@@ -1113,8 +1113,8 @@
             if (idx < 0 || idx >= list.length) return;
             if (!confirm('Remove this drawing?')) return;
             list.splice(idx, 1);
+            clearAllDrawings(clearbtn = "CLEAR")
             displayTable(list);
-            clearbtn = "CLEAR";
         }
 
         async function savebtn() {
@@ -1125,14 +1125,14 @@
         // -----------------------
         // SAVE all drawings (PUT)
         // -----------------------
-        async function saveAllDrawings() {
+        async function saveAllDrawings(mode) {
             const id = localStorage.getItem("liveProjectId") || localStorage.getItem("projectID");
             if (!id) return alert("Project missing");
 
             // ensure we are using current window._slList as source of truth
             const list = window._slList || [];
             const payload = {};
-            if(clearbtn !== "CLEAR") {
+            if(mode == "CLEAR") {
             if (list.length > 0) {
                 for (let i = 0; i < list.length; i++) {
                     const rIndex = i + 1;
@@ -1269,55 +1269,56 @@
         // -----------------------
         // CLEAR ALL DIAGRAMS
         // -----------------------
-        async function clearAllDrawings(mode = "CLEAR") {
-    const id =
-        localStorage.getItem("liveProjectId") ||
-        localStorage.getItem("projectID");
+        async function clearAllDrawings(clearbtn) {
+            const id =
+                localStorage.getItem("liveProjectId") ||
+                localStorage.getItem("projectID");
+            if (!id) return alert("Project missing");
+            const MAX = 50;
+            let payload = {};
+            
+            // 🔹 Source of truth
+            const list = Array.isArray(window._slList) ? window._slList : [];
+            // 🔹 Decide start index
+    
+            let startIndex;
+            let mode = [];
+            if (clearbtn === "CLEAR") {
+                startIndex = 1;
+                mode = "NEW";
+                } else {
+                startIndex = list.length + 1;
+                mode = "CLEAR";
+                }
+            // 🔹 Build payload
+            for (let i = startIndex; i <= MAX; i++) {
+                payload[`dno_${i}`] = null;
+                }
 
-    if (!id) return alert("Project missing");
+            try {
+                const res = await fetch(`/live_projects/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                    });
 
-    const MAX = 50;
-    let payload = {};
+                if (!res.ok) throw new Error(await res.text());
+                await res.json();
+                // 🔹 UI updates (optional)
+                // document.getElementById("setbtn")?.classList.remove("hidden");
+                // document.getElementById("diagramCount")?.classList.remove("hidden");
+                // document.getElementById("clrbtn")?.classList.add("hidden");
+                // document.getElementById("addbtn")?.classList.add("hidden");
 
-    // 🔹 Source of truth
-    const list = Array.isArray(window._slList) ? window._slList : [];
+                // 🔹 Update UI only after success
+                saveAllDrawings(mode);
+                displayTable(list);
 
-    // 🔹 Decide start index
-    const startIndex =
-        mode === "CLEAR"
-            ? 1
-            : list.length + 1;
-
-    // 🔹 Build payload
-    for (let i = startIndex; i <= MAX; i++) {
-        payload[`dno_${i}`] = null;
-    }
-
-    try {
-        const res = await fetch(`/live_projects/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-
-        if (!res.ok) throw new Error(await res.text());
-        await res.json();
-
-        // 🔹 UI updates (optional)
-        // document.getElementById("setbtn")?.classList.remove("hidden");
-        // document.getElementById("diagramCount")?.classList.remove("hidden");
-        // document.getElementById("clrbtn")?.classList.add("hidden");
-        // document.getElementById("addbtn")?.classList.add("hidden");
-
-        // 🔹 Update UI only after success
-        saveAllDrawings();
-        displayTable(mode === "CLEAR" ? [] : list);
-
-    } catch (err) {
-        console.error(err);
-        alert("Save failed: " + err.message);
-    }
-}
+                } catch (err) {
+                console.error(err);
+                alert("Save failed: " + err.message);
+                }
+            }
 
 
         // -----------------------
@@ -1435,6 +1436,7 @@
     </script>
 </body>
 </html>
+
 
 
 
