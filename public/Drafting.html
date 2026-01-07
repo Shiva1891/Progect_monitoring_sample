@@ -1213,13 +1213,17 @@
                     }];
                 }
             } else {
-                    if(clearbtn !== "CLEAR") {
-                        for (let i = 0 + 1 ; i <= 50; i++) {
-                            const rIndex = i;
-                            payload[`dno_${rIndex}`] = null;
-                            }
+                if(clearbtn !== "CLEAR") {
+                    for (let i = 0 + 1 ; i <= 50; i++) {
+                        const rIndex = i;
+                        payload[`dno_${rIndex}`] = null;
+                        }
                     }
                 clearbtn = null;
+                document.getElementById("setbtn").classList.remove("hidden");
+                document.getElementById("diagramCount").classList.remove("hidden");
+                document.getElementById("clrbtn").classList.add("hidden");
+                document.getElementById("addbtn").classList.add("hidden");
             }
 
                 /* --------------------------------
@@ -1260,12 +1264,7 @@
                     alert('Save failed: ' + err.message);
                 }
 
-            } else {
-                document.getElementById("setbtn").classList.remove("hidden");
-                document.getElementById("diagramCount").classList.remove("hidden");
-                document.getElementById("clrbtn").classList.add("hidden");
-                document.getElementById("addbtn").classList.add("hidden");
-            }
+            } 
             notifyDashboardRefresh();
 
         }
@@ -1425,6 +1424,7 @@
     </script>
 </body>
 </html>
+
 
 
 
