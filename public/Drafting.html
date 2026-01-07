@@ -277,8 +277,7 @@
                             <button onclick="takeJob(${job.id})" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Take</button>
                           </div>`;
                     document.getElementById(`job-${job.id}`).addEventListener("click", () => {
-                                takeJob(job-job.id);
-                            });
+                        takeJob(job-job.id);
                         });
                     if ((job.overallstatus || "").toUpperCase() === "DRAFTING") draftingDiv.innerHTML += block;
                     else if ((job.overallstatus || "").toUpperCase() === "LIVE") liveDiv.innerHTML += `
@@ -1439,6 +1438,7 @@
     </script>
 </body>
 </html>
+
 
 
 
