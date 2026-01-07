@@ -335,9 +335,9 @@
                 document.getElementById("pexpected").textContent =
                     lastexpectDate !== "-" ? formatDateISOtoDDMMYYYY(lastexpectDate) : "-";
 
-                const res = await fetch(`/live_projects?id=${p.jobno}`);
-                const data = await res.json();
-                const p = data.find(item => item.jobno == p.jobno);
+                const liveres = await fetch(`/live_projects?id=${p.jobno}`);
+                const livedata = await liveres.json();
+                const p = livedata.find(item => item.jobno == p.jobno);
                 if (!p) return alert("Project not found");
 
                 window._projectType = readProjectType(p);
@@ -1440,6 +1440,7 @@
     </script>
 </body>
 </html>
+
 
 
 
