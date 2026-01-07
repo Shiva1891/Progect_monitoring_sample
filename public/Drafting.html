@@ -310,24 +310,13 @@
         async function takeJob(id) {
             job_type = "DRAFTING";
 
-            //setjobtype(job_type);
-
-            if (!id) {
-                localStorage.getItem("projectID");
-                
-            } else {
-                jobno = localStorage.getItem("jobname");
-                const res = await fetch(`/live_projects?id=${jobno}`);
-                const data = await res.json();
-                const p = data.find(item => item.jobno == jobno);
-                if (!p) return alert("Project not found");
-                //localStorage.setItem("projectID", id);
-            }
+            if (!id) return alert("Project not found");
+            
             document.getElementById("rpanel").classList.add("hidden");
             try {
-                const res = await fetch(`/projects?id=${p.jobno}`);
+                const res = await fetch(`/projects?id=${id}`);
                 const data = await res.json();
-                const p = data.find(item => item.jobno == p.jobno);
+                const p = data.find(item => item.id == id);
                 if (!p) return alert("Project not found");
 
                 const lastQty = Array.isArray(p.quantity) && p.quantity.length > 0
@@ -346,6 +335,10 @@
                 document.getElementById("pexpected").textContent =
                     lastexpectDate !== "-" ? formatDateISOtoDDMMYYYY(lastexpectDate) : "-";
 
+                const res = await fetch(`/live_projects?id=${p.jobno}`);
+                const data = await res.json();
+                const p = data.find(item => item.jobno == p.jobno);
+                if (!p) return alert("Project not found");
 
                 window._projectType = readProjectType(p);
 
@@ -1447,5 +1440,6 @@
     </script>
 </body>
 </html>
+
 
 
