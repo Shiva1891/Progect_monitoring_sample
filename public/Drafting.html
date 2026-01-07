@@ -276,8 +276,7 @@
                             <div class="font-bold">${job.jobno}</div>
                             <button onclick="takeJob(${job.id})" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Take</button>
                           </div>`;
-                    document.querySelectorAll(".jobid").forEach(item => {
-                            item.addEventListener("click", () => {
+                    document.getElementById(`job-${job.id}`).addEventListener("click", () => {
                                 takeJob(job-job.id);
                             });
                         });
@@ -289,7 +288,7 @@
                         </div>`;
                 document.querySelectorAll(".jobid").forEach(item => {
                     item.addEventListener("click", () => {
-                        takeJob(job.id);
+                        editJob(job.id);
                     });
                 });
                 });
@@ -1440,6 +1439,7 @@
     </script>
 </body>
 </html>
+
 
 
 
