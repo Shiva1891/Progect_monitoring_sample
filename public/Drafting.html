@@ -1212,6 +1212,22 @@
                         InternalProcess: [...ipArrayp, ...ipArrayf]
                     }];
                 }
+                payload.common_status = [
+                {
+                    name: "ASSEMBLY",
+                    status: document.getElementById("assembly_status")?.value || "Pending",
+                    sdate: "-",
+                    edate: "-",
+                    operator: "-"
+                    },
+                {
+                    name: "DELIVERY",
+                    status: document.getElementById("delivery_status")?.value || "Pending",
+                    sdate: "-",
+                    edate: "-",
+                    operator: "-"
+                    }
+                ];
             } else {
                 if(clearbtn !== "CLEAR") {
                     for (let i = 0 + 1 ; i <= 50; i++) {
@@ -1226,48 +1242,28 @@
                 document.getElementById("addbtn").classList.add("hidden");
             }
 
-                /* --------------------------------
-                ✅ SAVE COMMON STATUS (NEW)
-                ----------------------------------*/
-                payload.common_status = [
-                    {
-                        name: "ASSEMBLY",
-                        status: document.getElementById("assembly_status")?.value || "Pending",
-                        sdate: "-",
-                        edate: "-",
-                        operator: "-"
-                    },
-                    {
-                        name: "DELIVERY",
-                        status: document.getElementById("delivery_status")?.value || "Pending",
-                        sdate: "-",
-                        edate: "-",
-                        operator: "-"
-                    }
-                ];
-
-                try {
-                    const res = await fetch(`/live_projects/${id}`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(payload)
+            /* --------------------------------
+            ✅ SAVE COMMON STATUS (NEW)
+            ----------------------------------*/
+            try {
+                const res = await fetch(`/live_projects/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
                     });
-                    if (!res.ok) throw new Error(await res.text());
-                    await res.json();
-                    if (savebuttonnotification === "SAVE") {
-                        alert('Saved Successfully!');
+                if (!res.ok) throw new Error(await res.text());
+                await res.json();
+                if (savebuttonnotification === "SAVE") {
+                    alert('Saved Successfully!');
                     }
-                    loadDraftingJobs();
-                    addbtntype = [];
+                loadDraftingJobs();
+                addbtntype = [];
                 } catch (err) {
-                    console.error(err);
-                    alert('Save failed: ' + err.message);
+                console.error(err);
+                alert('Save failed: ' + err.message);
                 }
-
             } 
-            notifyDashboardRefresh();
-
-        }
+        notifyDashboardRefresh();
         
         // -----------------------
         // CLEAR ALL DIAGRAMS
@@ -1424,6 +1420,7 @@
     </script>
 </body>
 </html>
+
 
 
 
