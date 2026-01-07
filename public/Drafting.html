@@ -1268,45 +1268,56 @@
         // -----------------------
         // CLEAR ALL DIAGRAMS
         // -----------------------
-        async function clearAllDrawings() {
-            const id = localStorage.getItem("liveProjectId") || localStorage.getItem("projectID");
-            if (!id) return alert("Project missing");
+        async function clearAllDrawings(mode = "CLEAR") {
+    const id =
+        localStorage.getItem("liveProjectId") ||
+        localStorage.getItem("projectID");
 
-            // ensure we are using current window._slList as source of truth
-            let list = [];
-            let payload = {};
-            if(clearbtn !== "CLEAR") {
-                payload = {};
-                for (let i = 0 + 1 ; i <= 50; i++) {
-                    const rIndex = i;
-                    payload[`dno_${rIndex}`] = null;
-                }
-            } else {
-                list = window._slList || [];
-                payload = {};
-                for (let i = list.length + 1 ; i <= 50; i++) {
-                    const rIndex = i;
-                    payload[`dno_${rIndex}`] = null;
-                    }
-            }
+    if (!id) return alert("Project missing");
 
-            // fill remaining dno_x as null (optional) - we only send those we have
-            try {
-                const res = await fetch(`/live_projects/${id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-                if (!res.ok) throw new Error(await res.text());
-                await res.json();
-                //document.getElementById("setbtn").classList.remove("hidden");
-                //document.getElementById("diagramCount").classList.remove("hidden");
-                //document.getElementById("clrbtn").classList.add("hidden");
-                //document.getElementById("addbtn").classList.add("hidden");
-            } catch (err) { console.error(err); alert('Save failed: ' + err.message); }
-            saveAllDrawings();
-            displayTable(list);
-        }
+    const MAX = 50;
+    let payload = {};
+
+    // 🔹 Source of truth
+    const list = Array.isArray(window._slList) ? window._slList : [];
+
+    // 🔹 Decide start index
+    const startIndex =
+        mode === "CLEAR"
+            ? 1
+            : list.length + 1;
+
+    // 🔹 Build payload
+    for (let i = startIndex; i <= MAX; i++) {
+        payload[`dno_${i}`] = null;
+    }
+
+    try {
+        const res = await fetch(`/live_projects/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+        await res.json();
+
+        // 🔹 UI updates (optional)
+        // document.getElementById("setbtn")?.classList.remove("hidden");
+        // document.getElementById("diagramCount")?.classList.remove("hidden");
+        // document.getElementById("clrbtn")?.classList.add("hidden");
+        // document.getElementById("addbtn")?.classList.add("hidden");
+
+        // 🔹 Update UI only after success
+        saveAllDrawings();
+        displayTable(mode === "CLEAR" ? [] : list);
+
+    } catch (err) {
+        console.error(err);
+        alert("Save failed: " + err.message);
+    }
+}
+
 
         // -----------------------
         // Set project to LIVE (update projects table)
@@ -1423,6 +1434,7 @@
     </script>
 </body>
 </html>
+
 
 
 
