@@ -1211,6 +1211,14 @@
                         TotalQty: totalQty,
                         InternalProcess: [...ipArrayp, ...ipArrayf]
                     }];
+                } else {
+                    if(clearbtn !== "CLEAR") {
+                        for (let i = 0 + 1 ; i <= 50; i++) {
+                            const rIndex = i;
+                            payload[`dno_${rIndex}`] = null;
+                            }
+                    }
+                clearbtn = null;
                 }
 
                 /* --------------------------------
@@ -1282,7 +1290,6 @@
                     const rIndex = i;
                     payload[`dno_${rIndex}`] = null;
                     }
-                clearbtn = null;
             }
 
             // fill remaining dno_x as null (optional) - we only send those we have
