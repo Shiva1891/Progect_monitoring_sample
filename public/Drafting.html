@@ -276,12 +276,22 @@
                             <div class="font-bold">${job.jobno}</div>
                             <button onclick="takeJob(${job.id})" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Take</button>
                           </div>`;
+                    document.querySelectorAll(".jobid").forEach(item => {
+                            item.addEventListener("click", () => {
+                                takeJob(${job.id});
+                            });
+                        });
                     if ((job.overallstatus || "").toUpperCase() === "DRAFTING") draftingDiv.innerHTML += block;
                     else if ((job.overallstatus || "").toUpperCase() === "LIVE") liveDiv.innerHTML += `
                         <div id="jobc-${job.id}" class="jobcr flex items-center justify-between px-3 py-2 mb-2 rounded-xl hover:border bg-gray-100 h-12">
                         <div class="font-bold">${job.jobno}</div>
                         <button onclick="editJob(${job.id})" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Edit</button>
                         </div>`;
+                document.querySelectorAll(".jobid").forEach(item => {
+                    item.addEventListener("click", () => {
+                        takeJob(${job.id});
+                    });
+                });
                 });
 
                 const jobID = localStorage.getItem("projectID");
@@ -1437,3 +1447,4 @@
     </script>
 </body>
 </html>
+
