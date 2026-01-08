@@ -1428,7 +1428,7 @@
                 const res = await fetch(`/live_projects/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
                 if (!res.ok) throw new Error(await res.text());
                 await res.json();
-                takeJob(id);
+                takeJob(j.jobno);
             } catch (err) { console.error("setDiagramBtn Error:", err); alert("Error: " + err.message); }
         }
 
@@ -1438,6 +1438,7 @@
     </script>
 </body>
 </html>
+
 
 
 
