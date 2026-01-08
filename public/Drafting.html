@@ -298,7 +298,7 @@
         // -----------------------
         // Take job (left panel)
         // -----------------------
-        async function takeJob(jobno) {
+        async function takeJob(jobno = jobno) {
     if (!id) return alert("Project not found");
 
     job_type = "DRAFTING";
@@ -1437,6 +1437,7 @@
     </script>
 </body>
 </html>
+
 
 
 
