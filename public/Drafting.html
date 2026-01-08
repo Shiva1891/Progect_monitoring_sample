@@ -339,15 +339,15 @@
                 : "-";
 
         const livejobno = p.jobno;
-        const liveres = await fetch(`/live_projects?jobno=${livejobno}`);
-        if (!liveres.ok) throw new Error("Failed to load live project");
+        //const liveres = await fetch(`/live_projects?jobno=${livejobno}`);
+        //if (!liveres.ok) throw new Error("Failed to load live project");
 
-        const livedata = await liveres.json();
-        const lp = livedata.find(item => item.jobno == livejobno);
-        if (!lp) throw new Error("Live project not found");
+        //const livedata = await liveres.json();
+        //const lp = livedata.find(item => item.jobno == livejobno);
+        //if (!lp) throw new Error("Live project not found");
 
-        window._projectType = readProjectType(lp);
-        localStorage.setItem("jobname", lp.jobno);
+        //window._projectType = readProjectType(lp);
+        localStorage.setItem("jobname", p.jobno);
 
         await loadDrawings(lp.jobno);
 
@@ -1444,6 +1444,7 @@
     </script>
 </body>
 </html>
+
 
 
 
