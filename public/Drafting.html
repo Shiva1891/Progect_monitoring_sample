@@ -289,9 +289,9 @@
                 });
                 });
 
-                const jobID = localStorage.getItem("projectID");
-                if (job_type == "DRAFTING" && jobID) takeJob(jobID);
-                if (job_type == "LIVE" && jobID) editJob(jobID);    
+                //const jobID = localStorage.getItem("projectID");
+                //if (job_type == "DRAFTING" && jobID) takeJob(jobID);
+                //if (job_type == "LIVE" && jobID) editJob(jobID);    
                 else {
                     document.getElementById("tableBody").innerHTML = "";
                     ["pname", "pjob", "pqty", "pcustomer", "pcontact", "pexpected"].forEach(id => document.getElementById(id).textContent = "-");
@@ -303,10 +303,9 @@
         // Take job (left panel)
         // -----------------------
         async function takeJob(id) {
-    let job_type = "DRAFTING";
-
     if (!id) return alert("Project not found");
 
+    let job_type = "DRAFTING";
     const rpanel = document.getElementById("rpanel");
     rpanel.classList.add("hidden");
 
@@ -318,15 +317,13 @@
         const p = data.find(item => item.id == id);
         if (!p) throw new Error("Project not found");
 
-        const lastQty =
-            Array.isArray(p.quantity) && p.quantity.length
-                ? Object.values(p.quantity.at(-1))[0] ?? "-"
-                : "-";
+        const lastQty = p.quantity?.length
+            ? Object.values(p.quantity.at(-1))[0] ?? "-"
+            : "-";
 
-        const lastExpectedDate =
-            Array.isArray(p.expected_date) && p.expected_date.length
-                ? Object.values(p.expected_date.at(-1))[0] ?? "-"
-                : "-";
+        const lastExpectedDate = p.expected_date?.length
+            ? Object.values(p.expected_date.at(-1))[0] ?? "-"
+            : "-";
 
         document.getElementById("pname").textContent = p.project_name || "-";
         document.getElementById("pjob").textContent = p.jobno || "-";
@@ -339,29 +336,30 @@
                 : "-";
 
         const livejobno = p.jobno;
-        //const liveres = await fetch(`/live_projects?jobno=${livejobno}`);
-        //if (!liveres.ok) throw new Error("Failed to load live project");
+        const liveres = await fetch(`/live_projects?jobno=${livejobno}`);
+        if (!liveres.ok) throw new Error("Failed to load live project");
 
-        //const livedata = await liveres.json();
-        //const lp = livedata.find(item => item.jobno == livejobno);
-        //if (!lp) throw new Error("Live project not found");
+        const livedata = await liveres.json();
+        const lp = livedata.find(item => item.jobno == livejobno);
+        if (!lp) throw new Error("Live project not found");
 
-        //window._projectType = readProjectType(lp);
-        localStorage.setItem("jobname", p.jobno);
+        window.projectType = readProjectType(lp);
+        localStorage.setItem("jobname", livejobno);
 
-        await loadDrawings(lp.jobno);
+        await loadDrawings(livejobno);
 
         document.querySelectorAll(".jobid").forEach(el => el.classList.remove("hidden"));
         document.querySelectorAll(".jobcr").forEach(el => el.classList.remove("bg-green-200"));
 
-        document.getElementById(`job-${lp.id}`)?.classList.add("hidden");
-        document.getElementById(`jobc-${lp.id}`)?.classList.add("bg-green-200");
+        document.getElementById(`job-${p.id}`)?.classList.add("hidden");
+        document.getElementById(`jobc-${p.id}`)?.classList.add("bg-green-200");
 
     } catch (e) {
         rpanel.classList.remove("hidden");
         alert("Unable to load project: " + e.message);
     }
 }
+
 
 
         function readProjectType(project) {
@@ -1444,6 +1442,7 @@
     </script>
 </body>
 </html>
+
 
 
 
