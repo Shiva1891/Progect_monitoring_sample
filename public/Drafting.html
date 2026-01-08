@@ -298,7 +298,8 @@
                 //}
             } catch (err) { alert("Error Loading Jobs: " + err.message); }
         }
-
+        document.getElementById("tableBody").innerHTML = "";
+        ["pname", "pjob", "pqty", "pcustomer", "pcontact", "pexpected"].forEach(id => document.getElementById(id).textContent = "-");
         // -----------------------
         // Take job (left panel)
         // -----------------------
@@ -1442,6 +1443,7 @@
     </script>
 </body>
 </html>
+
 
 
 
