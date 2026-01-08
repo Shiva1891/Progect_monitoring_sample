@@ -258,9 +258,9 @@
         // Load jobs (right panel)
         // -----------------------
 
-        let job_type = [];
+        let job_type = null;
 
-        let clearbtn = [];
+        let clearbtn = null;
         
         async function loadDraftingJobs() {
             try {
@@ -284,10 +284,6 @@
                         <div class="font-bold">${job.jobno}</div>
                         <button onclick="editJob(${job.id})" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Edit</button>
                         </div>`;
-                document.querySelectorAll(".jobid").forEach(item => {
-                    item.addEventListener("click", () => {
-                        editJob(job.id);
-                    });
                 });
                 });
 
@@ -306,7 +302,7 @@
         async function takeJob(id) {
     if (!id) return alert("Project not found");
 
-    let job_type = "DRAFTING";
+    job_type = "DRAFTING";
     const rpanel = document.getElementById("rpanel");
     rpanel.classList.add("hidden");
 
@@ -1443,6 +1439,7 @@
     </script>
 </body>
 </html>
+
 
 
 
