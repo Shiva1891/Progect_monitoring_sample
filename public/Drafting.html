@@ -245,6 +245,8 @@
             document.getElementById("clrbtn").classList.add("hidden");
             document.getElementById("addbtn").classList.add("hidden");
             document.getElementById("designerName").textContent = "Designers";
+            document.getElementById("tableBody").innerHTML = "";
+            ["pname", "pjob", "pqty", "pcustomer", "pcontact", "pexpected"].forEach(id => document.getElementById(id).textContent = "-");
             
         }
 
@@ -298,8 +300,6 @@
                 //}
             } catch (err) { alert("Error Loading Jobs: " + err.message); }
         }
-        document.getElementById("tableBody").innerHTML = "";
-        ["pname", "pjob", "pqty", "pcustomer", "pcontact", "pexpected"].forEach(id => document.getElementById(id).textContent = "-");
         // -----------------------
         // Take job (left panel)
         // -----------------------
@@ -1443,6 +1443,7 @@
     </script>
 </body>
 </html>
+
 
 
 
