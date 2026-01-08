@@ -298,8 +298,8 @@
         // -----------------------
         // Take job (left panel)
         // -----------------------
-        async function takeJob(jobno = jobno) {
-    if (!id) return alert("Project not found");
+        async function takeJob(jobno) {
+    if (!jobno) return alert("Project not found");
 
     job_type = "DRAFTING";
     const rpanel = document.getElementById("rpanel");
@@ -310,7 +310,7 @@
         if (!res.ok) throw new Error("Failed to load project");
 
         const data = await res.json();
-        const p = data.find(item => item.id == id);
+        const p = data.find(item => item.id == jobno);
         if (!p) throw new Error("Project not found");
 
         const lastQty = p.quantity?.length
@@ -1437,6 +1437,7 @@
     </script>
 </body>
 </html>
+
 
 
 
