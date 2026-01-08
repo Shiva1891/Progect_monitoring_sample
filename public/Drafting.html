@@ -276,13 +276,13 @@
                     const block = `
                           <div id="jobc-${job.id}" class="jobcr flex items-center justify-between px-3 py-2 mb-2 rounded-xl hover:border bg-gray-100 h-12">
                             <div class="font-bold">${job.jobno}</div>
-                            <button onclick="takeJob(${job.id})" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Take</button>
+                            <button onclick="takeJob(${job.jobno})" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Take</button>
                           </div>`;
                     if ((job.overallstatus || "").toUpperCase() === "DRAFTING") draftingDiv.innerHTML += block;
                     else if ((job.overallstatus || "").toUpperCase() === "LIVE") liveDiv.innerHTML += `
                         <div id="jobc-${job.id}" class="jobcr flex items-center justify-between px-3 py-2 mb-2 rounded-xl hover:border bg-gray-100 h-12">
                         <div class="font-bold">${job.jobno}</div>
-                        <button onclick="editJob(${job.id})" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Edit</button>
+                        <button onclick="editJob(${job.jobno})" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Edit</button>
                         </div>`;
                 });
 
@@ -298,7 +298,7 @@
         // -----------------------
         // Take job (left panel)
         // -----------------------
-        async function takeJob(id) {
+        async function takeJob(jobno) {
     if (!id) return alert("Project not found");
 
     job_type = "DRAFTING";
@@ -306,7 +306,7 @@
     rpanel.classList.add("hidden");
 
     try {
-        const res = await fetch(`/projects?id=${id}`);
+        const res = await fetch(`/projects?jobno=${jobno}`);
         if (!res.ok) throw new Error("Failed to load project");
 
         const data = await res.json();
@@ -331,18 +331,17 @@
                 ? formatDateISOtoDDMMYYYY(lastExpectedDate)
                 : "-";
 
-        const livejobno = p.jobno;
-        const liveres = await fetch(`/live_projects?jobno=${livejobno}`);
+        const liveres = await fetch(`/live_projects?jobno=${jobno}`);
         if (!liveres.ok) throw new Error("Failed to load live project");
 
         const livedata = await liveres.json();
-        const lp = livedata.find(item => item.jobno == livejobno);
+        const lp = livedata.find(item => item.jobno == jobno);
         if (!lp) throw new Error("Live project not found");
 
         window.projectType = readProjectType(lp);
-        localStorage.setItem("jobname", livejobno);
+        localStorage.setItem("jobname", jobno);
 
-        await loadDrawings(livejobno);
+        await loadDrawings(jobno);
 
         document.querySelectorAll(".jobid").forEach(el => el.classList.remove("hidden"));
         document.querySelectorAll(".jobcr").forEach(el => el.classList.remove("bg-green-200"));
@@ -1428,7 +1427,7 @@
                 const res = await fetch(`/live_projects/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
                 if (!res.ok) throw new Error(await res.text());
                 await res.json();
-                takeJob(j.jobno);
+                takeJob(id, j.jobno);
             } catch (err) { console.error("setDiagramBtn Error:", err); alert("Error: " + err.message); }
         }
 
@@ -1438,6 +1437,7 @@
     </script>
 </body>
 </html>
+
 
 
 
