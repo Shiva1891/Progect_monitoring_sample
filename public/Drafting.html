@@ -1127,8 +1127,8 @@
         // SAVE all drawings (PUT)
         // -----------------------
         async function saveAllDrawings(mode) {
-            const id = localStorage.getItem("liveProjectId") || localStorage.getItem("projectID");
-            if (!id) return alert("Project missing");
+            const jobno = localStorage.getItem("jobname");
+            if (!jobno) return alert("Project missing");
 
             // ensure we are using current window._slList as source of truth
             const list = window._slList || [];
@@ -1248,7 +1248,7 @@
             ✅ SAVE COMMON STATUS (NEW)
             ----------------------------------*/
             try {
-                const res = await fetch(`/live_projects/${id}`, {
+                const res = await fetch(`/live_projects/${jobno}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
@@ -1259,6 +1259,7 @@
                     alert('Saved Successfully!');
                     }
                 loadDraftingJobs();
+                takeJob(jobno);
                 addbtntype = [];
                 } catch (err) {
                 console.error(err);
@@ -1271,10 +1272,9 @@
         // CLEAR ALL DIAGRAMS
         // -----------------------
         async function clearAllDrawings(clearbtn) {
-            const id =
-                localStorage.getItem("liveProjectId") ||
-                localStorage.getItem("projectID");
-            if (!id) return alert("Project missing");
+            const jobno =
+                localStorage.getItem("jobname");
+            if (!jobno) return alert("Project missing");
             const MAX = 50;
             let payload = {};
             
@@ -1297,7 +1297,7 @@
                 }
 
             try {
-                const res = await fetch(`/live_projects/${id}`, {
+                const res = await fetch(`/live_projects/${jobno}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
@@ -1313,7 +1313,7 @@
 
                 // 🔹 Update UI only after success
                 saveAllDrawings(mode);
-                loadDraftingJobs();
+                //takeJob(jobno);
 
                 } catch (err) {
                 console.error(err);
@@ -1437,6 +1437,7 @@
     </script>
 </body>
 </html>
+
 
 
 
