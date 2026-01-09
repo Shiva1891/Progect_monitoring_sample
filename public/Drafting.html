@@ -1248,7 +1248,7 @@
             ✅ SAVE COMMON STATUS (NEW)
             ----------------------------------*/
             try {
-                const res = await fetch(`/live_projects/${jobno}`, {
+                const res = await fetch(`/live_projects?id=${jobno}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
@@ -1297,7 +1297,7 @@
                 }
 
             try {
-                const res = await fetch(`/live_projects/${jobno}`, {
+                const res = await fetch(`/live_projects?id=${jobno}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
@@ -1437,6 +1437,7 @@
     </script>
 </body>
 </html>
+
 
 
 
