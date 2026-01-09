@@ -259,7 +259,7 @@
         // -----------------------
 
         let job_type = null;
-
+        let mode = null;
         let clearbtn = null;
         
         async function loadDraftingJobs() {
@@ -1120,6 +1120,7 @@
 
         async function savebtn() {
             savebuttonnotification = "SAVE";
+            mode = "NEW";
             saveAllDrawings();
         }
 
@@ -1290,7 +1291,6 @@
             // 🔹 Decide start index
     
             let startIndex;
-            let mode = [];
             if (clearbtn === "CLEAR") {
                 startIndex = list.length + 1;
                 mode = "NEW";
@@ -1451,6 +1451,7 @@
     </script>
 </body>
 </html>
+
 
 
 
