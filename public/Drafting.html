@@ -259,7 +259,7 @@
         // -----------------------
 
         let job_type = null;
-        let mode = [];
+        let mode = null;
         let clearbtn = null;
         
         async function loadDraftingJobs() {
@@ -1121,7 +1121,7 @@
         async function savebtn() {
             savebuttonnotification = "SAVE";
             mode = "NEW";
-            saveAllDrawings();
+            saveAllDrawings(mode);
         }
 
         // -----------------------
@@ -1451,6 +1451,7 @@
     </script>
 </body>
 </html>
+
 
 
 
