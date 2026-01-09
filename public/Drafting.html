@@ -336,7 +336,7 @@
 
         const livedata = await liveres.json();
         const lp = livedata.find(item => item.jobno == jobno);
-        if (!lp) throw new Error("Live project not found");
+        if (!lp) throw new Error("Drawinga are not found");
 
         window.projectType = readProjectType(lp);
         localStorage.setItem("jobname", jobno);
@@ -1427,7 +1427,7 @@
                 const res = await fetch(`/live_projects/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
                 if (!res.ok) throw new Error(await res.text());
                 await res.json();
-                takeJob(id, j.jobno);
+                takeJob(j.jobno);
             } catch (err) { console.error("setDiagramBtn Error:", err); alert("Error: " + err.message); }
         }
 
@@ -1437,6 +1437,7 @@
     </script>
 </body>
 </html>
+
 
 
 
