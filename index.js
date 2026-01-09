@@ -254,6 +254,8 @@ app.put("/employee/:id", dynamicUpdate("employee"));
 app.put("/designers/:id", dynamicUpdate("designers"));
 app.put("/processes/:id", dynamicUpdate("processes"));
 app.put("/live_projects/:id", dynamicUpdate("live_projects"));
+app.put("/projects/:jobno", dynamicUpdate("projects"));
+app.put("/live_projects/:jobno", dynamicUpdate("live_projects"));
 
 /* ===============================
    🗑️ DELETE APIs
@@ -347,6 +349,7 @@ async function start() {
 }
 
 start();
+
 
 
 
