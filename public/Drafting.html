@@ -276,13 +276,13 @@
                     const block = `
                           <div id="jobc-${job.id}" class="jobcr flex items-center justify-between px-3 py-2 mb-2 rounded-xl hover:border bg-gray-100 h-12">
                             <div class="font-bold">${job.jobno}</div>
-                            <button onclick="takeJob(${job.jobno})" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Take</button>
+                            <button onclick="takeJob('${job.jobno}')" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Take</button>
                           </div>`;
                     if ((job.overallstatus || "").toUpperCase() === "DRAFTING") draftingDiv.innerHTML += block;
                     else if ((job.overallstatus || "").toUpperCase() === "LIVE") liveDiv.innerHTML += `
                         <div id="jobc-${job.id}" class="jobcr flex items-center justify-between px-3 py-2 mb-2 rounded-xl hover:border bg-gray-100 h-12">
                         <div class="font-bold">${job.jobno}</div>
-                        <button onclick="editJob(${job.jobno})" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Edit</button>
+                        <button onclick="editJob('${job.jobno}')" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Edit</button>
                         </div>`;
                 });
 
@@ -310,7 +310,7 @@
         if (!res.ok) throw new Error("Failed to load project");
 
         const data = await res.json();
-        const p = data.find(item => item.id == jobno);
+        const p = data.find(item => item.jobno == jobno);
         if (!p) throw new Error("Project not found");
 
         const lastQty = p.quantity?.length
@@ -1437,6 +1437,7 @@
     </script>
 </body>
 </html>
+
 
 
 
