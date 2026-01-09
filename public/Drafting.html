@@ -1248,7 +1248,7 @@
             ✅ SAVE COMMON STATUS (NEW)
             ----------------------------------*/
             try {
-                const res = await fetch(`/live_projects?jobno=${jobno}`, {
+                const res = await fetch(`/live_projects/${jobno}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
@@ -1297,7 +1297,14 @@
                 }
 
             try {
-                const res = await fetch(`/live_projects?jobno=${jobno}`, {
+                const liveres = await fetch(`/live_projects?jobno=${jobno}`);
+                if (!liveres.ok) throw new Error("Failed to load live project");
+
+                const livedata = await liveres.json();
+                const lp = livedata.find(item => item.jobno == jobno);
+                if (!lp) throw new Error("Drawinga are not found");
+                
+                const res = await fetch(`/live_projects/${lp.id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
@@ -1437,6 +1444,7 @@
     </script>
 </body>
 </html>
+
 
 
 
