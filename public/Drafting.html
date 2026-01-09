@@ -299,63 +299,61 @@
         // Take job (left panel)
         // -----------------------
         async function takeJob(jobno) {
-    if (!jobno) return alert("Project not found");
+            if (!jobno) return alert("Project not found");
 
-    job_type = "DRAFTING";
-    const rpanel = document.getElementById("rpanel");
-    rpanel.classList.add("hidden");
+            job_type = "DRAFTING";
+            const rpanel = document.getElementById("rpanel");
+            rpanel.classList.add("hidden");
 
-    try {
-        const res = await fetch(`/projects?jobno=${jobno}`);
-        if (!res.ok) throw new Error("Failed to load project");
+            try {
+                const res = await fetch(`/projects?jobno=${jobno}`);
+                if (!res.ok) throw new Error("Failed to load project");
 
-        const data = await res.json();
-        const p = data.find(item => item.jobno == jobno);
-        if (!p) throw new Error("Project not found");
+                const data = await res.json();
+                const p = data.find(item => item.jobno == jobno);
+                if (!p) throw new Error("Project not found");
 
-        const lastQty = p.quantity?.length
-            ? Object.values(p.quantity.at(-1))[0] ?? "-"
-            : "-";
+                const lastQty = p.quantity?.length
+                    ? Object.values(p.quantity.at(-1))[0] ?? "-"
+                    : "-";
 
-        const lastExpectedDate = p.expected_date?.length
-            ? Object.values(p.expected_date.at(-1))[0] ?? "-"
-            : "-";
+                const lastExpectedDate = p.expected_date?.length
+                    ? Object.values(p.expected_date.at(-1))[0] ?? "-"
+                    : "-";
 
-        document.getElementById("pname").textContent = p.project_name || "-";
-        document.getElementById("pjob").textContent = p.jobno || "-";
-        document.getElementById("pqty").textContent = lastQty;
-        document.getElementById("pcustomer").textContent = p.customer || "-";
-        document.getElementById("pcontact").textContent = p.contact_person || "-";
-        document.getElementById("pexpected").textContent =
-            lastExpectedDate !== "-"
-                ? formatDateISOtoDDMMYYYY(lastExpectedDate)
-                : "-";
+                document.getElementById("pname").textContent = p.project_name || "-";
+                document.getElementById("pjob").textContent = p.jobno || "-";
+                document.getElementById("pqty").textContent = lastQty;
+                document.getElementById("pcustomer").textContent = p.customer || "-";
+                document.getElementById("pcontact").textContent = p.contact_person || "-";
+                document.getElementById("pexpected").textContent =
+                    lastExpectedDate !== "-"
+                    ? formatDateISOtoDDMMYYYY(lastExpectedDate)
+                    : "-";
 
-        const liveres = await fetch(`/live_projects?jobno=${jobno}`);
-        if (!liveres.ok) throw new Error("Failed to load live project");
+                const liveres = await fetch(`/live_projects?jobno=${jobno}`);
+                if (!liveres.ok) throw new Error("Failed to load live project");
 
-        const livedata = await liveres.json();
-        const lp = livedata.find(item => item.jobno == jobno);
-        if (!lp) throw new Error("Drawinga are not found");
+                const livedata = await liveres.json();
+                const lp = livedata.find(item => item.jobno == jobno);
+                if (!lp) throw new Error("Drawinga are not found");
 
-        window.projectType = readProjectType(lp);
-        localStorage.setItem("jobname", jobno);
+                window.projectType = readProjectType(lp);
+                localStorage.setItem("jobname", jobno);
 
-        await loadDrawings(jobno);
+                await loadDrawings(jobno);
 
-        document.querySelectorAll(".jobid").forEach(el => el.classList.remove("hidden"));
-        document.querySelectorAll(".jobcr").forEach(el => el.classList.remove("bg-green-200"));
+                document.querySelectorAll(".jobid").forEach(el => el.classList.remove("hidden"));
+                document.querySelectorAll(".jobcr").forEach(el => el.classList.remove("bg-green-200"));
 
-        document.getElementById(`job-${p.id}`)?.classList.add("hidden");
-        document.getElementById(`jobc-${p.id}`)?.classList.add("bg-green-200");
+                document.getElementById(`job-${p.id}`)?.classList.add("hidden");
+                document.getElementById(`jobc-${p.id}`)?.classList.add("bg-green-200");
 
-    } catch (e) {
-        rpanel.classList.remove("hidden");
-        alert("Unable to load project: " + e.message);
-    }
-}
-
-
+                } catch (e) {
+                rpanel.classList.remove("hidden");
+                alert("Unable to load project: " + e.message);
+                }
+            }
 
         function readProjectType(project) {
             if (Array.isArray(project.project_type) && project.project_type.length > 0) {
@@ -371,66 +369,71 @@
         async function editJob(id) {
             job_type = "LIVE";
 
+            if (!jobno) return alert("Project not found");
+            
             choosedrawingName(id);
             
-            if (!id) {
-                localStorage.getItem("projectID");
+            const rpanel = document.getElementById("rpanel");
+            rpanel.classList.add("hidden");
 
-            } else {
-                localStorage.setItem("projectID", id);
-
-            }
-
-            document.getElementById("rpanel").classList.add("hidden");
             try {
+                const res = await fetch(`/projects?jobno=${jobno}`);
+                if (!res.ok) throw new Error("Failed to load project");
 
-                const res = await fetch(`/projects?id=${id}`);
                 const data = await res.json();
-                const p = data.find(item => item.id == id);
-                if (!p) return alert("Project not found");
+                const p = data.find(item => item.jobno == jobno);
+                if (!p) throw new Error("Project not found");
 
-                const lastQty = Array.isArray(p.quantity) && p.quantity.length > 0
-                    ? Object.values(p.quantity[p.quantity.length - 1])[0]
+                const lastQty = p.quantity?.length
+                    ? Object.values(p.quantity.at(-1))[0] ?? "-"
                     : "-";
 
-                const lastexpectDate = Array.isArray(p.expected_date) && p.expected_date.length > 0
-                    ? Object.values(p.expected_date[p.expected_date.length - 1])[0]
+                const lastExpectedDate = p.expected_date?.length
+                    ? Object.values(p.expected_date.at(-1))[0] ?? "-"
                     : "-";
 
                 document.getElementById("pname").textContent = p.project_name || "-";
                 document.getElementById("pjob").textContent = p.jobno || "-";
-                document.getElementById("pqty").textContent = lastQty || "-";
+                document.getElementById("pqty").textContent = lastQty;
                 document.getElementById("pcustomer").textContent = p.customer || "-";
                 document.getElementById("pcontact").textContent = p.contact_person || "-";
                 document.getElementById("pexpected").textContent =
-                    lastexpectDate !== "-" ? formatDateISOtoDDMMYYYY(lastexpectDate) : "-";
+                    lastExpectedDate !== "-"
+                    ? formatDateISOtoDDMMYYYY(lastExpectedDate)
+                    : "-";
 
-                localStorage.setItem("jobname", p.jobno);
-                await loadDrawings(p.jobno);
+                const liveres = await fetch(`/live_projects?jobno=${jobno}`);
+                if (!liveres.ok) throw new Error("Failed to load live project");
+
+                const livedata = await liveres.json();
+                const lp = livedata.find(item => item.jobno == jobno);
+                if (!lp) throw new Error("Drawinga are not found");
+
+                window.projectType = readProjectType(lp);
+                localStorage.setItem("jobname", jobno);
+
+                await loadDrawings(jobno);
 
                 document.querySelectorAll(".jobid").forEach(el => el.classList.remove("hidden"));
                 document.querySelectorAll(".jobcr").forEach(el => el.classList.remove("bg-green-200"));
 
-                const activeBlock = document.getElementById("job-" + p.id);
-                if (activeBlock) activeBlock.classList.add("hidden");
+                document.getElementById(`job-${p.id}`)?.classList.add("hidden");
+                document.getElementById(`jobc-${p.id}`)?.classList.add("bg-green-200");
 
-                const cngclr = document.getElementById("jobc-" + p.id);
-                if (cngclr) cngclr.classList.add("bg-green-200");
-
-            } catch (e) {
+                } catch (e) {
+                rpanel.classList.remove("hidden");
                 alert("Unable to load project: " + e.message);
+                }
             }
 
-        }
-
-        async function choosedrawingName(id) {
-            const resProject = await fetch(`/projects?id=${id}`);
+        async function choosedrawingName(jobno) {
+            const resProject = await fetch(`/projects?jobno=${jobno}`);
             if (!resProject.ok) throw new Error("Failed to load project");
 
             const projects = await resProject.json();
 
             // 🔹 Find current project
-            const p = projects.find(pr => pr.id == id);
+            const p = projects.find(pr => pr.jobno == jobno);
             if (!p) throw new Error("Project not found");
 
             // 🔹 Normalize drafting
@@ -1453,6 +1456,7 @@
     </script>
 </body>
 </html>
+
 
 
 
