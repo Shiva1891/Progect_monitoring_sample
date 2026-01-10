@@ -285,14 +285,6 @@
                         <button onclick="editJob('${job.jobno}')" id="job-${job.id}" class="jobid px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold">Edit</button>
                         </div>`;
                 });
-
-                //const jobID = localStorage.getItem("projectID");
-                //if (job_type == "DRAFTING" && jobID) takeJob(jobID);
-                //if (job_type == "LIVE" && jobID) editJob(jobID);    
-                //else {
-                //    document.getElementById("tableBody").innerHTML = "";
-                //    ["pname", "pjob", "pqty", "pcustomer", "pcontact", "pexpected"].forEach(id => document.getElementById(id).textContent = "-");
-                //}
             } catch (err) { alert("Error Loading Jobs: " + err.message); }
         }
         // -----------------------
@@ -489,9 +481,6 @@
                     }
                 }
             }
-            
-            // Save live project id for later PUT
-            //localStorage.setItem("liveProjectId", project.id);
 
             function buildAvailableProcesses(slList) {
 
@@ -1349,22 +1338,24 @@
         return;
     }
 
-    const id = localStorage.getItem("projectID");
-    if (!id) {
+    const jobno = localStorage.getItem("jobname");
+    if (!jobno) {
         alert("Project missing");
         return;
     }
 
     try {
         // 🔹 Fetch project
-        const resProject = await fetch(`/projects?id=${id}`);
+        const resProject = await fetch(`/projects?jobno=${jobno}`);
         if (!resProject.ok) throw new Error("Failed to load project");
 
         const projects = await resProject.json();
 
         // 🔹 Find current project
-        const p = projects.find(pr => pr.id == id);
+        const p = projects.find(pr => pr.jobno == jobno);
         if (!p) throw new Error("Project not found");
+
+        const id = p.id;
 
         // 🔹 Normalize drafting
         let drafting = [];
@@ -1453,6 +1444,7 @@
     </script>
 </body>
 </html>
+
 
 
 
