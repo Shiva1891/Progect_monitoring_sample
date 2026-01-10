@@ -331,10 +331,6 @@
                 if (!lp) throw new Error("Drawinga are not found");
 
                 window.projectType = readProjectType(p);
-                if(window.projectType !== "NEW") {
-                    choosedrawingName(jobno);
-                    document.getElementById("clrbtn").classList.add("hidden");
-                }
                 localStorage.setItem("jobname", jobno);
 
                 await loadDrawings(jobno);
@@ -477,7 +473,13 @@
                         document.getElementById("clrbtn").classList.add("hidden");
                     }
                     if(job_type == "DRAFTING") {
-                        document.getElementById("clrbtn").classList.remove("hidden");
+                        if(window.projectType !== "NEW") {
+                            choosedrawingName(jobno);
+                            document.getElementById("clrbtn").classList.add("hidden");
+                            }
+                        else {
+                            document.getElementById("clrbtn").classList.remove("hidden");
+                        }
                     }
                 }
             }
@@ -1444,6 +1446,7 @@
     </script>
 </body>
 </html>
+
 
 
 
