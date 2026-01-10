@@ -338,7 +338,7 @@
                 const lp = livedata.find(item => item.jobno == jobno);
                 if (!lp) throw new Error("Drawinga are not found");
 
-                window.projectType = readProjectType(lp);
+                window.projectType = readProjectType(p);
                 if(window.projectType !== "NEW") {
                     choosedrawingName(jobno);
                     document.getElementById("clrbtn").classList.add("hidden");
@@ -406,14 +406,7 @@
                     ? formatDateISOtoDDMMYYYY(lastExpectedDate)
                     : "-";
 
-                const liveres = await fetch(`/live_projects?jobno=${jobno}`);
-                if (!liveres.ok) throw new Error("Failed to load live project");
-
-                const livedata = await liveres.json();
-                const lp = livedata.find(item => item.jobno == jobno);
-                if (!lp) throw new Error("Drawinga are not found");
-
-                window.projectType = readProjectType(lp);
+                window.projectType = readProjectType(p);
                 localStorage.setItem("jobname", jobno);
 
                 await loadDrawings(jobno);
@@ -498,7 +491,7 @@
             }
             
             // Save live project id for later PUT
-            localStorage.setItem("liveProjectId", project.id);
+            //localStorage.setItem("liveProjectId", project.id);
 
             function buildAvailableProcesses(slList) {
 
@@ -1460,6 +1453,7 @@
     </script>
 </body>
 </html>
+
 
 
 
