@@ -339,6 +339,10 @@
                 if (!lp) throw new Error("Drawinga are not found");
 
                 window.projectType = readProjectType(lp);
+                if(window.projectType !== "NEW") {
+                    choosedrawingName(jobno);
+                    document.getElementById("clrbtn").classList.add("hidden");
+                }
                 localStorage.setItem("jobname", jobno);
 
                 await loadDrawings(jobno);
@@ -1456,6 +1460,7 @@
     </script>
 </body>
 </html>
+
 
 
 
