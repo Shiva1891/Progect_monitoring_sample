@@ -374,9 +374,9 @@
                     const cycle = getCurrentCycle();
                     if (!cycle) return showAlert("Start design first");
 
-                    if (Object.values(cycle).some(v => v.includes("confirmed"))) {
-                        return showAlert("Already confirmed");
-                        }
+                    //if (Object.values(cycle).some(v => v.includes("confirmed"))) {
+                    //    return showAlert("Already confirmed");
+                    //    }
 
                     const idx = getNextStageIndex(cycle);
                     const today = new Date().toISOString().split("T")[0];
@@ -544,6 +544,7 @@
 
 </body>
 </html>
+
 
 
 
