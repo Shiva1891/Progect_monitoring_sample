@@ -239,27 +239,30 @@
             draftBtn.className = "px-3 py-1 bg-green-700 text-white rounded hidden";
             draftBtn.textContent = "Move to Drafting";
 
-            // Stage array initialization - robust parse
+            // selectedSec: the sec number you want to work with, e.g., 1 by default
+            let selectedSec = 1;
+
+            // Initialize stageArray to only include stages of the selectedSec
             let stageArray = [];
+
             try {
                 const ds = p.design_stages;
-                if (!ds) stageArray = [];
-                else if (Array.isArray(ds)) stageArray = ds.slice(); // copy
-                else if (typeof ds === "string") {
-                    // some DBs return a JSON string, others may return "[object Object]"
-                    if (ds.trim().startsWith("[object Object]")) {
-                        stageArray = [];
-                    } else {
-                        const parsed = JSON.parse(ds);
-                        stageArray = Array.isArray(parsed) ? parsed : [];
-                    }
-                } else {
-                    stageArray = [];
-                }
-            } catch (err) {
+                let allStages = [];
+
+                if (!ds) allStages = [];
+                    else if (Array.isArray(ds)) allStages = ds.slice(); // copy
+                        else if (typeof ds === "string") {
+                            if (ds.trim().startsWith("[object Object]")) allStages = [];
+                                else allStages = JSON.parse(ds);
+                            }
+                // Filter stages by selectedSec
+                const cycle = allStages.find(c => c.sec === selectedSec);
+                if (cycle) stageArray.push(cycle);
+
+                } catch (err) {
                 console.warn("Could not parse design_stages:", err);
                 stageArray = [];
-            }
+                }
 
 
             // Utility: update status box
@@ -541,6 +544,7 @@
 
 </body>
 </html>
+
 
 
 
