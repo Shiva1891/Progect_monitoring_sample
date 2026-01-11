@@ -263,66 +263,40 @@
 
 
             // Utility: update status box
-            function updateStatusBox(selectedSec) {
-                if (!stageArray || stageArray.length === 0) {
-                    statusBox.textContent = "Status: Not Started";
-                    return;
-                    }
-
-                // Find cycle by sec
-                const cycle = stageArray.find(c => c.sec === selectedSec);
+            function updateStatusBox() {
+                const cycle = getCurrentCycle();
 
                 if (!cycle) {
                     statusBox.textContent = "Status: Not Started";
                     return;
                     }
 
-                // Get last stage key (ignore 'sec')
-                const stageKeys = Object.keys(cycle)
-                    .filter(k => k.startsWith("stage"))
-                    .sort((a, b) => {
-                        return Number(a.replace("stage", "")) - Number(b.replace("stage", ""));
-                        });
+                const lastStage = getLastStageText(cycle);
 
-                if (stageKeys.length === 0) {
-                    statusBox.textContent = "Status: Not Started";
-                    return;
-                    }
-
-                const lastStageKey = stageKeys[stageKeys.length - 1];
-                statusBox.textContent = `Status: ${cycle[lastStageKey]}`;
+                statusBox.textContent = lastStage
+                    ? `Status: ${lastStage}`
+                    : "Status: Not Started";
                 }
-
-
-            // Utility: show/hide draft button if last stage includes 'confirmed'
-            function showDraftButton() {
-                draftBtn.classList.add("hidden");
-                plotBtn.classList.remove("hidden");
-                confirmBtn.classList.remove("hidden");
-                if (!stageArray || stageArray.length === 0) return;
-                const last = stageArray[stageArray.length - 1];
-                const lastVal = String(last[Object.keys(last)[0]] || "").toLowerCase();
-                if (lastVal.includes("confirmed")) {
-                    draftBtn.classList.remove("hidden");
-                    plotBtn.classList.add("hidden");
-                    confirmBtn.classList.add("hidden");
-                }
-            }
 
             // Render stages list
             function renderStages() {
                 stageList.innerHTML = "";
-                (stageArray || []).forEach((s, idx) => {
-                    const key = Object.keys(s)[0];
-                    const val = s[key];
-                    const item = document.createElement("div");
-                    item.className = "p-2 bg-white rounded border flex justify-between items-center";
-                    item.innerHTML = `<div><b>Stage ${idx + 1}:</b> ${escapeHtml(val)}</div>`;
-                    //stageList.appendChild(item);
-                });
-                updateStatusBox(1);
-                showDraftButton();
-            }
+
+                stageArray.forEach(cycle => {
+                    Object.keys(cycle)
+                        .filter(k => k.startsWith("stage"))
+                        .sort((a, b) => Number(a.replace("stage", "")) - Number(b.replace("stage", "")))
+                        .forEach(key => {
+                            const div = document.createElement("div");
+                            div.className = "p-2 bg-white rounded border text-sm";
+                            div.textContent = `SEC ${cycle.sec}: ${cycle[key]}`;
+                            stageList.appendChild(div);
+                            });
+                    });
+
+                updateStatusBox();
+                updateActionButtons();
+                }
 
             function autoAddWithSequence(existingArray, keyPrefix, value) {
                 let arr = [];
@@ -357,12 +331,6 @@
             // Button behaviors
             startBtn.onclick = async () => {
                 try {
-                    // Prevent starting twice without confirmation
-                    const last = getCurrentCycle();
-                    if (last && Object.values(last).some(v => typeof v === "string" && v.includes("confirmed"))) {
-                        showAlert("Design already confirmed. Start new cycle if needed.");
-                        }
-
                     const newCycle = {
                         sec: getNextSec(),
                         stage1: "Design Start"
@@ -375,7 +343,7 @@
 
                     showAlert(`Design cycle ${newCycle.sec} started`);
                     } catch (err) {
-                    showAlert("Error: " + (err.message || err));
+                    showAlert(err.message || err);
                     }
                 };
 
@@ -383,20 +351,17 @@
             plotBtn.onclick = async () => {
                 try {
                     const cycle = getCurrentCycle();
-                    if (!cycle) {
-                        showAlert("Start design first");
-                        return;
-                        }
+                    if (!cycle) return showAlert("Start design first");
 
-                    const nextStage = getNextStageIndex(cycle);
-                    const plotNo = nextStage - 1;
+                    const idx = getNextStageIndex(cycle);
+                    const plotNo = idx - 1;
 
-                    cycle[`stage${nextStage}`] = `Check Plot ${plotNo}`;
+                    cycle[`stage${idx}`] = `Check Plot ${plotNo}`;
 
                     await saveStagesToServer();
                     renderStages();
                     } catch (err) {
-                    showAlert("Error saving stage: " + (err.message || err));
+                    showAlert(err.message || err);
                     }
                 };
 
@@ -404,30 +369,26 @@
             confirmBtn.onclick = async () => {
                 try {
                     const cycle = getCurrentCycle();
-                    if (!cycle) {
-                        showAlert("Start design first");
-                        return;
-                        }
+                    if (!cycle) return showAlert("Start design first");
 
                     if (Object.values(cycle).some(v => v.includes("confirmed"))) {
-                        showAlert("This cycle is already confirmed");
-                        return;
+                        return showAlert("Already confirmed");
                         }
 
-                    const nextStage = getNextStageIndex(cycle);
+                    const idx = getNextStageIndex(cycle);
                     const today = new Date().toISOString().split("T")[0];
 
-                    cycle[`stage${nextStage}`] =
-                        `Design confirmed at (${today})`;
+                    cycle[`stage${idx}`] = `Design confirmed at (${today})`;
 
                     await saveStagesToServer();
                     renderStages();
 
-                    showAlert(`Design cycle ${cycle.sec} confirmed`);
+                    showAlert("Design confirmed");
                     } catch (err) {
-                    showAlert("Error saving confirmation: " + (err.message || err));
+                    showAlert(err.message || err);
                     }
                 };
+
 
             draftBtn.onclick = async () => {
                 if (!confirm("Move project to DRAFTING?")) return;
@@ -463,7 +424,7 @@
             };
 
             function getCurrentCycle() {
-                return stageArray[stageArray.length - 1] || null;
+                return stageArray.length ? stageArray[stageArray.length - 1] : null;
                 }
 
             function getNextSec() {
@@ -471,8 +432,15 @@
                 }
 
             function getNextStageIndex(cycle) {
-                const stageKeys = Object.keys(cycle).filter(k => k.startsWith("stage"));
-                return stageKeys.length + 1;
+                return Object.keys(cycle).filter(k => k.startsWith("stage")).length + 1;
+                }
+
+            function getLastStageText(cycle) {
+                const stageKeys = Object.keys(cycle)
+                    .filter(k => k.startsWith("stage"))
+                    .sort((a, b) => Number(a.replace("stage", "")) - Number(b.replace("stage", "")));
+
+                return stageKeys.length ? cycle[stageKeys[stageKeys.length - 1]] : null;
                 }
 
             //add projects to live
@@ -518,22 +486,44 @@
 
 
             // Add buttons to row. Logic: if not started show Start; else show plot/confirm/draft accordingly
-            function rebuildButtonRow() {
-                btnRow.innerHTML = "";
-                if (!stageArray || stageArray.length === 0) {
-                    btnRow.appendChild(startBtn);
-                } else {
-                    btnRow.appendChild(plotBtn);
-                    btnRow.appendChild(confirmBtn);
-                    btnRow.appendChild(draftBtn); // show/hide handled by showDraftButton()
+            function updateActionButtons() {
+                // hide all first
+                startBtn.classList.add("hidden");
+                plotBtn.classList.add("hidden");
+                confirmBtn.classList.add("hidden");
+                draftBtn.classList.add("hidden");
+
+                const cycle = getCurrentCycle();
+                
+                // Not started
+                if (!cycle) {
+                    startBtn.classList.remove("hidden");
+                    return;
+                    }
+
+                const lastStage = getLastStageText(cycle);
+
+                // Started but NOT confirmed
+                if (!lastStage || !lastStage.toLowerCase().includes("confirmed")) {
+                    plotBtn.classList.remove("hidden");
+                    confirmBtn.classList.remove("hidden");
+                    return;
+                    }
+                
+                // Confirmed
+                draftBtn.classList.remove("hidden");
                 }
-            }
+
 
             // initial render
             renderStages();
-            rebuildButtonRow();
+            //rebuildButtonRow();
 
             stagesBox.appendChild(btnRow);
+            btnRow.appendChild(startBtn);
+            btnRow.appendChild(plotBtn);
+            btnRow.appendChild(confirmBtn);
+            btnRow.appendChild(draftBtn);
 
             /* Append elements */
             wrapper.appendChild(header);
@@ -551,5 +541,6 @@
 
 </body>
 </html>
+
 
 
