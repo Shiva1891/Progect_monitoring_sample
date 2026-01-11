@@ -261,7 +261,6 @@
                 stageArray = [];
             }
 
-            updateStatusBox(1);
 
             // Utility: update status box
             function updateStatusBox(selectedSec) {
@@ -321,7 +320,7 @@
                     item.innerHTML = `<div><b>Stage ${idx + 1}:</b> ${escapeHtml(val)}</div>`;
                     //stageList.appendChild(item);
                 });
-                updateStatusBox();
+                updateStatusBox(1);
                 showDraftButton();
             }
 
@@ -552,4 +551,5 @@
 
 </body>
 </html>
+
 
