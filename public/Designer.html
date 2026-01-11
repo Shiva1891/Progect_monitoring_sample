@@ -1,556 +1,138 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title id="pageTitle1">AGTEK: Designer Projects</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .thin-scrollbar::-webkit-scrollbar {
-            height: 8px;
-            width: 8px
-        }
-
-        .thin-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 8px
-        }
-
-        .thin-scrollbar::-webkit-scrollbar-track {
-            background: transparent
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title id="pageTitle1">AGTEK: Designer Projects</title>
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-50 min-h-screen text-slate-900">
 
-    <header class="fixed inset-x-0 top-0 bg-white border-b z-40">
-        <div class="max-w-10xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div>
-                <div class="text-xl font-bold text-green-600">AGTEK</div>
-                <div id="designerCard" class="mt-1 text-sm text-slate-700">—</div>
-            </div>
-            <div class="flex items-center gap-3">
-                <button id="btnRefreshAll" class="px-3 py-1 bg-sky-600 text-white rounded">Refresh</button>
-                <button id="logoutBtn" class="px-3 py-1 bg-red-500 text-white rounded">Logout</button>
-            </div>
-        </div>
-    </header>
-
-    <main class="pt-20 max-w-10xl mx-auto px-4 pb-12">
-        <section class="p-5 mt-3">
-            <div class="p-3 bg-green-200 mb-4 rounded-2xl w-1/4">
-                <h1 id="pageTitle" class="text-2xl font-semibold text-slate-800">Designer Projects</h1>
-                <p id="infoLine" class="text-sm text-slate-500">Loading...</p>
-            </div>
-                <div id="projectsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-2"></div>
-        </section>
-    </main>
-
-    <script>
-        /* ===============================
-           Configuration & Utilities
-           =============================== */
-        const PORT = "4000";
-
-        const HOST = "192.168.0.200";
-
-        const API = { projects: `/projects` };
-
-        function getDesignerFromLocalStorage() {
-            const designer = localStorage.getItem("selectedDesigner");
-            if (!designer) {
-                alert("No designer selected. Redirecting to dashboard.");
-                window.location.href = "Dashboard.html";
-                return null;
-            }
-            return designer;
-        }
-        const DESIGNER_NAME = getDesignerFromLocalStorage();
-
-        function escapeHtml(s) {
-            if (s === null || s === undefined) return "";
-            return String(s)
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;");
-        }
-        function showAlert(msg) { alert(msg); }
-
-        function formatDateISOtoDDMMYYYY(dateStr) {
-            if (!dateStr) return "";
-            const d = new Date(dateStr);
-            if (isNaN(d)) return dateStr;
-            const dd = String(d.getDate()).padStart(2, "0");
-            const mm = String(d.getMonth() + 1).padStart(2, "0");
-            const yyyy = d.getFullYear();
-            return `${dd}/${mm}/${yyyy}`;
-        }
-
-        /* ===============================
-           Page header setup
-           =============================== */
-        document.getElementById("pageTitle").textContent = `Projects for ${DESIGNER_NAME}`;
-        document.getElementById("pageTitle1").textContent = `${DESIGNER_NAME} Projects`;
-        document.getElementById("designerCard").textContent = DESIGNER_NAME;
-
-        document.getElementById("btnRefreshAll").addEventListener("click", loadProjectsForDesigner);
-        document.getElementById("logoutBtn").addEventListener("click", () => {
-            localStorage.removeItem("selectedDesigner");
-            notifyDashboardRefresh();
-            window.close();
-        });
-
-        let lastQty = [];
-        let lastDate = [];
-        let expectedlastDate = [];
-        let showStartdate = [];
-        let showEnddate = [];
-
-        function notifyDashboardRefresh() {
-            localStorage.setItem("REFRESH_DASHBOARD", Date.now());
-        }
-
-        /* ===============================
-           Load projects
-           =============================== */
-        async function loadProjectsForDesigner() {
-            const container = document.getElementById("projectsContainer");
-            container.innerHTML = `<div class="p-4 text-sm text-slate-500">Loading...</div>`;
-
-            try {
-                const res = await fetch(API.projects);
-                if (!res.ok) throw new Error("Failed to fetch projects");
-                const projects = await res.json();
-
-                const assigned = projects.filter(p => (p.overallstatus ?? "").toString().toUpperCase() === DESIGNER_NAME.toUpperCase());
-                document.getElementById("infoLine").textContent = `${assigned.length} project(s) assigned`;
-
-                if (assigned.length === 0) {
-                    container.innerHTML = `<div class="p-4 text-sm text-slate-500">No projects assigned.</div>`;
-                    return;
-                }
-
-                container.innerHTML = "";
-                assigned.forEach(p => container.appendChild(buildProjectCard(p)));
-            } catch (err) {
-                console.error(err);
-                container.innerHTML = `<div class="p-4 text-red-600">Error: ${escapeHtml(err.message || err)}</div>`;
-            }
-        }
-
-        /* ===============================
-           Build per-project card
-           =============================== */
-        function buildProjectCard(p) {
-            const wrapper = document.createElement("div");
-            wrapper.className = "bg-white rounded-xl shadow p-4";
-
-            
-
-            const lastQty = Array.isArray(p.quantity) && p.quantity.length > 0
-                ? Object.values(p.quantity[p.quantity.length - 1])[0]
-                : "-";
-
-            const lastDate = Array.isArray(p.enquery_date) && p.enquery_date.length > 0
-                ? Object.values(p.enquery_date[p.enquery_date.length - 1])[0]
-                : "-";
-
-            const expectedlastDate = Array.isArray(p.expected_date) && p.expected_date.length > 0
-                ? Object.values(p.expected_date[p.expected_date.length - 1])[0]
-                : "-";
-
-            const showStartdate = Array.isArray(p.design_start_date) && p.design_start_date.length > 0
-                ? Object.values(p.design_start_date[p.design_start_date.length - 1])[0]
-                : "-";
-
-            const showEnddate = Array.isArray(p.design_end_date) && p.design_end_date.length > 0
-                ? Object.values(p.design_end_date[p.design_end_date.length - 1])[0]
-                : "-";
-
-            /* Header */
-            const header = document.createElement("div");
-            header.className = "flex items-start justify-between gap-3";
-            header.innerHTML = `
-        <div class="flex-1">
-          <div class="text-sm text-slate-500">Job No</div>
-          <div class="text-lg font-semibold">${escapeHtml(p.jobno || "—")} — ${escapeHtml(p.project_name || "")}</div>
-          <div class="text-xs text-slate-500 mt-1">${escapeHtml(p.customer || "")} ${p.contact_person ? ' • ' + escapeHtml(p.contact_person) : ''}</div>
-        </div>
-        <div class="text-right">
-          <div class="text-xs text-slate-500">Qty</div>
-          <div class="font-medium">${escapeHtml(lastQty)}</div>
-        </div>
-      `;
-
-            /* Dates box (show existing dates) */
-            const dateBox = document.createElement("div");
-            dateBox.className = "mt-4 space-y-2 p-2 bg-gray-50 rounded";
-
-
-
-            const startDisplay = document.createElement("div");
-            startDisplay.className = "text-sm";
-            startDisplay.innerHTML = `<b>Start Date:</b> ${showStartdate || "Not Set"}`;
-
-            const endDisplay = document.createElement("div");
-            endDisplay.className = "text-sm";
-            endDisplay.innerHTML = `<b>End Date:</b> ${showEnddate || "Not Set"}`;
-
-            dateBox.appendChild(startDisplay);
-            dateBox.appendChild(endDisplay);
-
-            /* ============== STAGES UI ============== */
-            const stagesBox = document.createElement("div");
-            stagesBox.className = "mt-4 p-3 border rounded bg-gray-50";
-
-            const stagesTitle = document.createElement("div");
-            stagesTitle.className = "font-semibold text-sm mb-2";
-            stagesTitle.textContent = "Design Stages";
-            stagesBox.appendChild(stagesTitle);
-
-            const stageList = document.createElement("div");
-            stageList.className = "space-y-1";
-            stagesBox.appendChild(stageList);
-
-            // status box which shows latest stage
-            const statusBox = document.createElement("div");
-            statusBox.className = "mt-3 p-3 rounded bg-yellow-100 border font-medium text-sm";
-            stagesBox.appendChild(statusBox);
-
-            // Buttons row (we create draftBtn FIRST to avoid ordering issues)
-            const btnRow = document.createElement("div");
-            btnRow.className = "mt-3 flex gap-2 items-center";
-
-            // Create buttons early (to reference safely)
-            const startBtn = document.createElement("button");
-            startBtn.className = "px-3 py-1 bg-yellow-600 text-white rounded";
-            startBtn.textContent = "Start Design";
-
-            const plotBtn = document.createElement("button");
-            plotBtn.className = "px-3 py-1 bg-blue-600 text-white rounded";
-            plotBtn.textContent = "Add Check Plot";
-
-            const confirmBtn = document.createElement("button");
-            confirmBtn.className = "px-3 py-1 bg-indigo-600 text-white rounded";
-            confirmBtn.textContent = "Confirm";
-
-            const draftBtn = document.createElement("button");
-            draftBtn.className = "px-3 py-1 bg-green-700 text-white rounded hidden";
-            draftBtn.textContent = "Move to Drafting";
-
-            // Stage array initialization - robust parse
-            let stageArray = [];
-            try {
-                const ds = p.design_stages;
-                if (!ds) stageArray = [];
-                else if (Array.isArray(ds)) stageArray = ds.slice(); // copy
-                else if (typeof ds === "string") {
-                    // some DBs return a JSON string, others may return "[object Object]"
-                    if (ds.trim().startsWith("[object Object]")) {
-                        stageArray = [];
-                    } else {
-                        const parsed = JSON.parse(ds);
-                        stageArray = Array.isArray(parsed) ? parsed : [];
-                    }
-                } else {
-                    stageArray = [];
-                }
-            } catch (err) {
-                console.warn("Could not parse design_stages:", err);
-                stageArray = [];
-            }
-
-            updateStatusBox(1);
-
-            // Utility: update status box
-            function updateStatusBox(selectedSec) {
-                if (!stageArray || stageArray.length === 0) {
-                    statusBox.textContent = "Status: Not Started";
-                    return;
-                    }
-
-                // Find cycle by sec
-                const cycle = stageArray.find(c => c.sec === selectedSec);
-
-                if (!cycle) {
-                    statusBox.textContent = "Status: Not Started";
-                    return;
-                    }
-
-                // Get last stage key (ignore 'sec')
-                const stageKeys = Object.keys(cycle)
-                    .filter(k => k.startsWith("stage"))
-                    .sort((a, b) => {
-                        return Number(a.replace("stage", "")) - Number(b.replace("stage", ""));
-                        });
-
-                if (stageKeys.length === 0) {
-                    statusBox.textContent = "Status: Not Started";
-                    return;
-                    }
-
-                const lastStageKey = stageKeys[stageKeys.length - 1];
-                statusBox.textContent = `Status: ${cycle[lastStageKey]}`;
-                }
-
-
-            // Utility: show/hide draft button if last stage includes 'confirmed'
-            function showDraftButton() {
-                draftBtn.classList.add("hidden");
-                plotBtn.classList.remove("hidden");
-                confirmBtn.classList.remove("hidden");
-                if (!stageArray || stageArray.length === 0) return;
-                const last = stageArray[stageArray.length - 1];
-                const lastVal = String(last[Object.keys(last)[0]] || "").toLowerCase();
-                if (lastVal.includes("confirmed")) {
-                    draftBtn.classList.remove("hidden");
-                    plotBtn.classList.add("hidden");
-                    confirmBtn.classList.add("hidden");
-                }
-            }
-
-            // Render stages list
-            function renderStages() {
-                stageList.innerHTML = "";
-                (stageArray || []).forEach((s, idx) => {
-                    const key = Object.keys(s)[0];
-                    const val = s[key];
-                    const item = document.createElement("div");
-                    item.className = "p-2 bg-white rounded border flex justify-between items-center";
-                    item.innerHTML = `<div><b>Stage ${idx + 1}:</b> ${escapeHtml(val)}</div>`;
-                    //stageList.appendChild(item);
-                });
-                updateStatusBox();
-                showDraftButton();
-            }
-
-            function autoAddWithSequence(existingArray, keyPrefix, value) {
-                let arr = [];
-
-                if (existingArray) {
-                    if (typeof existingArray === "string") arr = JSON.parse(existingArray);
-                    else if (Array.isArray(existingArray)) arr = [...existingArray];
-                }
-
-                const nextIndex = arr.length + 1;
-                arr.push({ [`${keyPrefix}_${nextIndex}`]: value });
-
-                return arr;
-            }
-
-            // Save stages array to API (returns response)
-            async function saveStagesToServer() {
-                try {
-                    const res = await fetch(`${API.projects}/${p.id}`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ design_stages: stageArray })
-                    });
-                    if (!res.ok) throw new Error("Failed to save stages");
-                    return res;
-                } catch (err) {
-                    console.error("saveStagesToServer error:", err);
-                    throw err;
-                }
-            }
-
-            // Button behaviors
-            startBtn.onclick = async () => {
-                try {
-                    // Prevent starting twice without confirmation
-                    const last = getCurrentCycle();
-                    if (last && Object.values(last).some(v => typeof v === "string" && v.includes("confirmed"))) {
-                        showAlert("Design already confirmed. Start new cycle if needed.");
-                        }
-
-                    const newCycle = {
-                        sec: getNextSec(),
-                        stage1: "Design Start"
-                        };
-
-                    stageArray.push(newCycle);
-
-                    await saveStagesToServer();
-                    renderStages();
-
-                    showAlert(`Design cycle ${newCycle.sec} started`);
-                    } catch (err) {
-                    showAlert("Error: " + (err.message || err));
-                    }
-                };
-
-
-            plotBtn.onclick = async () => {
-                try {
-                    const cycle = getCurrentCycle();
-                    if (!cycle) {
-                        showAlert("Start design first");
-                        return;
-                        }
-
-                    const nextStage = getNextStageIndex(cycle);
-                    const plotNo = nextStage - 1;
-
-                    cycle[`stage${nextStage}`] = `Check Plot ${plotNo}`;
-
-                    await saveStagesToServer();
-                    renderStages();
-                    } catch (err) {
-                    showAlert("Error saving stage: " + (err.message || err));
-                    }
-                };
-
-
-            confirmBtn.onclick = async () => {
-                try {
-                    const cycle = getCurrentCycle();
-                    if (!cycle) {
-                        showAlert("Start design first");
-                        return;
-                        }
-
-                    if (Object.values(cycle).some(v => v.includes("confirmed"))) {
-                        showAlert("This cycle is already confirmed");
-                        return;
-                        }
-
-                    const nextStage = getNextStageIndex(cycle);
-                    const today = new Date().toISOString().split("T")[0];
-
-                    cycle[`stage${nextStage}`] =
-                        `Design confirmed at (${today})`;
-
-                    await saveStagesToServer();
-                    renderStages();
-
-                    showAlert(`Design cycle ${cycle.sec} confirmed`);
-                    } catch (err) {
-                    showAlert("Error saving confirmation: " + (err.message || err));
-                    }
-                };
-
-            draftBtn.onclick = async () => {
-                if (!confirm("Move project to DRAFTING?")) return;
-
-                const today = new Date().toISOString().split("T")[0];
-                const dname = document.getElementById("designerCard").textContent;
-
-                // Auto sequence arrays
-                p.designer_name = autoAddWithSequence(p.designer_name, "designer_name", dname);
-                p.design_end_date = autoAddWithSequence(p.design_end_date, "design_end_date", today);
-
-                try {
-                    const res = await fetch(`${API.projects}/${p.id}`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            overallstatus: "DRAFTING",
-                            designer_name: p.designer_name,
-                            design_end_date: p.design_end_date
-                        })
-                    });
-
-                    if (!res.ok) throw new Error("Failed to move to drafting");
-
-                    showAlert("Project moved to DRAFTING");
-
-                    // Refresh data
-                    await addliveprojects(p.id);
-                    await loadProjectsForDesigner();
-                } catch (err) {
-                    showAlert("Error: " + (err.message || err));
-                }
-            };
-
-            function getCurrentCycle() {
-                return stageArray[stageArray.length - 1] || null;
-                }
-
-            function getNextSec() {
-                return stageArray.length + 1;
-                }
-
-            function getNextStageIndex(cycle) {
-                const stageKeys = Object.keys(cycle).filter(k => k.startsWith("stage"));
-                return stageKeys.length + 1;
-                }
-
-            //add projects to live
-            async function addliveprojects(id) {
-                const res = await fetch(`/projects?id=${id}`);
-                const data = await res.json();
-                const project = data.find(p => p.id == id);
-                const jobno = project.jobno;
-
-                if (!jobno) {
-                    alert("Project not found for ID: " + id);
-                    return null;
-                }
-                try {
-                    // 1) CHECK IF JOB ALREADY EXISTS
-                    const checkRes = await fetch(`/live_projects?jobno=${jobno}`);
-                    const exists = await checkRes.json();
-
-                    const newjob = exists.find(j => j.jobno == jobno);
-
-                    if (newjob) {
-                        alert("This job number already exists in LIVE PROJECTS");
-                        return;
-                    }
-
-                    // 2) ADD NEW JOB IF NOT EXISTS
-                    const res = await fetch(`/live_projects`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            jobno: jobno
-                        })
-                    });
-
-                    const data = await res.json();
-                    //alert("New Live Project Added Successfully!");
-                    console.log("Inserted:", data);
-
-                } catch (err) {
-                    alert("Error adding live project: " + err.message);
-                }
-            }
-
-
-            // Add buttons to row. Logic: if not started show Start; else show plot/confirm/draft accordingly
-            function rebuildButtonRow() {
-                btnRow.innerHTML = "";
-                if (!stageArray || stageArray.length === 0) {
-                    btnRow.appendChild(startBtn);
-                } else {
-                    btnRow.appendChild(plotBtn);
-                    btnRow.appendChild(confirmBtn);
-                    btnRow.appendChild(draftBtn); // show/hide handled by showDraftButton()
-                }
-            }
-
-            // initial render
-            renderStages();
-            rebuildButtonRow();
-
-            stagesBox.appendChild(btnRow);
-
-            /* Append elements */
-            wrapper.appendChild(header);
-            wrapper.appendChild(dateBox);
-            wrapper.appendChild(stagesBox);
-
-            return wrapper;
-        }
-
-        /* ===============================
-           Init
-           =============================== */
-        window.addEventListener("DOMContentLoaded", loadProjectsForDesigner);
-    </script>
-
+<header class="fixed inset-x-0 top-0 bg-white border-b z-40">
+  <div class="max-w-10xl mx-auto px-4 py-3 flex justify-between">
+    <div>
+      <div class="text-xl font-bold text-green-600">AGTEK</div>
+      <div id="designerCard" class="text-sm text-slate-700"></div>
+    </div>
+    <div class="flex gap-3">
+      <button id="btnRefreshAll" class="px-3 py-1 bg-sky-600 text-white rounded">Refresh</button>
+      <button id="logoutBtn" class="px-3 py-1 bg-red-500 text-white rounded">Logout</button>
+    </div>
+  </div>
+</header>
+
+<main class="pt-20 max-w-10xl mx-auto px-4">
+  <div class="p-3 bg-green-200 rounded-xl w-1/4 mb-4">
+    <h1 id="pageTitle" class="text-xl font-bold"></h1>
+    <p id="infoLine" class="text-sm"></p>
+  </div>
+  <div id="projectsContainer" class="grid md:grid-cols-3 gap-3"></div>
+</main>
+
+<script>
+const API = { projects: "/projects" };
+const DESIGNER_NAME = localStorage.getItem("selectedDesigner");
+document.getElementById("designerCard").textContent = DESIGNER_NAME;
+document.getElementById("pageTitle").textContent = `Projects for ${DESIGNER_NAME}`;
+
+document.getElementById("btnRefreshAll").onclick = loadProjectsForDesigner;
+
+async function loadProjectsForDesigner() {
+  const res = await fetch(API.projects);
+  const projects = await res.json();
+  const assigned = projects.filter(p => p.overallstatus === DESIGNER_NAME);
+  document.getElementById("infoLine").textContent = `${assigned.length} project(s)`;
+  const box = document.getElementById("projectsContainer");
+  box.innerHTML = "";
+  assigned.forEach(p => box.appendChild(buildProjectCard(p)));
+}
+
+function buildProjectCard(p) {
+  const card = document.createElement("div");
+  card.className = "bg-white p-4 rounded-xl shadow";
+
+  const stageArray = Array.isArray(p.design_stages) ? p.design_stages : [];
+
+  const statusBox = document.createElement("div");
+  statusBox.className = "mt-2 p-2 bg-yellow-100 rounded text-sm";
+
+  const btnRow = document.createElement("div");
+  btnRow.className = "flex gap-2 mt-3";
+
+  const startBtn = button("Start Design", "bg-yellow-600");
+  const plotBtn = button("Add Check Plot", "bg-blue-600");
+  const confirmBtn = button("Confirm", "bg-indigo-600");
+  const draftBtn = button("Move to Drafting", "bg-green-700 hidden");
+
+  function getCurrentCycle() {
+    return stageArray[stageArray.length - 1];
+  }
+
+  function updateUI() {
+    btnRow.innerHTML = "";
+    const cycle = getCurrentCycle();
+
+    if (!cycle) {
+      btnRow.append(startBtn);
+      statusBox.textContent = "Status: Not Started";
+      return;
+    }
+
+    const stages = Object.keys(cycle).filter(k => k.startsWith("stage")).sort();
+    const lastStage = cycle[stages[stages.length - 1]];
+    statusBox.textContent = "Status: " + lastStage;
+
+    if (lastStage.includes("confirmed")) {
+      btnRow.append(draftBtn);
+    } else {
+      btnRow.append(plotBtn, confirmBtn);
+    }
+  }
+
+  startBtn.onclick = async () => {
+    stageArray.push({ sec: stageArray.length + 1, stage1: "Design Start" });
+    await save();
+  };
+
+  plotBtn.onclick = async () => {
+    const cycle = getCurrentCycle();
+    const idx = Object.keys(cycle).filter(k => k.startsWith("stage")).length + 1;
+    cycle["stage" + idx] = `Check Plot ${idx - 1}`;
+    await save();
+  };
+
+  confirmBtn.onclick = async () => {
+    const cycle = getCurrentCycle();
+    const idx = Object.keys(cycle).filter(k => k.startsWith("stage")).length + 1;
+    const today = new Date().toISOString().split("T")[0];
+    cycle["stage" + idx] = `Design confirmed at (${today})`;
+    await save();
+  };
+
+  async function save() {
+    await fetch(`${API.projects}/${p.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ design_stages: stageArray })
+    });
+    updateUI();
+  }
+
+  card.innerHTML = `<div class="font-bold">${p.jobno} - ${p.project_name}</div>`;
+  card.append(statusBox, btnRow);
+  updateUI();
+  return card;
+}
+
+function button(text, cls) {
+  const b = document.createElement("button");
+  b.textContent = text;
+  b.className = `px-3 py-1 text-white rounded ${cls}`;
+  return b;
+}
+
+loadProjectsForDesigner();
+</script>
 </body>
 </html>
-
-
