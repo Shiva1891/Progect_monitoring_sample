@@ -261,16 +261,39 @@
                 stageArray = [];
             }
 
+            updateStatusBox(1);
+
             // Utility: update status box
-            function updateStatusBox() {
+            function updateStatusBox(selectedSec) {
                 if (!stageArray || stageArray.length === 0) {
                     statusBox.textContent = "Status: Not Started";
-                } else {
-                    const last = stageArray[stageArray.length - 1];
-                    const key = Object.keys(last)[0];
-                    statusBox.textContent = `Status: ${last[key]}`;
+                    return;
+                    }
+
+                // Find cycle by sec
+                const cycle = stageArray.find(c => c.sec === selectedSec);
+
+                if (!cycle) {
+                    statusBox.textContent = "Status: Not Started";
+                    return;
+                    }
+
+                // Get last stage key (ignore 'sec')
+                const stageKeys = Object.keys(cycle)
+                    .filter(k => k.startsWith("stage"))
+                    .sort((a, b) => {
+                        return Number(a.replace("stage", "")) - Number(b.replace("stage", ""));
+                        });
+
+                if (stageKeys.length === 0) {
+                    statusBox.textContent = "Status: Not Started";
+                    return;
+                    }
+
+                const lastStageKey = stageKeys[stageKeys.length - 1];
+                statusBox.textContent = `Status: ${cycle[lastStageKey]}`;
                 }
-            }
+
 
             // Utility: show/hide draft button if last stage includes 'confirmed'
             function showDraftButton() {
@@ -334,75 +357,78 @@
 
             // Button behaviors
             startBtn.onclick = async () => {
-                if (stageArray.length > 0) {
-                    showAlert("Design already started");
-                    return;
-                }
-
-                const today = new Date().toISOString().split("T")[0];
-
                 try {
-                    // Auto sequence for design_start_date
-                    p.design_start_date = autoAddWithSequence(
-                        p.design_start_date,
-                        "design_start_date",
-                        today
-                    );
+                    // Prevent starting twice without confirmation
+                    const last = getCurrentCycle();
+                    if (last && Object.values(last).some(v => typeof v === "string" && v.includes("confirmed"))) {
+                        showAlert("Design already confirmed. Start new cycle if needed.");
+                        }
 
-                    // Save start date (PUT to backend)
-                    const res1 = await fetch(`${API.projects}/${p.id}`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ design_start_date: p.design_start_date })
-                    });
+                    const newCycle = {
+                        sec: getNextSec(),
+                        stage1: "Design Start"
+                        };
 
-                    if (!res1.ok) throw new Error("Failed to save start date");
+                    stageArray.push(newCycle);
 
-                    // Push stage1 and save stages
-                    stageArray.push({ stage1: "Design Start" });
                     await saveStagesToServer();
-
-                    showAlert("Design started");
                     renderStages();
 
-                    // Update visible start date
-                    startDisplay.innerHTML = `<b>Start Date:</b> ${formatDateISOtoDDMMYYYY(today)}`;
-
-                    // Reload project list (UI consistent)
-                    await loadProjectsForDesigner();
-
-                } catch (err) {
+                    showAlert(`Design cycle ${newCycle.sec} started`);
+                    } catch (err) {
                     showAlert("Error: " + (err.message || err));
-                }
-            };
+                    }
+                };
+
 
             plotBtn.onclick = async () => {
-                // add next check plot stage
-                const next = (stageArray.length || 0) + 1;
-                const checkIndex = Math.max(1, next - 1); // Check Plot 1 for next=2
-                stageArray.push({ [`stage${next}`]: `Check Plot ${checkIndex}` });
                 try {
+                    const cycle = getCurrentCycle();
+                    if (!cycle) {
+                        showAlert("Start design first");
+                        return;
+                        }
+
+                    const nextStage = getNextStageIndex(cycle);
+                    const plotNo = nextStage - 1;
+
+                    cycle[`stage${nextStage}`] = `Check Plot ${plotNo}`;
+
                     await saveStagesToServer();
                     renderStages();
-                } catch (err) {
+                    } catch (err) {
                     showAlert("Error saving stage: " + (err.message || err));
-                }
-            };
+                    }
+                };
+
 
             confirmBtn.onclick = async () => {
-                // add a confirmed stage (contains 'confirmed')
-                const next = (stageArray.length || 0) + 1;
-                const checkIndex = Math.max(1, next - 2); // meaning confirm previous check plot
-                const today = new Date().toISOString().split("T")[0];
-                stageArray.push({ [`stage${next}`]: `Design confirmed at (${today})` });
                 try {
+                    const cycle = getCurrentCycle();
+                    if (!cycle) {
+                        showAlert("Start design first");
+                        return;
+                        }
+
+                    if (Object.values(cycle).some(v => v.includes("confirmed"))) {
+                        showAlert("This cycle is already confirmed");
+                        return;
+                        }
+
+                    const nextStage = getNextStageIndex(cycle);
+                    const today = new Date().toISOString().split("T")[0];
+
+                    cycle[`stage${nextStage}`] =
+                        `Design confirmed at (${today})`;
+
                     await saveStagesToServer();
                     renderStages();
-                    showAlert("Project confirmed. You can now move to Drafting.");
-                } catch (err) {
+
+                    showAlert(`Design cycle ${cycle.sec} confirmed`);
+                    } catch (err) {
                     showAlert("Error saving confirmation: " + (err.message || err));
-                }
-            };
+                    }
+                };
 
             draftBtn.onclick = async () => {
                 if (!confirm("Move project to DRAFTING?")) return;
@@ -437,6 +463,18 @@
                 }
             };
 
+            function getCurrentCycle() {
+                return stageArray[stageArray.length - 1] || null;
+                }
+
+            function getNextSec() {
+                return stageArray.length + 1;
+                }
+
+            function getNextStageIndex(cycle) {
+                const stageKeys = Object.keys(cycle).filter(k => k.startsWith("stage"));
+                return stageKeys.length + 1;
+                }
 
             //add projects to live
             async function addliveprojects(id) {
@@ -514,4 +552,5 @@
 
 </body>
 </html>
+
 
