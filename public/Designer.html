@@ -334,6 +334,21 @@
             // Button behaviors
             startBtn.onclick = async () => {
                 try {
+                    p.design_start_date = autoAddWithSequence(
+                        p.design_start_date,
+                        "design_start_date",
+                        today
+                        );
+
+                    // Save start date (PUT to backend)
+                    const res1 = await fetch(`${API.projects}/${p.id}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ design_start_date: p.design_start_date })
+                        });
+
+                    if (!res1.ok) throw new Error("Failed to save start date");
+                    
                     const newCycle = {
                         sec: getNextSec(),
                         stage1: "Design Start"
@@ -544,6 +559,7 @@
 
 </body>
 </html>
+
 
 
 
