@@ -240,7 +240,7 @@
             draftBtn.textContent = "Move to Drafting";
 
             // selectedSec: the sec number you want to work with, e.g., 1 by default
-            let selectedSec = 2;
+            let selectedSec = 3;
 
             // Initialize stageArray to only include stages of the selectedSec
             let stageArray = [];
@@ -447,7 +447,17 @@
                 }
 
             function getNextSec() {
-                return stageArray.length + 1;
+                if (!Array.isArray(stageArray) || stageArray.length === 0) {
+                    return 1;
+                    }
+
+                const maxSec = Math.max(
+                    ...stageArray
+                    .map(s => Number(s.sec))
+                    .filter(n => !isNaN(n))
+                    );
+
+                return maxSec + 1;
                 }
 
             function getNextStageIndex(cycle) {
@@ -560,6 +570,7 @@
 
 </body>
 </html>
+
 
 
 
