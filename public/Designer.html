@@ -333,6 +333,7 @@
 
             // Button behaviors
             startBtn.onclick = async () => {
+                const today = new Date().toISOString().split("T")[0];
                 try {
                     p.design_start_date = autoAddWithSequence(
                         p.design_start_date,
@@ -559,6 +560,7 @@
 
 </body>
 </html>
+
 
 
 
