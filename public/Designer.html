@@ -262,7 +262,7 @@
                                 else allStages = JSON.parse(ds);
                             }
                 // Filter stages by selectedSec
-                const cycle = allStages.find(c => c.sec === selectedSec);
+                const cycle = allStages.find(c => c.sec === selectSec);
                 if (cycle) stageArray.push(cycle);
 
                 } catch (err) {
@@ -576,6 +576,7 @@
 
 </body>
 </html>
+
 
 
 
